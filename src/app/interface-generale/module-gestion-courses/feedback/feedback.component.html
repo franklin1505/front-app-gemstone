@@ -1,0 +1,95 @@
+<div class="container centered-content" *ngIf="!loading">
+  <div class="page-container">
+
+    <div *ngIf="feedbackEnvoyeSucces || commentaireEnregistre ; else default">
+      <div class="card mt-3">
+        <div class="card-body text-center">
+          <h3 class="card-title"> 🎉 Merci pour votre feedback </h3>
+          <p class="card-text">Votre avis a été envoyé avec succès. Merci de nous aider à améliorer notre service. À la
+            prochaine !</p>
+          <div>
+            <button pButton pRipple class="p-button-raised" (click)="fermerPage()">Quitter</button>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+
+
+    <ng-template #default>
+
+      <div class="card mb-2">
+        <div class="card-header text-uppercase">
+          <h5>Faite Nous Le Feedback 🌟</h5>
+        </div>
+      </div>
+
+      <div class="card mb-2">
+        <div class="card-header text-uppercase">
+          <!-- Titre pour le client -->
+          <h6 *ngIf="isClient">Votre Avis Compte 💬</h6>
+
+          <!-- Titre pour le chauffeur -->
+          <h6 *ngIf="isChauffeur">Votre Expérience, Notre Progrès 🚀</h6>
+        </div>
+        <div class="card-body">
+          <p *ngIf="isClient">Par rapport à votre course de <strong>{{reservation?.lieuxPriseEnCharge || ""}}</strong> à
+            <strong>{{ reservation?.lieuxDestination || "" }}</strong>, que pensez-vous de la
+            prestation du chauffeur ? Donnez-lui une note et laissez-lui un commentaire d'encouragement ou de
+            recommandation ci-dessous pour qu'il s’améliore. Votre feedback est précieux 💬👍.
+          </p>
+          <p *ngIf="isChauffeur">Concernant votre récente course de <strong>{{ reservation?.lieuxPriseEnCharge || ""
+              }}</strong> à <strong> {{reservation?.lieuxDestination || "" }}</strong>,
+            quel a été votre ressenti avec le passager ? Votre avis est précieux pour nous aider à améliorer nos
+            services. Partagez également vos idées ou fonctionnalités que vous
+            aimeriez voir dans notre application pour rendre votre quotidien plus facile et agréable 😊🛠.</p>
+          <!-- Le reste du formulaire de feedback -->
+        </div>
+      </div>
+      <form [formGroup]="feedbackForm" (ngSubmit)="soumettreFeedback()">
+        <div class="card">
+          <div class="grid p-fluid">
+            <div class="col-12 md:col-12">
+
+
+              <div class="card-header text-uppercase">
+                <h6>Faites-nous votre rapport 📋</h6>
+              </div>
+              <div class="card-body">
+                <div *ngIf="isChauffeur">
+                  <textarea rows="3" id="commentaire_chauffeur" cols="30" placeholder="Votre commentaire..."
+                    formControlName="commentaire_chauffeur" pInputTextarea></textarea>
+                </div>
+                <div *ngIf="isClient">
+                  <div class="my-3">
+                    <span >Noter le chauffeur :</span><br/>
+                    <div class="my-2">
+                      <p-rating formControlName="note_chauffeur" [stars]="10" />
+                    </div>
+
+                  </div>
+                  <textarea rows="3" id="commentaire_client" cols="30" placeholder="Votre commentaire..."
+                    formControlName="commentaire_client" pInputTextarea></textarea>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="card-footer">
+            <button pButton pRipple type="submit" class="p-button-raised" [disabled]="!feedbackForm.valid">
+              Soumettre le Feedback
+            </button>
+          </div>
+        </div>
+
+
+      </form>
+
+
+    </ng-template>
+  </div>
+</div>
+
+<div class="loader-container" *ngIf="loading">
+  <p-progressSpinner class="spinner-size spinner-style" />
+</div>

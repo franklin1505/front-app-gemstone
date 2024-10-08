@@ -1,0 +1,65 @@
+<div class="w-full" *ngIf="!loading">
+  <div class="card-w-title mb-2">
+    <p-breadcrumb [model]="breadcrumbItems"
+      [home]="{ icon: 'pi pi-home', command: navigateToDashboard }"></p-breadcrumb>
+  </div>
+
+  <!-- No data message -->
+  <div *ngIf="factures && factures.length === 0">
+    <div class="card">
+      <div class="card-w-title mb-4">
+        <h5 class="my-4 text-center">{{ messageNoData }}</h5>
+      </div>
+    </div>
+  </div>
+
+  <!-- Facture List -->
+  <div *ngIf="factures && factures.length > 0">
+    <div class="grid">
+      <ng-container *ngFor="let facture of factures">
+        <div class="col-12 lg:col-6 xl:col-6 mb-1">
+          <div class="card card-custom">
+            <div class="card-body">
+              <div class="header-row">
+                <!--
+                <p-checkbox [(ngModel)]="facture.selected" [binary]="true" inputId="binary"></p-checkbox>-->
+                <div></div>
+                <div class="top-end-tags">
+                  <p-tag [severity]="getStatusTag(facture).severity"
+                    [value]="getStatusTag(facture).value | titlecase"></p-tag>
+                </div>
+              </div>
+              <div class="facture-details clickable" routerLink="/app/factures/gestion-facture/{{ facture.id }}">
+                <span><strong>Numéro de Facture :</strong> {{ facture.numeroFacture }}</span>
+                <span><strong>Date d'émission :</strong> {{ facture.dateEmission | date: "dd MMM yyyy" }}</span>
+                <span><strong>Date d'échéance :</strong> {{ facture.dateEcheance | date: "dd MMM yyyy" }}</span>
+                <span><strong>Méthode de paiement :</strong> {{ facture.methodePaiement }}</span>
+                <span><strong>Total HT :</strong> {{ facture.totalHT | currency: 'EUR' }}</span>
+                <span><strong>Total TVA :</strong> {{ facture.totalTVA | currency: 'EUR' }}</span>
+                <span><strong>Total TTC :</strong> {{ facture.totalTTC | currency: 'EUR' }}</span>
+                <span *ngIf="facture.client">
+                  <strong>Client :</strong> {{ facture.client.last_name }}
+                  <small *ngIf="facture.client.first_name !== 'XXXXX'" class="enlarged-small">
+                    {{ facture.client.first_name }}
+                  </small>
+                </span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </ng-container>
+    </div>
+  </div>
+
+  <!-- Pagination -->
+  <div class="card flex justify-content-center" *ngIf="totalRecords > 0">
+    <p-paginator (onPageChange)="onPageChange($event)" [first]="(currentPage - 1) * pageSize" [rows]="pageSize"
+      [totalRecords]="totalRecords">
+    </p-paginator>
+  </div>
+</div>
+
+<!-- Loader -->
+<div class="loader-container" *ngIf="loading">
+  <p-progressSpinner class="spinner-size spinner-style"></p-progressSpinner>
+</div>

@@ -1,0 +1,144 @@
+<div class="w-full">
+  <div class="card-w-title mb-2">
+    <p-breadcrumb [model]="breadcrumbItems" [home]="{icon: 'pi pi-home', command: navigateToDashboard}"></p-breadcrumb>
+  </div>
+
+  <div class="card">
+    <h5>Statistiques de vos réservations</h5>
+    <div class="grid">
+      <!-- Réservations aujourd'hui -->
+      <div class="col-12 lg:col-6 xl:col-6"
+        *ngIf="userType === 'administrateur' || userType === 'chauffeur' || userType === 'partenaire' || userType === 'client'">
+        <div class="card mb-0 clickable-card" (click)="navigateWithQuery('today')">
+          <div class="flex justify-content-between mb-2">
+            <div>
+              <span class="block text-500 font-medium mb-2">Réservations aujourd'hui</span>
+              <div class="text-900 font-medium text-xl">{{ resultCount.today }}</div>
+            </div>
+            <div class="flex align-items-center justify-content-center bg-blue-100 border-round"
+              [ngStyle]="{width: '2.5rem', height: '2.5rem'}">
+              <i class="pi pi-calendar text-blue-500 text-xl"></i>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Réservations futures -->
+      <div class="col-12 lg:col-6 xl:col-6"
+        *ngIf="userType === 'administrateur' || userType === 'chauffeur' || userType === 'partenaire' || userType === 'client'">
+        <div class="card mb-0 clickable-card" (click)="navigateWithQuery('afterToday')">
+          <div class="flex justify-content-between mb-2">
+            <div>
+              <span class="block text-500 font-medium mb-2">Réservations futures</span>
+              <div class="text-900 font-medium text-xl">{{ resultCount.afterToday }}</div>
+            </div>
+            <div class="flex align-items-center justify-content-center bg-green-100 border-round"
+              [ngStyle]="{width: '2.5rem', height: '2.5rem'}">
+              <i class="pi pi-calendar text-green-500 text-xl"></i>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Total des réservations -->
+      <div class="col-12 lg:col-6 xl:col-6"
+        *ngIf="userType === 'administrateur' || userType === 'chauffeur' || userType === 'partenaire' || userType === 'client'">
+        <div class="card mb-0 clickable-card" (click)="navigateWithQuery('total')">
+          <div class="flex justify-content-between mb-2">
+            <div>
+              <span class="block text-500 font-medium mb-2">Total des réservations</span>
+              <div class="text-900 font-medium text-xl">{{ resultCount.total }}</div>
+            </div>
+            <div class="flex align-items-center justify-content-center bg-teal-100 border-round"
+              [ngStyle]="{width: '2.5rem', height: '2.5rem'}">
+              <i class="pi pi-chart-bar text-teal-500 text-xl"></i>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Réservations passées -->
+      <div class="col-12 lg:col-6 xl:col-6"
+        *ngIf="userType === 'administrateur' || userType === 'chauffeur' || userType === 'partenaire' || userType === 'client'">
+        <div class="card mb-0 clickable-card" (click)="navigateWithQuery('beforeToday')">
+          <div class="flex justify-content-between mb-2">
+            <div>
+              <span class="block text-500 font-medium mb-2">Réservations passées</span>
+              <div class="text-900 font-medium text-xl">{{ resultCount.beforeToday }}</div>
+            </div>
+            <div class="flex align-items-center justify-content-center bg-orange-100 border-round"
+              [ngStyle]="{width: '2.5rem', height: '2.5rem'}">
+              <i class="pi pi-calendar text-orange-500 text-xl"></i>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Réservations réglées -->
+      <div class="col-12 lg:col-6 xl:col-6" *ngIf="userType === 'chauffeur'|| userType === 'partenaire'">
+        <div class="card mb-0 clickable-card" (click)="navigateWithQuery('reglees')">
+          <div class="flex justify-content-between mb-2">
+            <div>
+              <span class="block text-500 font-medium mb-2">Réservations traités et réglées</span>
+              <div class="text-900 font-medium text-xl">{{ resultCount.reglees_count }}</div>
+            </div>
+            <div class="flex align-items-center justify-content-center bg-yellow-100 border-round"
+              [ngStyle]="{width: '2.5rem', height: '2.5rem'}">
+              <i class="pi pi-check-circle text-yellow-500 text-xl"></i>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Réservations non réglées -->
+      <div class="col-12 lg:col-6 xl:col-6" *ngIf="userType === 'chauffeur'|| userType === 'partenaire'">
+        <div class="card mb-0 clickable-card" (click)="navigateWithQuery('non_reglees')">
+          <div class="flex justify-content-between mb-2">
+            <div>
+              <span class="block text-500 font-medium mb-2">Réservations traitées non payées</span>
+              <div class="text-900 font-medium text-xl">{{ resultCount.non_reglees_count }}</div>
+            </div>
+            <div class="flex align-items-center justify-content-center bg-red-100 border-round"
+              [ngStyle]="{width: '2.5rem', height: '2.5rem'}">
+              <i class="pi pi-times-circle text-red-500 text-xl"></i>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Réservations annulées -->
+      <div class="col-12 lg:col-6 xl:col-6" *ngIf="userType === 'administrateur' || userType === 'client'">
+        <div class="card mb-0 clickable-card" (click)="navigateWithQuery('cancelled')">
+          <div class="flex justify-content-between mb-2">
+            <div>
+              <span class="block text-500 font-medium mb-2">Réservations annulées</span>
+              <div class="text-900 font-medium text-xl">{{ resultCount.cancelled }}</div>
+            </div>
+            <div class="flex align-items-center justify-content-center bg-red-100 border-round"
+              [ngStyle]="{width: '2.5rem', height: '2.5rem'}">
+              <i class="pi pi-calendar-times text-red-500 text-xl"></i>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Réservations archivées -->
+      <div class="col-12 lg:col-6 xl:col-6" *ngIf="userType === 'administrateur'">
+        <div class="card mb-0 clickable-card" (click)="navigateWithQuery('archived')">
+          <div class="flex justify-content-between mb-2">
+            <div>
+              <span class="block text-500 font-medium mb-3">Réservations archivées</span>
+              <div class="text-900 font-medium text-xl">{{ resultCount.archived }}</div>
+            </div>
+            <div class="flex align-items-center justify-content-center bg-purple-100 border-round"
+              [ngStyle]="{width: '2.5rem', height: '2.5rem'}">
+              <i class="pi pi-folder text-purple-500 text-xl"></i>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+
+</div>

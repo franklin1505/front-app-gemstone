@@ -1,0 +1,24 @@
+/* Conteneur principal pour centrer le contenu */
+.container {
+  display: flex;
+  justify-content: center;
+  width: 100%;
+  padding: 0 15px; /* Pour éviter que le contenu touche les bords sur mobile */
+  box-sizing: border-box; /* Inclure le padding dans la largeur totale */
+  margin-top: 25px; /* Ajouter un espacement supérieur pour décoller du top */
+}
+
+/* Style par défaut pour page-container (mobile) */
+.page-container {
+  width: 100%;
+  max-width: 100%;
+  box-sizing: border-box; /* Pour inclure le padding dans la largeur totale */
+}
+
+/* Style pour les écrans de taille moyenne et supérieure (ordinateur) */
+@media (min-width: 768px) {
+  .page-container {
+    max-width: 60%; /* Correspond à col-8 en Bootstrap */
+    box-sizing: border-box; /* Inclure le padding dans la largeur totale */
+  }
+}

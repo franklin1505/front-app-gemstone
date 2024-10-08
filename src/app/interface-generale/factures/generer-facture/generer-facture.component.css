@@ -1,0 +1,26 @@
+.header-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1rem;
+}
+
+.top-end-tags {
+  display: flex;
+  gap: 5px;
+}
+
+.custom-flex {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.custom-flex span {
+  flex-grow: 1;
+}
+
+.custom-flex p-tag {
+  flex-shrink: 0;
+  margin-left: 5px;
+}

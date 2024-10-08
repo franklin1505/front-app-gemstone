@@ -1,0 +1,669 @@
+<div class="w-full" *ngIf="!loading">
+  <div class="card-w-title mb-2">
+    <p-breadcrumb [model]="breadcrumbItems" [home]="{icon: 'pi pi-home', command: navigateToDashboard}"></p-breadcrumb>
+  </div>
+  <div class="card-w-title mb-2">
+    <div class="desktop-only">
+      <p-toolbar>
+        <div class="p-toolbar-group-start">
+          <p-splitButton *ngIf="userType === 'administrateur' || userType === 'client'" label="Opérations"
+            [model]="items" raised severity="secondary" />
+        </div>
+        <div class="p-toolbar-group-end">
+          <!-- Div visible uniquement sur ordinateur -->
+          <span class="p-input-icon-left">
+            <p-dropdown [options]="filterItems" placeholder="Choisir le filtrage" [showClear]="true"
+              [(ngModel)]="selectedFilterKey">
+            </p-dropdown>
+            <input pInputText placeholder="Search" [(ngModel)]="filterValue" [type]="getInputType()" />
+          </span>
+          <p-button icon="pi pi-search" severity="primary" [outlined]="true" (click)="getReservationsFiltre()">
+          </p-button>
+        </div>
+      </p-toolbar>
+    </div>
+    <div class="mobile-only">
+      <div class="p-toolbar justify-content-center">
+        <div class="-m-2 mx-3 mb-1">
+          <div class="mobile-only">
+            <p-dropdown [options]="filterItems" placeholder="Choisir le filtrage" [showClear]="true"
+              [(ngModel)]="selectedFilterKey" [style]="{'width': '21em'}" class="mb-1">
+            </p-dropdown>
+            <span class="p-input-icon-left my-1">
+              <input pInputText placeholder="Search" [(ngModel)]="filterValue" [type]="getInputType()"
+                [style]="{'width': '18em'}" />
+              <p-button icon="pi pi-search" severity="primary" [outlined]="true" (click)="getReservationsFiltre()">
+              </p-button>
+
+            </span>
+          </div>
+        </div>
+        <p-splitButton [style]="{'width': '21em'}" *ngIf="userType === 'administrateur' || userType === 'client'"
+          label="Opérations" [model]="items" severity="secondary" raised />
+      </div>
+    </div>
+  </div>
+
+  <div *ngIf="reservations && reservations.length > 0; else noData">
+    <div class="grid">
+      <ng-container *ngFor="let reservation of reservations">
+        <div class="col-12 lg:col-6 xl:col-6 mb-1">
+          <div class="card card-custom">
+            <div class="card-body">
+              <div class="header-row">
+                <div *ngIf="userType === 'administrateur' || userType === 'client';else nocheck">
+                  <p-checkbox [(ngModel)]="reservation.selected" [binary]="true" inputId="binary"
+                    (onChange)="onCheckboxChange(reservation.id, reservation.utilisateur?.id, $event)"></p-checkbox>
+                </div>
+                <ng-template #nocheck>
+                  <div></div>
+                </ng-template>
+                <div class="top-end-tags">
+                  <div *ngIf="userType === 'administrateur' || userType === 'client'; else noTag">
+                    <ng-container *ngIf="reservation.statut_facturation">
+                      <p-tag [severity]="getTagSeverity(reservation.statut_facturation, 'facturation')"
+                        [value]="getRibbonText(reservation.statut_facturation)">
+                      </p-tag>
+                    </ng-container>
+                    <ng-container *ngIf="reservation.statut_annulation !== 'pas_annule'">
+                      <p-tag [severity]="getTagSeverity(reservation.statut_annulation, 'annulation')"
+                        [value]="getAnnulationRibbonText(reservation.statut_annulation)">
+                      </p-tag>
+                    </ng-container>
+                  </div>
+
+                  <ng-template #noTag>
+                    <ng-container *ngIf="userType === 'chauffeur' || userType === 'partenaire'">
+                      <p-tag *ngIf="userType === 'chauffeur' && reservation.is_regler !== null"
+                        [severity]="getTag(reservation.is_regler)" [value]="getText(reservation.is_regler)">
+                      </p-tag>
+                      <p-tag *ngIf="userType === 'partenaire' && reservation.is_reglerPartenaire !== null"
+                        [severity]="getTag(reservation.is_reglerPartenaire)"
+                        [value]="getText(reservation.is_reglerPartenaire)">
+                      </p-tag>
+                    </ng-container>
+                  </ng-template>
+
+
+                </div>
+              </div>
+              <div class="reservation-details clickable" routerLink="/app/reservations/detail/{{ reservation.id }}">
+                <span><strong>Date :</strong> {{ reservation.datePriseEnCharge | date: "MMM, dd yyyy à HH:mm" }}</span>
+                <span><strong>Départ :</strong> {{ reservation.lieuxPriseEnCharge }}</span>
+                <span><strong>Arrivé :</strong> {{ reservation.lieuxDestination }}</span>
+                <span><strong>Type de véhicule :</strong> {{ reservation.typeReservation }}</span>
+
+                <ng-container *ngIf="userType === 'administrateur' || userType === 'client'">
+                  <span><strong>Tarif :</strong> {{ reservation.coutTotalReservation | currency: 'EUR' }}</span>
+                </ng-container>
+                <ng-container *ngIf="userType === 'chauffeur'">
+                  <span><strong>Tarif de vente:</strong> {{ reservation.coutDeVente | currency: 'EUR' }}</span>
+                  <span *ngIf="reservation?.modePaiement === 'payement_abord'"><strong>Tarif de la course :</strong>
+                    {{ reservation.coutTotalReservation | currency: 'EUR' }}</span>
+                </ng-container>
+                <ng-container *ngIf="userType === 'partenaire'">
+                  <span *ngIf="reservation?.coutDeVente"><strong>Tarif chauffeur:</strong> {{ reservation.coutDeVente |
+                    currency: 'EUR' }}</span>
+                  <span *ngIf="reservation?.prixVentePartenaire"><strong>Tarif de vente partenaire:</strong> {{
+                    reservation.prixVentePartenaire | currency: 'EUR' }}</span>
+                  <span *ngIf="reservation?.modePaiement === 'payement_abord'"><strong>Tarif de la course :</strong>
+                    {{ reservation.coutTotalReservation | currency: 'EUR' }}</span>
+                </ng-container>
+
+                <div *ngIf="reservation.societe">
+                  <span><strong>Société :</strong> {{ reservation.societe }}</span>
+                </div>
+                <div *ngIf="reservation.linked_info">
+                  <ng-container *ngIf="reservation.linked_info.cle_agence; else societeInfo">
+                    <span><strong>Agence :</strong> {{ reservation.linked_info.nom }}</span>
+                  </ng-container>
+                  <ng-template #societeInfo>
+                    <ng-container *ngIf="reservation.linked_info.cle_societe">
+                      <span><strong>Société :</strong> {{ reservation.linked_info.nom }}</span>
+                    </ng-container>
+                  </ng-template>
+                </div>
+                <span *ngIf="reservation.utilisateur">
+                  <strong>Client :</strong> {{ reservation.utilisateur.last_name }}
+                  <small *ngIf="reservation.utilisateur.first_name !== 'XXXXX'" class="enlarged-small">{{
+                    reservation.utilisateur.first_name }}</small>
+                </span>
+                <span *ngIf="reservation.lieu_rendez_vous">
+                  <strong>Lieu rendez vous :</strong> {{ reservation.lieu_rendez_vous }}
+                </span>
+                <p-tag [severity]="getStatusTag(reservation).severity"
+                  [value]="getStatusTag(reservation).value"></p-tag>
+              </div>
+              <div class="flex justify-content-start mt-2" *ngIf="userType === 'partenaire'">
+                <ng-container *ngIf="reservation.etat">
+                  <p-splitButton label="Options" [model]="reservation.menuItems" [style]="{'width': '9em'}"
+                    icon="pi pi-fw pi-list" size="small"></p-splitButton>
+
+                  <p-button label="{{ reservation.statutReservation !== 'en_attente' ? 'Réaffecter' : 'Affecter' }}"
+                    severity="warning" size="small" class="mx-1"
+                    (click)="choisirAction('direct', reservation)"></p-button>
+                </ng-container>
+              </div>
+              <div class="flex justify-content-start mt-2" *ngIf="userType === 'client'">
+                <ng-container *ngIf="!reservation.etat">
+                  <p-button label="Demande de Restauration" (click)="showRestoreDialog(reservation)"
+                    icon="pi pi-fw pi-undo" severity="info" size="small" class="mx-1"></p-button>
+                </ng-container>
+              </div>
+              <div class="flex justify-content-start mt-2" *ngIf="userType === 'administrateur'">
+                <!-- Bouton Restaurer si les conditions sont remplies -->
+                <ng-container
+                  *ngIf="!reservation.is_recurring && !reservation.reservation_origine && !reservation.etat">
+                  <p-button label="Restaurer" icon="pi pi-fw pi-undo" severity="info" size="small" class="mx-1"
+                    (click)="restaurerAnnulerReservation(reservation.id, 'restore')"></p-button>
+                </ng-container>
+
+                <ng-container
+                  *ngIf="(reservation.is_recurring || reservation.reservation_origine) && !reservation.etat">
+
+                  <p-button (click)="confirmPropagation($event, reservation.id)" label="Restaurer"
+                    icon="pi pi-fw pi-undo" size="small" class="mx-1" severity="info" />
+                </ng-container>
+
+                <!-- p-splitButton et Affecter/Réaffecter cachés si l'un des boutons Restaurer est affiché -->
+                <ng-container *ngIf="reservation.etat">
+                  <p-splitButton label="Options" [model]="reservation.menuItems" [style]="{'width': '9em'}"
+                    icon="pi pi-fw pi-list" size="small"></p-splitButton>
+
+                  <p-button label="{{ reservation.statutReservation !== 'en_attente' ? 'Réaffecter' : 'Affecter' }}"
+                    severity="warning" size="small" class="mx-1"
+                    (click)="choisirAction('direct', reservation)"></p-button>
+                </ng-container>
+              </div>
+            </div>
+          </div>
+        </div>
+      </ng-container>
+    </div>
+  </div>
+
+  <div class="card flex justify-content-center">
+    <p-paginator (onPageChange)="onPageChange($event)" [first]="first" [rows]="rows" [totalRecords]="totalPages * rows">
+    </p-paginator>
+  </div>
+
+</div>
+
+<div class="loader-container" *ngIf="loading">
+  <p-progressSpinner class="spinner-size spinner-style" />
+</div>
+
+<ng-template #noData>
+  <div class="card">
+    <div class="card-w-title mb-4">
+      <h5 class="my-4 text-center">{{ messageNoData }}</h5>
+    </div>
+  </div>
+</ng-template>
+
+<!-- les dialogs  -->
+<p-dialog header="Charger Les Courses Via Fichier Excel." [modal]="true" [(visible)]="visible"
+  [style]="{ width: 'auto' }">
+  <div class="flex align-items-center gap-3 mb-3">
+    <p-fileUpload (onSelect)="onFileSelect($event)" (uploadHandler)="onUpload()" [customUpload]="true"
+      accept=".xls,.xlsx" maxFileSize="10000000" chooseLabel="Choisir un fichier" uploadLabel="Télécharger"
+      cancelLabel="Annuler">
+    </p-fileUpload>
+  </div>
+</p-dialog>
+
+<p-dialog header="Course retour" [modal]="true" [(visible)]="isCourseRetourVisible" [style]="{ width: '35rem' }"
+  [breakpoints]="{ '1199px': '35vw', '575px': '90vw' }">
+  <form [formGroup]="courseRetourForm" class="p-fluid grid formgrid">
+    <!-- Départ -->
+    <div class="field col-12 lg:col-6">
+      <label for="lieuxPriseEnChargeInput" class="block text-900 font-medium mb-2">Départ</label>
+      <input id="lieuxPriseEnChargeInput" type="text" pInputText class="w-full mb-3" readonly formControlName="depart">
+    </div>
+
+    <!-- Arrivé -->
+    <div class="field col-12 lg:col-6">
+      <label for="lieuxDestinationInput" class="block text-900 font-medium mb-2">Arrivé</label>
+      <input id="lieuxDestinationInput" type="text" pInputText class="w-full mb-3" readonly formControlName="arrive">
+    </div>
+    <!-- Date et Heure -->
+    <div class="field col-12 lg:col-6">
+      <label for="datePriseEnChargeDate" class="block text-900 font-medium mb-2">Date</label>
+      <input id="datePriseEnChargeDate" type="date" pInputText class="w-full mb-3"
+        formControlName="datePriseEnChargeDate">
+    </div>
+
+    <div class="field col-12 lg:col-6">
+      <label for="datePriseEnChargeTime" class="block text-900 font-medium mb-2">Heure</label>
+      <p-calendar formControlName="datePriseEnChargeTime" [iconDisplay]="'input'" [showIcon]="true" [timeOnly]="true"
+        class="w-full mb-3" inputId="datePriseEnChargeTime">
+        <ng-template pTemplate="inputicon" let-clickCallBack="clickCallBack">
+          <i class="pi pi-clock pointer-events-none" (click)="clickCallBack($event)"></i>
+        </ng-template>
+      </p-calendar>
+    </div>
+    <!-- Lieu de Rendez-vous -->
+    <div class="field col-12">
+      <label for="lieuRendezVousInput" class="block text-900 font-medium mb-2">Lieu rendez-vous</label>
+      <input id="lieuRendezVousInput" placeholder="lieu RDV chauffeur-client" type="text" pInputText class="w-full mb-3"
+        formControlName="lieu_rendez_vous" (focus)=" Autocomplete()">
+    </div>
+    <!-- Tarif -->
+    <div class="field col-12">
+      <label for="coutTotalReservation" class="block text-900 font-medium mb-2">Tarif (€)</label>
+      <input id="coutTotalReservation" type="text" pInputText class="w-full mb-3"
+        formControlName="coutTotalReservation">
+    </div>
+  </form>
+
+  <div class="flex justify-content-end gap-2">
+    <p-button label="Annuler" size="small" severity="secondary" (onClick)="isCourseRetourVisible = false" />
+    <p-button label="Creer " size="small" (click)="creerReservationRetour()" [disabled]="courseRetourForm.invalid" />
+  </div>
+</p-dialog>
+
+<p-dialog header="Dupliquer la course" [modal]="true" [(visible)]="isCourseDuppliquerVisible"
+  [style]="{ width: '70rem' }" [breakpoints]="{ '1199px': '75vw', '575px': '90vw' }">
+  <form [formGroup]="reserverForm" class="p-fluid grid formgrid">
+
+    <!-- Ligne 1: Nº réservation, Distance, Durée -->
+    <div class="field col-12 lg:col-4">
+      <label for="numReservation" class="mb-2 capitalize">nº réservation</label>
+      <input pInputText id="numReservation" placeholder="Inconnue" [disabled]="true" />
+    </div>
+    <div class="field col-12 lg:col-4">
+      <label for="distance" class="mb-2 capitalize">distance (km)</label>
+      <input pInputText id="distance" formControlName="distance" readonly />
+    </div>
+    <div class="field col-12 lg:col-4">
+      <label for="duree" class="mb-2 capitalize">durée</label>
+      <input pInputText id="duree" formControlName="duree" readonly />
+    </div>
+
+    <!-- Ligne 2: LIEU DE PRISE EN CHARGE -->
+    <div class="field col-12 lg:col-6">
+      <label for="lieuxPriseEnChargeInput" class="mb-1 capitalize">lieu de prise en charge</label>
+      <input pInputText id="lieuxPriseEnChargeInput" formControlName="lieuxPriseEnCharge" readonly class="w-full" />
+    </div>
+
+    <!-- Ligne 3: LIEU DE DESTINATION -->
+    <div class="field col-12 lg:col-6">
+      <label for="lieuxDestinationInput" class="mb-1 capitalize">lieu de destination</label>
+      <input pInputText id="lieuxDestinationInput" formControlName="lieuxDestination" readonly class="w-full" />
+    </div>
+
+    <!-- Ligne 4: VÉHICULE -->
+    <div class="field col-12 lg:col-6">
+      <label for="vehiculeView" class="mb-1 capitalize">véhicule</label>
+      <input pInputText id="vehiculeView" formControlName="vehiculeView" readonly class="w-full" />
+    </div>
+
+    <!-- Ligne 5: DATE DE PRISE EN CHARGE, HEURE DE PRISE EN CHARGE -->
+    <div class="field col-12 lg:col-6">
+      <label for="datePriseEnChargeDate" class="mb-2 capitalize">date de prise en charge</label>
+      <input pInputText type="date" id="datePriseEnChargeDate" formControlName="datePriseEnChargeDate" />
+    </div>
+    <div class="field col-12 lg:col-6">
+      <label for="datePriseEnChargeTime" class="mb-2 capitalize">heure de prise en charge</label>
+      <p-calendar formControlName="datePriseEnChargeTime" [iconDisplay]="'input'" [showIcon]="true" [timeOnly]="true"
+        inputId="datePriseEnChargeTime" class="w-full">
+        <ng-template pTemplate="inputicon" let-clickCallBack="clickCallBack">
+          <i class="pi pi-clock pointer-events-none" (click)="clickCallBack($event)"></i>
+        </ng-template>
+      </p-calendar>
+    </div>
+
+    <!-- Ligne 6: CLIENT -->
+    <div class="field col-12 lg:col-6">
+      <label for="utilisateur" class="mb-1 capitalize">client</label>
+      <p-dropdown id="utilisateur" [options]="clients" formControlName="utilisateur" optionLabel="label" [filter]="true"
+        filterBy="label" [showClear]="true" placeholder="Choisissez un client" class="w-20rem">
+        <ng-template pTemplate="selectedItem" let-selectedOption>
+          <div class="flex align-items-center gap-2">
+            <div>{{ selectedOption.label }}</div>
+          </div>
+        </ng-template>
+      </p-dropdown>
+    </div>
+
+    <!-- Ligne 7: Nombre de passagers, Nombre de bagages, Type de bagages -->
+    <div class="field col-12 lg:col-4" *ngIf="vehiculeData">
+      <label for="nombrePassager" class="mb-1 capitalize">nombre de passagers</label>
+      <p-dropdown id="nombrePassager" [options]="generateOptions(vehiculeData.capacite_passagers)"
+        formControlName="nombrePassager" optionLabel="value" placeholder="Sélectionnez un nombre" />
+    </div>
+    <div class="field col-12 lg:col-4">
+      <label for="nbre" class="mb-1 capitalize">nombre de bagages</label>
+      <p-dropdown id="nbre" [options]="generateOptions(capaciteChargement)" formControlName="nbre" optionLabel="value"
+        placeholder="Choisissez le nombre" />
+    </div>
+    <div class="field col-12 lg:col-4">
+      <label for="typeBagages" class="mb-1 capitalize">type de bagages</label>
+      <input pInputText type="text" class="ml-2" id="typeBagages" [value]="type_bagages" disabled />
+    </div>
+
+    <div formArrayName="passengers" class="col-12">
+      <div *ngFor="let passenger of passengers.controls; let i = index" [formGroupName]="i" class="field">
+        <label for="name" class="form-label">Passager <span *ngIf="i === 0" class="text-primary-400">(Passager
+            Principal)</span></label>
+        <div style="display: flex; align-items: center; gap: 10px;">
+          <input pInputText id="name" formControlName="name" placeholder="Nom" style="flex: 1;" />
+          <input pInputText id="phone" formControlName="phone" placeholder="Numéro de téléphone" style="flex: 1;" />
+          <button type="button" pButton icon="pi pi-trash" class="p-button-danger p-button-sm"
+            style="flex-shrink: 0;"></button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Ligne 11: Ajouter des passagers -->
+    <div class="field col-12 ">
+      <p-button icon="pi pi-users" label="Ajouter des passagers" severity="secondary" (click)="addPassenger()" />
+    </div>
+    <!-- Ligne 8: Numéro de Vol/Train, Mode de paiement -->
+    <div class="field col-12 lg:col-6">
+      <label for="compagnieAerienne" class="mb-1 capitalize">numéro de vol/train</label>
+      <input pInputText id="compagnieAerienne" formControlName="compagnieAerienne" placeholder="Numéro de vol/train" />
+    </div>
+    <div class="field col-12 lg:col-6">
+      <label for="modePaiement" class="mb-1 capitalize">mode de paiement</label>
+      <p-dropdown id="modePaiement" [options]="paymentMethods" formControlName="modePaiement" optionLabel="label"
+        placeholder="Choisissez la méthode" />
+    </div>
+
+    <!-- Ligne 9: NOTE -->
+    <div class="field col-12">
+      <label for="note" class="my-2 capitalize text-900 font-medium">Note</label>
+      <textarea rows="5" cols="30" pInputTextarea formControlName="note" placeholder="Entrer votre note"
+        class="w-full p-3 border-1 border-round surface-border"
+        style="border-color: #ced4da; resize: none; font-size: 14px;">
+      </textarea>
+    </div>
+
+
+    <div class="field col-12 lg:col-6">
+      <label for="lieuRendezVousInput" class="block capitalize">lieu rendez-vous</label>
+      <input id="lieuRendezVousInput" type="text" pInputText class="w-full mb-3" formControlName="lieu_rendez_vous" />
+    </div>
+
+    <!-- Ligne 12: Numéro de Dossier -->
+    <div class="field col-12 lg:col-6">
+      <label for="numeroDossier" class="mb-1 capitalize">numéro de dossier</label>
+      <input pInputText id="numeroDossier" formControlName="numero_dossier" placeholder="Numéro de dossier" />
+    </div>
+
+    <!-- Ligne 13: COÛT DU TRAJET, COÛT MAJORÉ, COÛT SUPPLÉMENTS -->
+    <div class="field col-12 lg:col-4">
+      <label for="coutTransport" class="mb-1 capitalize">coût du trajet (€)</label>
+      <p-inputNumber id="coutTransport" formControlName="coutTransport" inputId="locale-user" [minFractionDigits]="2" />
+    </div>
+    <div class="field col-12 lg:col-4">
+      <label for="coutMajorer" class="mb-1 capitalize">coût majoré (€)</label>
+      <p-inputNumber id="coutMajorer" formControlName="coutMajorer" inputId="locale-user" [minFractionDigits]="2" />
+    </div>
+    <div class="field col-12 lg:col-4">
+      <label for="totalAttributCost" class="mb-1 capitalize">coût suppléments (€)</label>
+      <p-inputNumber id="totalAttributCost" formControlName="totalAttributCost" inputId="locale-user"
+        [minFractionDigits]="2" />
+    </div>
+
+    <!-- Ligne 14: Coût total de la réservation(€) -->
+    <div class="field col-12">
+      <label for="coutTotalReservation" class="mb-1 capitalize">coût total de la réservation (€)</label>
+      <p-inputNumber id="coutTotalReservation" formControlName="coutTotalReservation" readonly inputId="locale-user"
+        [minFractionDigits]="2" class="w-full" />
+    </div>
+  </form>
+
+  <!-- Boutons Annuler et Dupliquer -->
+  <div class="flex justify-content-end gap-2">
+    <p-button label="Annuler" size="small" severity="secondary" (click)="isCourseDuppliquerVisible = false" />
+    <p-button label="Dupliquer" size="small" (click)="dupliquer()" [disabled]="reserverForm.invalid" />
+  </div>
+</p-dialog>
+
+
+<p-dialog header="Réservation récurrente" [modal]="true" [(visible)]="isCourseReppeterVisible"
+  [style]="{ width: '40rem' }" [breakpoints]="{ '1199px': '75vw', '575px': '90vw' }">
+  <form [formGroup]="eventForm">
+    <!-- Date et Heure sur la même ligne -->
+    <div class="flex flex-wrap gap-2 p-fluid mb-4">
+      <div class="flex-auto">
+        <label for="numReservation" class="mb-2 capitalize">Date</label>
+        <input pInputText id="datePriseEnCharge" formControlName="datePriseEnCharge" readonly />
+      </div>
+      <div class="flex-auto">
+        <label for="duree" class="mb-2 capitalize">Heure</label>
+        <input pInputText id="heurePriseEnCharge" formControlName="heurePriseEnCharge" readonly />
+      </div>
+    </div>
+
+    <div class="flex flex-wrap gap-2 p-fluid mb-4">
+      <div class="flex-auto">
+        <label for="nombreOccurrences" class="mb-1 capitalize">Nombre de repetition</label>
+        <p-inputGroup class="w-full">
+          <p-inputNumber id="nombreOccurrences" formControlName="nombreOccurrences" />
+          <p-inputGroupAddon>occurrences</p-inputGroupAddon>
+        </p-inputGroup>
+      </div>
+    </div>
+    <!-- Règle de répétition avec sélection par défaut -->
+
+    <div class="flex flex-wrap gap-2 p-fluid mb-4">
+      <div class="flex-auto">
+        <label for="nombreOccurrences" class="mb-1 capitalize">Règle de répétition</label>
+        <p-dropdown id="regleRepetition" [options]="repetitionOptions" formControlName="regleRepetition"
+          placeholder="Sélectionnez une règle" (onChange)="handleRepetitionChange($event)" appendTo="body">
+        </p-dropdown>
+
+      </div>
+    </div>
+
+  </form>
+  <!-- Boutons Annuler et Dupliquer -->
+  <div class="flex justify-content-end gap-2">
+    <p-button label="Annuler" size="small" severity="secondary" (click)="isCourseReppeterVisible = false" />
+    <p-button label="Créer" size="small" (click)="submitForm()" [disabled]="eventForm.invalid" />
+  </div>
+</p-dialog>
+
+<p-dialog header="Custom Réservation récurrente" [modal]="true" [(visible)]="isCustom" [style]="{ width: '25rem' }"
+  [breakpoints]="{ '1199px': '75vw', '575px': '90vw' }">
+  <form [formGroup]="customRecurrenceForm">
+    <!-- Répéter chaque -->
+
+    <div class="flex flex-wrap gap-3 p-fluid mb-4">
+      <div>
+        <label class="capitalize">Répéter chaque : </label>
+      </div>
+      <div class="flex-auto">
+        <p-inputNumber id="repeatEvery" formControlName="repeatEvery" />
+      </div>
+      <div class="flex-auto">
+        <p-dropdown [options]="repeatTypeOptions" formControlName="repeatType" placeholder="Sélectionnez une période">
+        </p-dropdown>
+      </div>
+    </div>
+
+    <!-- Se termine -->
+    <div class="form-group">
+      <label class="form-label">Se termine :</label>
+      <div class="form-check my-1">
+        <input type="radio" formControlName="ends" value="never" class="form-check-input" checked />
+        <label class="form-check-label">Jamais</label>
+      </div>
+      <div class="form-check my-1 d-flex align-items-center">
+        <input type="radio" formControlName="ends" value="on" class="form-check-input" />
+        <label class="form-check-label mx-2">Le</label>
+        <input pInputText type="date" id="endDate" formControlName="endDate" />
+      </div>
+      <div class="form-check my-1 d-flex align-items-center">
+        <input type="radio" formControlName="ends" value="after" class="form-check-input" />
+        <label class="form-check-label mx-2">Après</label>
+        <div class="col-sm-3">
+          <p-inputNumber formControlName="occurrences" />
+        </div>
+      </div>
+    </div>
+  </form>
+  <!-- Boutons Annuler et Dupliquer -->
+  <div class="flex justify-content-end gap-2">
+    <p-button label="Annuler" size="small" severity="secondary" (click)="isCustom = false" />
+    <p-button label="Valider" size="small" (click)="submitCustomRecurrence(); isCustom = false" />
+  </div>
+</p-dialog>
+
+<p-dialog [header]="dialogHeader" [modal]="true" [(visible)]="isContent" [style]="{ width: '50rem' }"
+  [breakpoints]="{ '1199px': '75vw', '575px': '90vw' }">
+
+  <div class="mb-4">
+
+    <div>
+      <div class=" capitalize mb-4">
+        <span>
+          Coût de vente de la course
+        </span>
+      </div>
+      <div class="flex flex-wrap gap-3 p-fluid mb-4">
+        <div class="flex-auto">
+          <span>P. Initial : <strong>{{ cout | currency: 'EUR' }}</strong></span>
+        </div>
+        <div class="flex-auto">
+          <span>P. Vente : <strong>{{ coutVente | currency: 'EUR'}}</strong></span>
+        </div>
+        <div class="flex-auto">
+          <span *ngIf="!compensationEnabled"> Commission :
+            <strong>{{ calForm.value.commission || 10 }}% ({{ cout - coutVente | number : "1.2-2" | currency:
+              'EUR'}})</strong>
+          </span>
+          <span *ngIf="compensationEnabled">
+            Compensation :
+            <strong>{{ calForm.value.compensation || 0 | currency:'EUR'}}</strong>
+          </span>
+        </div>
+      </div>
+    </div>
+    <form [formGroup]="form">
+      <!-- Chauffeurs Internes -->
+      <div *ngIf="afficherChauffeurInterne" class="my-2">
+        <div class="flex flex-wrap gap-3 p-fluid mb-4">
+          <div class="flex-auto">
+            <label for="chauffeurInterne" class="mb-1 capitalize">Liste des Chauffeurs Internes</label>
+            <p-dropdown id="chauffeurInterne" [options]="chauffeursOptions" formControlName="utilisateur_id"
+              optionLabel="label" [filter]="true" filterBy="label" placeholder="Choisissez le chauffeur" appendTo="body"
+              class="w-full">
+            </p-dropdown>
+          </div>
+        </div>
+      </div>
+
+      <!-- Chauffeurs Externes -->
+      <div *ngIf="afficherChauffeurExterne" class="my-2">
+        <div class="flex flex-column gap-2 mb-4">
+          <label for="email" class="mb-1 capitalize">Adresse e-mail</label>
+          <input pInputText type="email" id="email" formControlName="email" placeholder="exple@exple.com" required />
+        </div>
+        <div class="flex flex-wrap gap-2 p-fluid mb-4">
+          <div class="flex-auto">
+            <label for="chauffeurExterneNom" class="mb-1 capitalize">Nom</label>
+            <input pInputText id="chauffeurExterneNom" formControlName="chauffeurExterneNom" placeholder="Nom" />
+          </div>
+          <div class="flex-auto">
+            <label for="chauffeurExterneNumero">Numéro de téléphone</label>
+            <input pInputText id="chauffeurExterneNumero" formControlName="chauffeurExterneNumero"
+              placeholder="+1234567890" />
+          </div>
+        </div>
+
+      </div>
+
+      <!-- Entreprises Partenaires -->
+      <div *ngIf="afficherEntreprisePartenaire && userType === 'administrateur'" class="my-2">
+        <div class="flex flex-wrap gap-3 p-fluid mb-4">
+          <div class="flex-auto">
+            <label for="entreprisePartenaire" class="mb-1 capitalize">Liste des entreprises partenaires</label>
+            <p-dropdown id="entreprisePartenaire" [options]="entreprisePartenaireOptions"
+              formControlName="utilisateur_id" optionLabel="label" [filter]="true" filterBy="label"
+              placeholder="Choisissez l'entreprise partenaire" appendTo="body" class="w-full">
+            </p-dropdown>
+          </div>
+        </div>
+      </div>
+
+      <!-- Affectation Directe -->
+      <div *ngIf="afficherDirect" class="my-2">
+
+        <div class="flex flex-wrap gap-3 p-fluid mb-4">
+          <p-button label="Chauffeur Interne" size="small" [severity]="ChauffeurInterne ? 'primary' : 'secondary'"
+            (onClick)="setView('interne')" class="flex-grow-1"></p-button>
+          <p-button label="Chauffeur Externe" size="small" [severity]="ChauffeurExterne ? 'primary' : 'secondary'"
+            (onClick)="setView('externe')" class="flex-grow-1"></p-button>
+          <p-button label="Entreprise Partenaire" size="small" *ngIf="userType === 'administrateur'"
+            [severity]="EntreprisePartenaire ? 'primary' : 'secondary'" (onClick)="setView('partenaire')"
+            class="flex-grow-1"></p-button>
+        </div>
+
+
+        <div *ngIf="ChauffeurInterne" class="my-3">
+          <div class="flex flex-wrap gap-3 p-fluid mb-4">
+            <div class="flex-auto">
+              <label for="chauffeurInterne" class="mb-2 -m-2 my-2 capitalize">Liste des Chauffeurs Internes</label>
+              <p-dropdown id="chauffeurInterne" [options]="chauffeursOptions" formControlName="utilisateur_id"
+                optionLabel="label" [filter]="true" filterBy="label" placeholder="Choisissez le chauffeur"
+                appendTo="body" class="w-full">
+              </p-dropdown>
+            </div>
+          </div>
+        </div>
+        <!-- Chauffeurs Externes -->
+        <div *ngIf="ChauffeurExterne" class="my-2">
+          <div class="flex flex-column gap-2 mb-4">
+            <label for="email" class="mb-1 capitalize">Adresse e-mail</label>
+            <input pInputText type="email" id="email" formControlName="email" placeholder="exple@exple.com" required />
+          </div>
+          <div class="flex flex-wrap gap-2 p-fluid mb-4">
+            <div class="flex-auto">
+              <label for="chauffeurExterneNom" class="mb-1 capitalize">Nom</label>
+              <input pInputText id="chauffeurExterneNom" formControlName="chauffeurExterneNom" placeholder="Nom" />
+            </div>
+            <div class="flex-auto">
+              <label for="chauffeurExterneNumero">Numéro de téléphone</label>
+              <input pInputText id="chauffeurExterneNumero" formControlName="chauffeurExterneNumero"
+                placeholder="+1234567890" />
+            </div>
+          </div>
+
+        </div>
+
+        <div *ngIf="EntreprisePartenaire" class="my-2">
+          <div class="flex flex-wrap gap-3 p-fluid mb-4">
+            <div class="flex-auto">
+              <label for="entreprisePartenaire" class="mb-1 capitalize">Liste des entreprises partenaires</label>
+              <p-dropdown id="entreprisePartenaire" [options]="entreprisePartenaireOptions"
+                formControlName="utilisateur_id" optionLabel="label" [filter]="true" filterBy="label"
+                placeholder="Choisissez l'entreprise partenaire" appendTo="body" class="w-full">
+              </p-dropdown>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </form>
+
+  </div>
+  <div class="flex justify-content-end gap-2">
+    <p-button label="Envoyer la requête" size="small" severity="primary" (onClick)="onSubmit()" />
+    <p-button label="Retour" size="small" severity="danger" (onClick)="isContent = false" />
+  </div>
+</p-dialog>
+
+<p-dialog header="Confirmation" [(visible)]="restoreVisible" [modal]="true" [style]="{ width: '30rem' }"
+  [breakpoints]="{ '1199px': '30vw', '575px': '90vw' }">
+  <div class="flex align-items-center gap-3 mb-3 my-2">
+    <i class="pi pi-exclamation-triangle mr-2 text-orange-400"></i>
+    <span>Voulez-vous vraiment envoyer une demande la restoration de cette reservation ?</span>
+  </div>
+  <p-footer class="flex justify-content-end gap-2 ">
+    <p-button label="Non" severity="secondary" (onClick)="restoreVisible = false" size="small" />
+    <p-button label="Oui" (onClick)="demanderRestaurationClient()" size="small" />
+  </p-footer>
+</p-dialog>

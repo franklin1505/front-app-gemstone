@@ -1,0 +1,101 @@
+/* Mobile styles */
+.mobile-only {
+  display: block; /* Ensure it's visible on mobile */
+}
+
+.desktop-only {
+  display: none; /* Hide on mobile */
+}
+
+@media (min-width: 768px) {
+  /* Desktop styles */
+  .mobile-only {
+    display: none; /* Hide on desktop */
+  }
+  .desktop-only {
+    display: block; /* Ensure it's visible on desktop */
+  }
+}
+
+.custom-menu-item {
+  width: 400px; /* Ajustez la largeur selon vos besoins */
+  white-space: normal; /* Permet au texte de s'afficher sur plusieurs lignes si nécessaire */
+}
+
+.clickable {
+  cursor: pointer;
+  transition: background-color 0.3s, transform 0.3s;
+  padding: 10px;
+  border-radius: 5px;
+}
+
+.clickable:hover {
+  background-color: #1a191933; /* Ajustez la couleur selon vos besoins */
+  transform: translateY(-2px);
+}
+
+.facture-details span,
+.facture-details div {
+  display: block;
+  margin-bottom: 0.5rem;
+}
+
+.facture-details p-tag {
+  margin-top: 0.5rem;
+  display: block;
+}
+
+.enlarged-small {
+  font-size: 1rem; /* Ajustez la taille de la police pour qu'elle corresponde à celle d'un span */
+  font-weight: normal; /* Vous pouvez ajuster le poids de la police si nécessaire */
+}
+
+.card-body {
+  position: relative;
+}
+
+.header-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1rem;
+}
+
+.top-end-tags {
+  display: flex;
+  gap: 10px;
+}
+
+.bg-label-danger {
+  background-color: rgba(255, 0, 0, 0.832);
+}
+
+.bg-label-success {
+  background-color: green;
+}
+
+.bg-label-info {
+  background-color: dodgerblue;
+}
+
+.bg-label-secondary {
+  background-color: gray;
+}
+
+.bg-label-dark {
+  background-color: black;
+}
+
+.bg-label-warning {
+  background-color: darkorange;
+  color: #ffffff;
+}
+
+.bg-label-white {
+  background-color: whitesmoke;
+  color: #000000;
+}
+
+.bg-label-primary {
+  background-color: darkblue;
+}

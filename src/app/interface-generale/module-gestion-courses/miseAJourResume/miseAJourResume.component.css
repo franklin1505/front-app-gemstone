@@ -1,0 +1,8 @@
+.container {
+  display: flex;
+  justify-content: center;
+  width: 100%;
+  padding: 0 15px; /* Pour éviter que le contenu touche les bords sur mobile */
+  box-sizing: border-box; /* Inclure le padding dans la largeur totale */
+  margin-top: 25px; /* Ajouter un espacement supérieur pour décoller du top */
+}

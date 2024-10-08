@@ -1,0 +1,129 @@
+<div class="w-full" *ngIf="!loading">
+  <div class="card-w-title mb-4">
+    <p-breadcrumb [model]="breadcrumbItems" [home]="{icon: 'pi pi-home'}"></p-breadcrumb>
+  </div>
+
+  <p-dataView [value]="entreprises" layout="grid">
+
+    <ng-template pTemplate="header">
+      <div class="flex justify-content-between">
+        <p-button type="button" *ngIf="entreprises.length > 0" label="Nouvelle entreprise partenaire" size="small"
+          class="font-bold" [routerLink]="['/app/parametres/entreprisePartenaire']" />
+      </div>
+    </ng-template>
+
+    <ng-template let-entreprise pTemplate="grid">
+      <div class="grid grid-nogutter">
+        <div class="col-12 sm:col-6 md:col-6 xl:col-6 p-2" *ngFor="let entreprise of entreprises">
+          <div class="entreprise-card p-4 border-1 surface-border surface-card border-round flex flex-column">
+            <div class="surface-50 flex justify-content-center border-round">
+
+              <div class="relative mx-auto">
+                <img class="border-round w-full" [src]="getLogoUrl(entreprise.logo)" [alt]="entreprise.nom" />
+
+                <p-tag [value]="entreprise.validation ? 'Activé' : 'Désactivé'" [severity]="getSeverity(entreprise)"
+                  [style.left.px]="2" [style.top.px]="2" class="absolute">
+                </p-tag>
+              </div>
+            </div>
+            <div class="pt-4">
+              <div class="flex flex-row justify-content-between align-items-start gap-2">
+                <div>
+                  <p-tag [value]="entreprise.nom" />
+                </div>
+              </div>
+              <div class="my-3 flex flex-wrap text-nowrap gap-0">
+                <div class="mb-3">
+                  <span>Telehone: {{entreprise.telephone}}</span>
+                  <span class="mx-2">|</span>
+                  <span>E-mail: {{entreprise.email}}</span>
+                  <span class="mx-2">|</span>
+                  <span>Adresse: {{entreprise.adresse || 'pas renseigné'}}</span>
+                </div>
+                <p-chip label="{{ entreprise.nombre_chauffeurs }} Chauffeur(s)" icon="pi pi-users" class="mr-2 clip"
+                  [routerLink]="['/app/parametres/chauffeurs', entreprise.id, typeEntreprise]"></p-chip>
+                <p-chip label="{{ entreprise.nombre_vehicules }} Vehicule(s)" icon="pi pi-car" class="clip"
+                  [routerLink]="['/app/parametres/vehicules', entreprise.id, typeEntreprise]"></p-chip>
+              </div>
+              <div class="flex justify-content-start">
+                <p-button label="Détails de l'entreprise" icon="pi pi-info-circle" severity="info" size="small"
+                  (click)="showDetails(entreprise)" class="mr-2"></p-button>
+                <p-splitButton label="Actions" severity="warning" size="small" [model]="items"
+                  (onDropdownClick)="action(entreprise,entreprise.id)">
+                </p-splitButton>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </ng-template>
+
+    <ng-template pTemplate="empty">
+      <div class="flex flex-column justify-content-center align-items-center" style="height: 100px;">
+        <h6 class="block pt-3"> Actuellement, Vous n'avez aucune entreprise partenaire enregistrée dans notre base de
+          données
+          Cliquer sur le bouton si dessous pour creer votre premier partenaire</h6>
+        <p-button type="button" label="Ajouter une entreprise partenaire" [routerLink]="['/app/parametres/entreprisePartenaire']" size="small" class="font-bold" />
+      </div>
+    </ng-template>
+  </p-dataView>
+
+</div>
+
+<div class="loader-container" *ngIf="loading">
+  <p-progressSpinner class="spinner-size spinner-style" />
+</div>
+
+<app-parametre-dialog [(visiblePartenaire)]="visiblePartenaire" [entreprise]="selectedEntreprise"
+  (close)="closeDialog()"></app-parametre-dialog>
+
+
+<p-dialog [(visible)]="visibleDialog" [modal]="true" [style]="{width: '45vw'}" (onHide)="closeDialogAction()"
+  [breakpoints]="{ '1199px': '45vw', '575px': '90vw' }">
+
+  <ng-template pTemplate="header">
+    <!-- Header content based on dialogType -->
+    <ng-container *ngIf="dialogType === 'avertir'">
+      <h4>Avertir l'entreprise</h4>
+    </ng-container>
+    <ng-container *ngIf="dialogType === 'activer'">
+      <h4>Activer le Véhicule</h4>
+    </ng-container>
+    <ng-container *ngIf="dialogType === 'desactiver'">
+      <h4>Désactiver le Véhicule</h4>
+    </ng-container>
+  </ng-template>
+
+  <ng-template pTemplate="content">
+    <!-- Content based on dialogType -->
+    <ng-container *ngIf="dialogType === 'avertir'">
+      <p class="mb-2 font-bold">Dire a l'entreprise le pourquoi il n'est pas encore activé</p>
+      <form [formGroup]="warningForm">
+        <p-editor formControlName="message" [style]="{ height: '250px' }"></p-editor>
+      </form>
+    </ng-container>
+
+    <ng-container *ngIf="dialogType === 'activer'">
+      <p>Êtes-vous sûr de vouloir activer ce entreprise?</p>
+    </ng-container>
+
+    <ng-container *ngIf="dialogType === 'desactiver'">
+      <p>Êtes-vous sûr de vouloir désactiver cet entreprise?</p>
+    </ng-container>
+  </ng-template>
+
+  <p-footer>
+    <div *ngIf="dialogType === 'avertir';">
+      <p-button label="Annuler" icon="pi pi-times" (click)="closeDialogAction()" size="small" severity="danger" />
+      <p-button label="Envoyer" icon="pi pi-check" size="small" class="mr-2" (click)="submitWarning(); closeDialog()" />
+    </div>
+
+    <div *ngIf="dialogType === 'activer' || dialogType === 'desactiver'">
+      <p-button label="Non" icon="pi pi-times" size="small" severity="danger"
+        (click)="visibleDialog = false"></p-button>
+      <p-button label="Oui" icon="pi pi-check" size="small" class="mr-2"
+        (click)="submitToggleValidation(); visibleDialog = false"></p-button>
+    </div>
+  </p-footer>
+
+</p-dialog>

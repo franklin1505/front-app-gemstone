@@ -1,0 +1,230 @@
+/* You can add global styles to this file, and also import other style files */
+
+$gutter: 1rem; //for primeflex grid system
+@import "assets/layout/styles/layout/layout.scss";
+
+/* PrimeNG */
+@import "../node_modules/primeng/resources/primeng.min.css";
+@import "../node_modules/primeflex/primeflex.scss";
+@import "../node_modules/primeicons/primeicons.css";
+
+/* Demos */
+@import "assets/demo/styles/flags/flags.css";
+@import "assets/demo/styles/badges.scss";
+@import "assets/demo/styles/code.scss";
+
+
+// import Quill styles in styles.scss
+@import "../node_modules/quill/dist/quill.core.css";
+@import "../node_modules/quill/dist/quill.snow.css";
+
+/* Marges horizontales (mx) */
+.mx-0 {
+  margin-left: 0 !important;
+  margin-right: 0 !important;
+}
+
+.mx-1 {
+  margin-left: 0.25rem !important;
+  margin-right: 0.25rem !important;
+}
+
+.mx-2 {
+  margin-left: 0.5rem !important;
+  margin-right: 0.5rem !important;
+}
+
+.mx-3 {
+  margin-left: 1rem !important;
+  margin-right: 1rem !important;
+}
+
+.mx-4 {
+  margin-left: 1.5rem !important;
+  margin-right: 1.5rem !important;
+}
+
+.mx-5 {
+  margin-left: 3rem !important;
+  margin-right: 3rem !important;
+}
+
+/* Marges verticales (my) */
+.my-0 {
+  margin-top: 0 !important;
+  margin-bottom: 0 !important;
+}
+
+.my-1 {
+  margin-top: 0.25rem !important;
+  margin-bottom: 0.25rem !important;
+}
+
+.my-2 {
+  margin-top: 0.5rem !important;
+  margin-bottom: 0.5rem !important;
+}
+
+.my-3 {
+  margin-top: 1rem !important;
+  margin-bottom: 1rem !important;
+}
+
+.my-4 {
+  margin-top: 1.5rem !important;
+  margin-bottom: 1.5rem !important;
+}
+
+.my-5 {
+  margin-top: 3rem !important;
+  margin-bottom: 3rem !important;
+}
+
+/* Marges horizontales automatiques */
+.mx-auto {
+  margin-left: auto !important;
+  margin-right: auto !important;
+}
+
+/* Marges verticales automatiques */
+.my-auto {
+  margin-top: auto !important;
+  margin-bottom: auto !important;
+}
+
+
+/* Classe pour centrer le contenu */
+.centered-content {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 100vh; /* Prend toute la hauteur de la vue */
+  box-sizing: border-box; /* Inclut le padding dans la largeur totale */
+}
+
+/* Assure que la carte ne dépasse pas une certaine largeur */
+.centered-content .card {
+  width: auto; /* Limite la largeur de la carte */
+  width: 100%; /* Assure que la carte prenne toute la largeur disponible */
+  box-sizing: border-box; /* Inclut le padding dans la largeur totale */
+}
+
+/* Conteneur Flex pour centrage horizontal et vertical */
+.loader-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 100%;
+  height: 80vh; /* Hauteur de 100% de la vue pour centrer verticalement */
+}
+
+/* Dimensions personnalisées pour le spinner */
+.spinner-size {
+  width: 3rem; /* Taille du spinner */
+  height: 3rem; /* Hauteur du spinner */
+}
+
+/* Style personnalisé pour le spinner */
+.spinner-style {
+  --stroke-width: 8px; /* Largeur du trait du spinner */
+  --fill: transparent; /* Couleur de remplissage */
+  --color: #007bff; /* Couleur du trait */
+  animation-duration: 0.5s; /* Durée de l'animation de rotation */
+}
+
+
+/* Centrer le texte horizontalement */
+.text-center {
+  text-align: center !important;
+}
+
+.capitalize{
+  text-transform: capitalize !important;
+}
+/* Texte en majuscules */
+.text-uppercase {
+  text-transform: uppercase !important;
+}
+
+/* Styles de base pour les badges */
+.badge {
+  display: inline-block;
+  padding: 0.25em 0.4em;
+  font-size: 75%;
+  font-weight: 700;
+  line-height: 1;
+  color: #fff;
+  text-align: center;
+  white-space: nowrap;
+  vertical-align: baseline;
+  border-radius: 0.25rem;
+}
+
+/* Badge couleur info */
+.badge-info {
+  background-color: #17a2b8; /* Couleur bleue claire */
+  color: white;
+}
+
+/* Badge couleur primaire */
+.badge-primary {
+  background-color: #007bff; /* Couleur bleue primaire */
+  color: white;
+}
+
+/* Badge couleur secondaire */
+.badge-secondary {
+  background-color: #6c757d; /* Couleur grise */
+  color: white;
+}
+
+/* Badge couleur succès */
+.badge-success {
+  background-color: #28a745; /* Couleur verte */
+  color: white;
+}
+
+/* Badge couleur danger */
+.badge-danger {
+  background-color: #dc3545; /* Couleur rouge */
+  color: white;
+}
+
+/* Badge couleur avertissement */
+.badge-warning {
+  background-color: #ffc107; /* Couleur jaune */
+  color: black; /* Texte noir pour meilleure lisibilité */
+}
+
+/* Badge couleur clair */
+.badge-light {
+  background-color: #f8f9fa; /* Couleur blanche */
+  color: black; /* Texte noir */
+}
+
+/* Badge couleur foncé */
+.badge-dark {
+  background-color: #343a40; /* Couleur noire */
+  color: white;
+}
+
+/* Ajoutez ceci à votre fichier CSS ou SCSS */
+
+.clickable-card {
+  display: block;
+  color: inherit;
+  text-decoration: none;
+  transition: background-color 0.3s ease, box-shadow 0.3s ease;
+}
+
+.clickable-card:hover {
+  background-color: #f5f5f5;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  cursor: pointer;
+}
+
+.pac-container {
+  z-index: 2000 !important; /* Increase the z-index value */
+  position: absolute !important; /* Ensure it's positioned absolutely */
+}
+

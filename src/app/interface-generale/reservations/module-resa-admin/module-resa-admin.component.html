@@ -1,0 +1,638 @@
+<div class="w-full">
+  <div class="card-w-title mb-2">
+    <p-breadcrumb [model]="breadcrumbItems" [home]="{icon: 'pi pi-home', command: navigateToDashboard}"></p-breadcrumb>
+  </div>
+
+  <div class="card">
+    <p-stepper orientation="vertical" [linear]="true">
+      <!-- Étape 1 : Estimation de Tarif -->
+      <p-stepperPanel header="Estimation de Tarif">
+        <ng-template pTemplate="content" let-nextCallback="nextCallback" let-index="index">
+          <div class="flex flex-column h-auto w-full p-0">
+            <div class="grid p-fluid mb-4">
+              <div class="col-12" *ngIf="isLoading">
+                <div class="card">
+                  <div class="d-flex justify-content-start align-items-center">
+                    <h5>
+                      <p-progressSpinner [style]="{'width': '50px', 'height': '50px'}"
+                        class="spinner-size spinner-style mx-2" />
+                      Estimation du tarif en cours
+                    </h5>
+                  </div>
+                </div>
+              </div>
+
+              <div class="col-12 sm:col-6 xl:col-6">
+                <div class="card p-2">
+                  <div #mapContainer id="map" style="height: 310px; border-radius: 8px;"></div>
+                </div>
+                <div class="card h-5rem" *ngIf="formSubmitted">
+                  <div class="flex justify-content-end align-items-start">
+                    <div class="flex">
+                      <span class="flex align-items-start">
+                        <i class="pi pi-map mr-2"></i>
+                        <strong>{{ estimations.distParcourt }} Km</strong>
+                      </span>
+                      <span class="flex align-items-start">
+                        <i class="pi pi-stopwatch mr-2"></i>
+                        <strong>{{ estimations.durParcourt }}</strong>
+                      </span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <div class="col-12 sm:col-6 xl:col-6">
+                <div class="card">
+                  <form [formGroup]="estimationForm" (ngSubmit)="calculateEstimation()">
+                    <div class="card-body">
+                      <div class="p-field mb-2">
+                        <label for="departAddress" class="mb-1">Départ</label>
+                        <div class="p-inputgroup">
+                          <input pInputText type="text" id="departAddress" formControlName="departAddress"
+                            placeholder="adresse de depart" required />
+                        </div>
+                      </div>
+                      <div class="p-field mb-2">
+                        <label for="destinationAddress" class="mb-1">Destination</label>
+                        <div class="p-inputgroup">
+                          <input pInputText type="text" id="destinationAddress" formControlName="destinationAddress"
+                            placeholder="adresse de destination" required />
+                        </div>
+                      </div>
+                      <div class="d-flex justify-content-between" *ngIf="showDateTimeFields">
+                        <div class="p-field col-md-6 mb-2">
+                          <label for="datePriseEnChargeDate" class="mb-1">Date</label>
+                          <div class="p-inputgroup mb-1">
+                            <input pInputText type="date" id="datePriseEnChargeDate"
+                              formControlName="datePriseEnChargeDate" required />
+                          </div>
+                          <div class="text-red-500"
+                            *ngIf="estimationForm.get('datePriseEnChargeDate')?.errors?.['required'] && estimationForm.get('datePriseEnChargeDate')?.touched">
+                            La date de prise en charge est obligatoire.
+                          </div>
+                          <div class="text-red-500"
+                            *ngIf="estimationForm.get('datePriseEnChargeDate')?.errors?.['invalidDate'] && estimationForm.get('datePriseEnChargeDate')?.touched">
+                            Les dates antérieures et celle du jour ne sont pas acceptées.
+                          </div>
+                          <div class="text-red-500"
+                            *ngIf="estimationForm.get('datePriseEnChargeDate')?.errors?.['currentNotAllowed'] && estimationForm.get('datePriseEnChargeDate')?.touched">
+                            La date actuelle n'est pas sélectionnable.
+                          </div>
+                        </div>
+                        <div class="p-field col-md-6 mb-2">
+                          <label for="datePriseEnChargeTime" class="mb-2">Heure</label>
+                          <div class="p-inputgroup">
+                            <input pInputText type="time" id="datePriseEnChargeTime"
+                              formControlName="datePriseEnChargeTime" required />
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </form>
+                </div>
+                <div *ngIf="formSubmitted">
+                  <div class="flex justify-content-end align-items-start">
+                    <div class="flex">
+                      <p-button size="small" label="Annuler" severity="secondary" (onClick)="reload()" />
+                      <p-button size="small" label="Suivant" (onClick)="nextStep(nextCallback)" class="mx-2" />
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </ng-template>
+      </p-stepperPanel>
+
+      <!-- Étape 2 : Choix du Véhicule -->
+      <p-stepperPanel header="Information Du Véhicule">
+        <ng-template pTemplate="content" let-prevCallback="prevCallback" let-nextCallback="nextCallback">
+          <div class="flex flex-column h-auto w-full p-0">
+            <div class="grid">
+              <div class="col-12 lg:col-8">
+                <p-fieldset legend="Choix du Véhicule">
+
+                  <!-- Titre pour la colonne de gauche -->
+                  <p-dataView [value]="vehicules" layout="list">
+                    <ng-template pTemplate="list" let-vehicule>
+                      <div class="grid grid-nogutter">
+                        <div class="col-12" *ngFor="let vehicule of vehicules">
+                          <div
+                            class="flex flex-column sm:flex-row sm:align-items-center p-4 gap-3 border-top-1 surface-border"
+                            style="height: 200px;"> <!-- Set consistent card height -->
+                            <div class="md:w-10rem relative">
+                              <img class="block xl:block mx-auto border-round w-full"
+                                [src]="vehicule.galerie || 'assets/layout/images/vehicules.png'"
+                                [alt]="vehicule.marque + ' ' + vehicule.modele" style="max-height: 100px;" />
+                            </div>
+                            <div
+                              class="flex flex-column md:flex-row justify-content-between md:align-items-center flex-1 gap-4">
+                              <div class="flex flex-row md:flex-column justify-content-between align-items-start gap-2">
+                                <div>
+                                  <span class="font-medium text-secondary text-sm">{{ vehicule.marque }}</span>
+                                  <div class="text-lg font-medium text-900 mt-2">{{ vehicule.modele }}</div>
+                                </div>
+                              </div>
+                              <div class="flex flex-column md:align-items-end gap-5">
+                                <span class="text-xl font-semibold text-900">{{ getPrixReservation(vehicule.id) |
+                                  currency:'EUR':'symbol':'1.2-2' }}</span>
+                                <div class="flex flex-row-reverse md:flex-row gap-2">
+                                  <p-button icon="pi pi-check" size="small" label="Choisir"
+                                    [severity]="isSelected(vehicule) ? 'warning' : 'primary'"
+                                    (onClick)="toggleSelection(vehicule)" />
+                                </div>
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    </ng-template>
+                  </p-dataView>
+                </p-fieldset>
+              </div>
+              <div class="col-12 lg:col-4">
+                <!-- Titre pour la colonne de droite -->
+                <p-fieldset legend="Suppléments">
+                  <div *ngIf="currentStep === 2 && selectedVehicule !== null && formSubmitted">
+                    <form [formGroup]="form">
+                      <div *ngIf="attributsFormArray" formArrayName="attribut">
+                        <div *ngFor="let attributCtrl of attributsFormArray.controls; let i = index">
+                          <div [formGroupName]="i" class="p-fieldset">
+                            <label for="selectpickerBasic" class="form-label">
+                              <strong>{{ attributCtrl.get('nom_attribut')?.value }} ({{
+                                attributCtrl.get('prix_unitaire_attribut')?.value }}€)</strong>
+                            </label>
+                            <div class="d-flex justify-content-between align-items-center p-inputgroup">
+                              <p-button icon="pi pi-minus" pRipple class="p-button-rounded p-button-primary"
+                                (onClick)="decrementQuantity(i)" size="small" />
+                              <input type="number" formControlName="quantite" (ngModelChange)="calculateTotalCost()"
+                                id="selectpickerBasic" class="p-inputtext p-component text-center"
+                                style="width: 60px; margin: 0 8px;" />
+                              <p-button icon="pi pi-plus" size="small" pRipple class="p-button-rounded p-button-primary"
+                                (onClick)="incrementQuantity(i)" />
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    </form>
+                  </div>
+
+                </p-fieldset>
+              </div>
+            </div>
+          </div>
+          <div class="flex py-4 gap-2 justify-content-end">
+            <p-button size="small" label="Retour" severity="secondary" (onClick)="prevStep(prevCallback)" />
+            <p-button size="small" label="Suivant"
+              *ngIf="currentStep === 2 && selectedVehicule !== null && formSubmitted"
+              (onClick)="nextStep(nextCallback); toggleFormVisibility()" />
+          </div>
+        </ng-template>
+      </p-stepperPanel>
+
+      <!-- Étape 3 : Information Supplémentaire -->
+      <p-stepperPanel header="Informations Supplémentaires">
+        <ng-template pTemplate="content" let-prevCallback="prevCallback" let-nextCallback="nextCallback">
+          <div class="flex flex-column h-auto w-full p-0">
+            <div class="grid">
+              <div class="col-12">
+                <p-fieldset legend="Détails">
+                  <form name="Form" id="contact_form" [formGroup]="reserverForm">
+                    <div class="p-fluid grid formgrid">
+                      <!-- Nombre de Passagers -->
+                      <div class="field col-12 lg:col-4">
+                        <label for="nombrePassager" class="form-label">Nombre De passagers</label>
+                        <p-dropdown id="nombrePassager" [options]="generateOptions(capacitePassagers)"
+                          formControlName="nombrePassager" placeholder="Choisissez le nombre"></p-dropdown>
+                      </div>
+                      <!-- Capacité de Chargement -->
+                      <div class="field col-12 lg:col-4">
+                        <label for="capaciteChargement" class="form-label">Nombre de bagages</label>
+                        <p-dropdown id="capaciteChargement" [options]="generateOptions(capaciteChargement)"
+                          formControlName="nbre" placeholder="Choisissez le nombre"></p-dropdown>
+                      </div>
+                      <div class="field col-12 lg:col-4">
+                        <label for="nombrePassager" class="form-label">Type de bagages</label>
+                        <input pInputText type="text" id="typeBagages" [value]="type_bagages" disabled>
+                      </div>
+                      <!-- Méthode de Paiement -->
+                      <div class="field col-12 lg:col-6">
+                        <label for="modePaiement" class="form-label">Méthode de Paiement</label>
+                        <p-dropdown id="modePaiement" [options]="paymentMethods" optionLabel="label" optionValue="nom"
+                          formControlName="modePaiement" placeholder="Choisissez la méthode"></p-dropdown>
+                      </div>
+                      <!-- Lieu Rendez-vous -->
+                      <div class="field col-12 lg:col-6">
+                        <label for="lieu_rendez_vous" class="form-label">Lieu de Rendez-vous</label>
+                        <input pInputText type="text" id="lieu_rendez_vous" formControlName="lieu_rendez_vous"
+                          placeholder="Lieu de RDV chauffeur-client" (focus)="Autocomplete()"/>
+                      </div>
+
+                      <!-- Numero de Vol/Train -->
+                      <div class="field col-12 lg:col-6">
+                        <label for="compagnieAerienne" class="form-label">Numero de Vol/Train <span
+                            class="text-yellow-400">(facultative)</span></label>
+                        <input pInputText type="text" id="compagnieAerienne" placeholder="numero de vol / train"
+                          formControlName="compagnieAerienne" />
+                      </div>
+                      <!-- Numero de Dossier -->
+                      <div class="field col-12 lg:col-6">
+                        <label for="numero_dossier" class="form-label">Numero de Dossier <span
+                            class="text-yellow-400">(facultative)</span></label>
+                        <input pInputText type="text" id="numero_dossier" placeholder="numero de dossier"
+                          formControlName="numero_dossier" />
+                      </div>
+                      <!-- Notes -->
+                      <div class="field col-12">
+                        <label for="note" class="form-label">Notes <span
+                            class="text-yellow-400">(facultative)</span></label>
+                        <textarea pInputTextarea id="note" formControlName="note" placeholder="Votre note" rows="5"
+                          class="p-inputtext-lg p-inputtext-sm block w-full h-auto border-1 surface-border border-round p-2"
+                          style="resize: none; background-color: #ffffff; border-color: #d9d9d9;"></textarea>
+                      </div>
+                      <!-- Passengers -->
+                      <div formArrayName="passengers" class="col-12">
+                        <div *ngFor="let passenger of passengers.controls; let i = index" [formGroupName]="i"
+                          class="field grid">
+                          <label for="name" class="form-label col-12">Passager <span *ngIf="i === 0"
+                              class="text-primary-400">(Passager Principal)</span></label>
+                          <div class="col-12">
+                            <div class="p-inputgroup">
+                              <input pInputText id="name" formControlName="name" placeholder="Nom"
+                                class="p-inputtext w-full">
+                              <input pInputText id="phone" formControlName="phone" placeholder="Numéro de téléphone"
+                                class="p-inputtext w-full">
+                              <button type="button" pButton icon="pi pi-trash"
+                                class="p-button-danger p-button-sm"></button>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                      <!-- Add Passenger Button -->
+                      <div class="field col-12">
+                        <p-button [text]="true" [raised]="true" label="Ajouter des passagers" size="small"
+                          icon="pi pi-plus" (click)="addPassenger()" />
+                      </div>
+                    </div>
+                  </form>
+                </p-fieldset>
+              </div>
+            </div>
+          </div>
+
+          <div class="flex py-4 gap-2 justify-content-end">
+            <p-button size="small" label="Retour" severity="secondary" (onClick)="prevStep(prevCallback)" />
+            <p-button *ngIf="currentStep === 3 && isStep3FieldsFilled()" size="small" label="Suivant"
+              (onClick)="combineBagageFields(); nextStep(nextCallback)" />
+          </div>
+        </ng-template>
+      </p-stepperPanel>
+
+      <!-- Étape 4 : Information Du Client -->
+      <p-stepperPanel header="Info Du Client / Commission - Compensation">
+        <ng-template pTemplate="content" let-prevCallback="prevCallback" let-nextCallback="nextCallback">
+          <div class="flex flex-column h-auto w-full p-0">
+            <div class="grid">
+              <div class="col-12 lg:col-12" *ngIf="!sectionValiderVisible">
+                <p-fieldset legend="Choix du client">
+                  <form name="Form" id="contact_form" [formGroup]="reserverForm">
+                    <div class="p-fluid grid formgrid col-12">
+
+                      <!-- Boutons pour changer le type de client -->
+                      <div class="flex justify-content-between my-3 flex-wrap field col-12">
+                        <p-button label="Ancien Client" [severity]="clientType === 'ancien' ? 'primary' : 'secondary'"
+                          (onClick)="changeClientType('ancien')" class="flex-grow-1 mx-1 mb-2"></p-button>
+                        <p-button label="Nouveau Client" [severity]="clientType === 'nouveau' ? 'primary' : 'secondary'"
+                          (onClick)="changeClientType('nouveau')" class="flex-grow-1 mx-1 mb-2"></p-button>
+                      </div>
+
+                      <!-- Choix du client existant -->
+                      <div *ngIf="clientType === 'ancien'" class="field col-12">
+                        <label for="client_selectionne" class="form-label">Client</label>
+                        <p-dropdown id="client_selectionne" [options]="clients" optionLabel="last_name" optionValue="id"
+                          placeholder="Choisissez un client" formControlName="client_selectionne" [filter]="true"
+                          filterBy="last_name,first_name"> <!-- Champs par lesquels filtrer -->
+
+                          <ng-template let-client pTemplate="selectedItem">
+                            <span>{{client.last_name}} {{client.first_name}}</span>
+                          </ng-template>
+
+                          <ng-template let-client pTemplate="item">
+                            <span>{{client.last_name}} {{client.first_name}}</span>
+                          </ng-template>
+                        </p-dropdown>
+                      </div>
+
+                      <!-- Formulaire pour un nouveau client -->
+                      <div *ngIf="clientType === 'nouveau'" class="field col-12">
+                        <div class="field col-12">
+                          <label for="type_client" class="form-label">Type de client</label>
+                          <p-dropdown id="type_client" [options]="typeClientOptions"
+                            placeholder="Choisir le type du client" formControlName="type_client">
+                          </p-dropdown>
+                        </div>
+
+                        <!-- Formulaire basé sur le type de client -->
+                        <ng-container *ngIf="isSimpleClient()">
+                          <div class="field col-12">
+                            <label for="last_name" class="form-label">Nom du client</label>
+                            <input pInputText id="last_name" formControlName="last_name" class="form-control" required>
+                          </div>
+                          <div class="field col-12">
+                            <label for="first_name" class="form-label">Prenoms du client</label>
+                            <input pInputText id="first_name" formControlName="first_name" class="form-control"
+                              required>
+                          </div>
+                          <div class="field col-12">
+                            <label for="telephone" class="form-label">Numéro de téléphone</label>
+                            <input pInputText id="telephone" formControlName="telephone" class="form-control" required>
+                          </div>
+                          <div class="field col-12">
+                            <label for="adresse" class="form-label">Adresse du client</label>
+                            <input pInputText id="adresse" formControlName="adresse" class="form-control">
+                          </div>
+                          <div class="field col-12">
+                            <label for="email" class="form-label">Adresse e-mail du client</label>
+                            <input pInputText id="email" formControlName="email" class="form-control" required>
+                          </div>
+                        </ng-container>
+
+                        <!-- Clé pour lier à une agence ou société -->
+                        <div class="field col-12" *ngIf="isLinkedToAgency()">
+                          <label for="cle_agence" class="form-label">Clé pour lier à une agence</label>
+                          <input pInputText id="cle_agence" formControlName="cle_agence" class="form-control" required>
+                        </div>
+                        <div class="field col-12" *ngIf="isLinkedToCompany()">
+                          <label for="cle_societe" class="form-label">Clé pour lier à une société</label>
+                          <input pInputText id="cle_societe" formControlName="cle_societe" class="form-control"
+                            required>
+                        </div>
+
+                        <!-- Société et Agence -->
+                        <ng-container *ngIf="isCompanyClient()">
+                          <div class="field col-12">
+                            <label for="nom_societe" class="form-label">Nom Société</label>
+                            <input pInputText id="nom_societe" formControlName="nom_societe" class="form-control"
+                              required>
+                          </div>
+                          <div class="field col-12">
+                            <label for="adresse_societe" class="form-label">Adresse Société</label>
+                            <input pInputText id="adresse_societe" formControlName="adresse_societe"
+                              class="form-control" required>
+                          </div>
+                          <div class="field col-12">
+                            <label for="email_societe" class="form-label">Email Société</label>
+                            <input pInputText id="email_societe" formControlName="email_societe" class="form-control"
+                              required>
+                          </div>
+                          <div class="field col-12">
+                            <label for="telephone_societe" class="form-label">Téléphone Société</label>
+                            <input pInputText id="telephone_societe" formControlName="telephone_societe"
+                              class="form-control" required>
+                          </div>
+                        </ng-container>
+                        <ng-container *ngIf="isAgencyClient()">
+                          <div class="field col-12">
+                            <label for="nom_agence" class="form-label">Nom Agence</label>
+                            <input pInputText id="nom_agence" formControlName="nom_agence" class="form-control"
+                              required>
+                          </div>
+                          <div class="field col-12">
+                            <label for="adresse_agence" class="form-label">Adresse Agence</label>
+                            <input pInputText id="adresse_agence" formControlName="adresse_agence" class="form-control"
+                              required>
+                          </div>
+                          <div class="field col-12">
+                            <label for="email_agence" class="form-label">Email Agence</label>
+                            <input pInputText id="email_agence" formControlName="email_agence" class="form-control"
+                              required>
+                          </div>
+                          <div class="field col-12">
+                            <label for="telephone_agence" class="form-label">Téléphone Agence</label>
+                            <input pInputText id="telephone_agence" formControlName="telephone_agence"
+                              class="form-control" required>
+                          </div>
+                        </ng-container>
+                      </div>
+                    </div>
+                  </form>
+                </p-fieldset>
+                <div class="mb-2"></div>
+                <p-fieldset legend="Commission - Compensation">
+                  <div class="card-body demo-vertical-spacing demo-only-element">
+                    <div class="capitalize mb-4">
+                      <span>
+                        Coût Actuel De La Course : <strong>{{ coutTotalReservation | currency:'EUR' }}</strong>
+                      </span>
+                    </div>
+                    <div class="flex flex-wrap gap-3 p-fluid mb-4">
+                      <p-button label="Appliquer la commission" size="small"
+                        [severity]="!compensationEnabled ? 'primary' : 'secondary'" (onClick)="appliquerCommission()"
+                        class="flex-grow-1 mx-2"></p-button>
+
+                      <p-button label="Compenser la course" size="small"
+                        [severity]="compensationEnabled ? 'primary' : 'secondary'" (onClick)="compenserCourse()"
+                        class="flex-grow-1"></p-button>
+                    </div>
+
+                    <!-- Champs pour la commission et la compensation -->
+                    <form [formGroup]="reserverForm">
+                      <!-- Champ d'entrée pour la commission -->
+                      <div *ngIf="!compensationEnabled">
+                        <label for="commission" class="form-label text-start my-2">Taux de commission</label>
+                        <p-inputGroup class="mb-3" *ngIf="!isCommissionByAmount">
+                          <p-inputNumber id="commission" formControlName="commission"
+                            placeholder="Commission de la course (%)" [showButtons]="false" mode="decimal"
+                            suffix="%"></p-inputNumber>
+                          <p-button label="Saisir un montant" icon="pi pi-pencil" (onClick)="toggleCommissionInput()"
+                            class="mx-2" size="small" severity="primary"></p-button>
+                        </p-inputGroup>
+
+                        <p-inputGroup class="mb-3" *ngIf="isCommissionByAmount">
+                          <p-inputNumber id="commissionAmount" formControlName="commissionAmount"
+                            placeholder="Montant de la commission" [showButtons]="false" mode="currency"
+                            currency="EUR"></p-inputNumber>
+                          <p-button label="Saisir un pourcentage" icon="pi pi-pencil"
+                            (onClick)="toggleCommissionInput()" class="mx-2" size="small" severity="primary"></p-button>
+                        </p-inputGroup>
+
+                        <span class="text-primary" *ngIf="!isCommissionByAmount">
+                          Taux de commission (%) : {{ reserverForm.get('commission')?.value || '10' }}%
+                        </span>
+                        <span class="text-primary" *ngIf="isCommissionByAmount">
+                          Montant de la commission (€) : {{ reserverForm.get('commissionAmount')?.value || '0' |
+                          currency:'EUR' }}
+                        </span>
+                      </div>
+
+                      <!-- Champ d'entrée pour la compensation de la course -->
+                      <div *ngIf="compensationEnabled">
+                        <div class="flex flex-wrap gap-3 p-fluid mb-4">
+                          <div class="flex-auto">
+                            <label for="compensation">Coût de Compensation</label>
+                            <p-inputNumber inputId="compensation" [minFractionDigits]="2" formControlName="compensation"
+                              placeholder="Compensation de la course" class="w-full" mode="currency" currency="EUR">
+                            </p-inputNumber>
+                            <small id="compensation" class="text-primary">
+                              Coût de compensation (€) : {{ reserverForm.get('compensation')?.value || '0' |
+                              currency:'EUR' }}
+                            </small>
+                          </div>
+                        </div>
+                      </div>
+
+                      <!-- Affichage du coût de vente calculé -->
+                      <div class="my-4">
+                        Coût de vente : <strong>{{ reserverForm.get('coutDeVente')?.value | currency:'EUR' }}</strong>
+                      </div>
+                    </form>
+                  </div>
+                </p-fieldset>
+              </div>
+            </div>
+          </div>
+          <div class="flex py-4 gap-2 justify-content-end">
+            <p-button size="small" label="Retour" severity="secondary" (onClick)="prevStep(prevCallback)" />
+            <p-button size="small" label="Suivant" *ngIf="currentStep === 4 && !valider"
+              (click)="sectionValider(nextCallback)" />
+          </div>
+        </ng-template>
+      </p-stepperPanel>
+
+      <!-- Étape 5 : Récapitulatif -->
+      <p-stepperPanel header="Récapitulatif">
+        <ng-template pTemplate="content" let-prevCallback="prevCallback">
+          <div class="grid text" *ngIf="currentStep === 5 && !loading">
+            <div class="col-12 mx-auto mb-1">
+              <div class="card mb-2">
+                <div class="card-header text-start">
+                  <h5 class="mb-2 text-uppercase">Nouvelle Course : {{ reservationData?.numero_reservation || "" }}</h5>
+                </div>
+              </div>
+
+              <div class="card mb-2">
+                <div class="card-body demo-vertical-spacing demo-only-element">
+                  <img src="assets/layout/images/map.png" alt="Carte de l'itinéraire"
+                    style="width: 100%; height: 300px; object-fit: cover;">
+
+                  <div class="d-flex flex-row justify-content-start align-items-start mt-3">
+                    <div>
+                      <span><i class='pi pi-users'></i>&nbsp;<strong>{{ reservationData?.nombrePassager || ""
+                          }}</strong></span>
+                      <span class="mx-1"><i class='pi pi-briefcase'></i>&nbsp;<strong>{{ reservationData?.nombreBagage
+                          || ""
+                          }}</strong></span>
+                      <span class="mx-1"><i class="pi pi-map"></i>&nbsp;<strong>{{ reservationData?.distance || "" }}
+                          Km</strong></span>
+                      <span><i class="pi pi-clock"></i>&nbsp;<strong>{{ reservationData?.duree || "" }}</strong></span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <div class="card mb-2 booking-container">
+                <div class="booking-header d-flex align-items-center">
+                  <h5 class="ml-2 text-uppercase">Détails supplémentaires</h5>
+                </div>
+                <div class="booking-detail">
+                  <div class="my-1 mx-2">
+                    <strong>Date et Heure :</strong> {{ reservationData?.datePriseEnCharge | date: 'dd MMM yyyy à HH:mm'||"" }}
+                  </div>
+                  <div class="my-1 mx-2">
+                    <strong>Départ :</strong> {{ reservationData?.lieuxPriseEnCharge || " " }}
+                  </div>
+                  <div class="my-1 mx-2">
+                    <strong>Destination :</strong> {{ reservationData?.lieuxDestination || "" }}
+                  </div>
+                  <div class="my-1 mx-2" *ngIf="vehiculeData">
+                    <strong>Vehicule :</strong> {{ vehiculeData.marque}} {{vehiculeData.modele}}({{vehiculeData.typeVehicule}})
+                  </div>
+                  <div class="my-1 mx-2" *ngIf="reservationData?.lieu_rendez_vous">
+                    <strong>Lieu de rendez-vous :</strong> {{ reservationData?.lieu_rendez_vous}}
+                  </div>
+                  <div class="my-1 mx-2" *ngIf="clientDetails">
+                    <strong>Client :</strong> <span
+                      *ngIf="clientDetails?.first_name !== 'XXXXX'">{{clientDetails?.first_name
+                      }}</span> {{ clientDetails?.last_name}}
+                  </div>
+                  <div class="my-1 mx-2">
+                    <strong>Mode de paiement :</strong> {{ formatPaymentMethodName(reservationData?.modePaiement || "")
+                    }}
+                  </div>
+                  <div class="my-1 mx-2" *ngIf="reservationData?.compagnieAerienne">
+                    <strong>Nº De Vol/Train :</strong> {{ reservationData?.compagnieAerienne }}
+                  </div>
+
+                  <div class="my-1 mx-2">
+                    <strong>Cout de trajet :</strong>
+                    <span>
+                      {{ reservationData?.coutTransport | currency:'EUR':'symbol':'1.2-2' }}
+                    </span>
+                  </div>
+
+                  <div class="my-1 mx-2" *ngIf="reservationData?.totalAttributCost > 0">
+                    <strong>Cout des supplements :</strong>
+                    <span>
+                      {{ reservationData?.totalAttributCost | currency:'EUR':'symbol':'1.2-2' }}
+                    </span>
+                  </div>
+                  <div class="my-1 mx-2">
+                    <strong>Tarif de la course :</strong>
+                    <span class="badge badge-info">
+                      {{ reservationData?.coutTotalReservation | currency:'EUR':'symbol':'1.2-2' }}
+                    </span>
+                  </div>
+                  <div class="mb-4 my-3">
+
+                    <div *ngIf="isContentVisible">
+                      <div class="mb-1 mx-2"
+                        *ngIf="reserverForm.value.passengers && reserverForm.value.passengers.length > 0">
+                        <strong class="mb-2">Liste des passagers ajoutés :</strong>
+                        <ul class="p-list ml-3">
+                          <li *ngFor="let passenger of reserverForm.value.passengers" class="p-list-item">
+                            <i class="pi pi-user mr-2"></i>{{ passenger.name }} ({{ passenger.phone }})
+                          </li>
+                        </ul>
+                      </div>
+                      <div class="mb-1 mx-2"
+                        *ngIf="reserverForm.value.attribut && reserverForm.value.attribut.length > 0">
+                        <strong class="mb-2">Suppléments :</strong>
+                        <ul class="p-list ml-3">
+                          <li *ngFor="let item of reserverForm.value.attribut" class="p-list-item">
+                            <i class="pi pi-plus-circle mr-2"></i>{{ item.nom_attribut }} ({{ item.quantite }})
+                          </li>
+                        </ul>
+                      </div>
+                      <div class="mb-1 mx-2" *ngIf="reserverForm.value.note">
+                        <strong class="mb-2">Notes :</strong>
+                        <span class="ml-2">{{ reserverForm.value.note }}</span>
+                      </div>
+                    </div>
+
+                    <div class="py-2 ">
+                      <p-button [label]="isContentVisible ? 'Voir moins' : 'Voir plus'"
+                      (click)="toggleVisibility()" size="small" [text]="true" severity="secondary" />
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="flex py-4 justify-content-end" *ngIf="!loading">
+            <p-button size="small" label="Retour" severity="secondary" (onClick)="prevStep(prevCallback)" />
+            <p-button size="small" label="Reserver" severity="success" class="mx-2" (onClick)="reserver()"
+              *ngIf="currentStep === 5 && valider"></p-button>
+          </div>
+          <div class="flex justify-content-center">
+            <div class="loader-container" *ngIf="loading">
+              <p-progressSpinner class="spinner-size spinner-style" />
+            </div>
+          </div>
+        </ng-template>
+      </p-stepperPanel>
+
+    </p-stepper>
+  </div>
+
+</div>

@@ -1,0 +1,230 @@
+<div class="card mb-2" *ngIf="!loading">
+  <h5 class="mb-3">Ajouter Un Vehicule</h5>
+  <form [formGroup]="vehiculeForm" (ngSubmit)="onSubmit()" class="p-fluid">
+    <!-- Type de véhicule -->
+    <div class="field">
+      <label for="typeVehicule">Type de Véhicule</label>
+      <p-dropdown id="typeVehicule" [options]="typesVehicules" optionLabel="nom_type" placeholder="Sélectionnez un type"
+        formControlName="typeVehicule" [filter]="true" class="w-full">
+      </p-dropdown>
+    </div>
+
+
+    <div class="grid">
+      <!-- Marque -->
+      <div class="col-12 md:col-6">
+        <div class="field">
+          <label for="marque">Marque</label>
+          <input pInputText type="text" id="marque" formControlName="marque" placeholder="Entrez la marque du véhicule"
+            class="w-full" />
+        </div>
+      </div>
+
+      <!-- Modèle -->
+      <div class="col-12 md:col-6">
+        <div class="field">
+          <label for="modele">Modèle</label>
+          <input pInputText type="text" id="modele" formControlName="modele" placeholder="Entrez le modèle du véhicule"
+            class="w-full" />
+        </div>
+      </div>
+    </div>
+    <!-- Capacité de chargement -->
+    <div class="grid">
+      <!-- Sélection du nombre -->
+      <div class="col-12 md:col-6">
+        <div class="field">
+          <label for="nombreBagages">Nombre de Bagages</label>
+          <p-dropdown id="nombreBagages" [options]="generateOptions(10)" formControlName="nombre_bagages"
+            placeholder="Choisissez le nombre" class="w-full"></p-dropdown>
+        </div>
+      </div>
+
+      <!-- Sélection du type de bagages -->
+      <div class="col-12 md:col-6">
+        <div class="field">
+          <label for="typeBagages">Type de Bagages</label>
+          <p-dropdown id="typeBagages" [options]="[
+              { label: 'Bagage cabine (Cabine)', value: 'Cabine' },
+              { label: 'Valise moyenne (M)', value: 'M' },
+              { label: 'Valise large (L)', value: 'L' },
+              { label: 'Valise extra-large (XL)', value: 'XL' }
+            ]" formControlName="type_bagages" placeholder="Choisissez le type de bagages" class="w-full"></p-dropdown>
+        </div>
+      </div>
+    </div>
+
+    <div class="grid">
+      <!-- Capacité de passagers -->
+      <div class="col-12 md:col-6">
+        <div class="field">
+          <label for="capacitePassagers">Capacité de Passagers</label>
+          <p-dropdown id="capacitePassagers" [options]="generateOptions(10)" formControlName="capacite_passagers"
+            placeholder="Choisissez la capacité de passager" class="w-full"></p-dropdown>
+        </div>
+      </div>
+
+      <!-- Lieu de base -->
+      <div class="col-12 md:col-6">
+        <div class="field">
+          <label for="lieu_de_base">Lieu de Base</label>
+          <input pInputText type="text" id="lieu_de_base" placeholder="Entrez le lieu de base du véhicule"
+            formControlName="lieu_de_base" class="w-full" (focus)="initAutocomplete()" />
+        </div>
+      </div>
+
+    </div>
+
+    <div class="grid">
+      <!-- Période de réservation -->
+      <div class="col-12 md:col-9">
+        <div class="field">
+          <label for="tempsDisponibiliteSelect">Période de Réservation (Heure)</label>
+          <p-dropdown id="tempsDisponibiliteSelect" [options]="generateOptions(100)"
+            formControlName="tempsDisponibilite" placeholder="Choisissez la durée minimale pour réserver"
+            class="w-full"></p-dropdown>
+        </div>
+      </div>
+
+      <!-- Galerie -->
+      <div class="col-12 md:col-3">
+        <div class="field">
+          <label for="galerie">Galerie <small class="text-orange-300">(facultatif)</small></label>
+          <p-fileUpload id="galerie" mode="basic" [customUpload]="true" (onSelect)="onFileSelected($event)"
+            chooseLabel="Choisir un fichier"></p-fileUpload>
+        </div>
+      </div>
+    </div>
+
+    <div class="grid">
+      <!-- Type de carburant -->
+      <div class="col-12 md:col-4">
+        <div class="field">
+          <label for="typeCarburant">Type de Carburant <small class="text-orange-300">(facultatif)</small></label>
+          <input pInputText type="text" id="typeCarburant" placeholder="Entrez le type de carburant"
+            formControlName="type_carburant" class="w-full" />
+        </div>
+      </div>
+
+      <!-- Année de fabrication -->
+      <div class="col-12 md:col-4">
+        <div class="field">
+          <label for="anneeFabrication">Année de Fabrication <small class="text-orange-300">(facultatif)</small></label>
+          <input pInputText type="number" id="anneeFabrication" formControlName="annee_fabrication"
+            placeholder="Entrez l'année de fabrication" class="w-full" />
+        </div>
+      </div>
+
+      <!-- Immatriculation -->
+      <div class="col-12 md:col-4">
+        <div class="field">
+          <label for="immatriculation">Immatriculation <small class="text-orange-300">(facultatif)</small></label>
+          <input pInputText type="text" id="immatriculation" placeholder="Entrez l'immatriculation du véhicule"
+            formControlName="immatriculation" class="w-full" />
+        </div>
+      </div>
+    </div>
+
+    <div class="grid">
+      <!-- Moteur -->
+      <div class="col-12 md:col-4">
+        <div class="field">
+          <label for="moteur">Moteur <small class="text-orange-300">(facultatif)</small></label>
+          <input pInputText type="text" id="moteur" formControlName="moteur" placeholder="- pas encore défini -"
+            class="w-full" />
+        </div>
+      </div>
+
+      <!-- Couleur intérieure -->
+      <div class="col-12 md:col-4">
+        <div class="field">
+          <label for="couleurInterieure">Couleur Intérieure <small class="text-orange-300">(facultatif)</small></label>
+          <input pInputText type="text" id="couleurInterieure" formControlName="couleur_interieur"
+            placeholder="- pas encore défini -" class="w-full" />
+        </div>
+      </div>
+
+      <!-- Couleur extérieure -->
+      <div class="col-12 md:col-4">
+        <div class="field">
+          <label for="couleurExterieure">Couleur Extérieure <small class="text-orange-300">(facultatif)</small></label>
+          <input pInputText type="text" id="couleurExterieure" formControlName="couleur_exterieur"
+            placeholder="- pas encore défini -" class="w-full" />
+        </div>
+      </div>
+    </div>
+
+    <div class="grid">
+      <!-- Puissance -->
+      <div class="col-12 md:col-4">
+        <div class="field">
+          <label for="puissance">Puissance <small class="text-orange-300">(facultatif)</small></label>
+          <input pInputText type="text" id="puissance" formControlName="puissance" placeholder="- pas encore défini -"
+            class="w-full" />
+        </div>
+      </div>
+
+      <!-- Longueur -->
+      <div class="col-12 md:col-4">
+        <div class="field">
+          <label for="longueur">Longueur <small class="text-orange-300">(facultatif)</small></label>
+          <input pInputText type="text" id="longueur" formControlName="longueur" placeholder="- pas encore défini -"
+            class="w-full" />
+        </div>
+      </div>
+
+      <!-- Transmission -->
+      <div class="col-12 md:col-4">
+        <div class="field">
+          <label for="transmission">Transmission <small class="text-orange-300">(facultatif)</small></label>
+          <input pInputText type="text" id="transmission" formControlName="transmission"
+            placeholder="- pas encore défini -" class="w-full" />
+        </div>
+      </div>
+    </div>
+
+    <div class="flex justify-content-end my-3">
+      <p-button label="Retour" icon="pi pi-times" routerLink="/app/parametres/" size="small" severity="danger"
+        class="mx-2"></p-button>
+      <p-button type="submit" label="Ajouter le Véhicule" icon="pi pi-check" size="small"></p-button>
+    </div>
+  </form>
+</div>
+
+<div class="loader-container" *ngIf="loading">
+  <p-progressSpinner class="spinner-size spinner-style" />
+</div>
+
+<!-- Dialog for Vehicle Pricing -->
+<p-dialog header="Tarification" [modal]="true" [(visible)]="tarifVisible" [style]="{width: '45vw'}" [closable]="true"
+  [breakpoints]="{ '1199px': '45vw', '575px': '90vw' }">
+  <form [formGroup]="prixForm" class="p-fluid">
+    <div class="field">
+      <label for="prixParKm">Tarif par Km (€)</label>
+      <p-inputNumber id="prixParKm" formControlName="prixParKm" mode="currency" currency="EUR" locale="fr-FR" required class="w-full"></p-inputNumber>
+    </div>
+
+    <div class="field">
+      <label for="prixParDuree">Tarif par heure (€)</label>
+      <p-inputNumber id="prixParDuree" formControlName="prixParDuree" mode="currency" currency="EUR" locale="fr-FR" required class="w-full"></p-inputNumber>
+    </div>
+
+    <div class="field">
+      <label for="fraisReservation">Tarif de base (€)</label>
+      <p-inputNumber id="fraisReservation" formControlName="fraisReservation" mode="currency" currency="EUR" locale="fr-FR" required class="w-full"></p-inputNumber>
+    </div>
+
+    <div class="field">
+      <label for="fraisLivraison">Tarif au Km D'approche (€)</label>
+      <p-inputNumber id="fraisLivraison" formControlName="fraisLivraison" mode="currency" currency="EUR" locale="fr-FR" required class="w-full"></p-inputNumber>
+    </div>
+
+    <div class="field">
+      <label for="fraisParDefaut">Tarif minimum (€)</label>
+      <p-inputNumber id="fraisParDefaut" formControlName="fraisParDefaut" mode="currency" currency="EUR" locale="fr-FR" required class="w-full"></p-inputNumber>
+    </div>
+  </form>
+  <p-footer class="flex justify-content-end">
+    <p-button label="Ajouter Le Tarif" icon="pi pi-check" size="small" severity="primary" (click)="savePrix();tarifVisible = false "></p-button>
+  </p-footer>
+</p-dialog>

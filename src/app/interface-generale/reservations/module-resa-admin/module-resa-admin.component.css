@@ -1,0 +1,3 @@
+.non-clickable-headers .p-step-header {
+  pointer-events: none; /* Désactive les clics */
+}

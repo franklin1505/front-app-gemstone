@@ -1,0 +1,90 @@
+<div class="container mt-4">
+  <div class="page-container" *ngIf="!loading">
+    <!-- Card Header -->
+    <div class="card mb-4">
+      <div class="card-header text-center text-uppercase">
+        Ajouter les points de rendez-vous pour toutes vos courses de demain
+      </div>
+    </div>
+
+    <form [formGroup]="rendezVousForm">
+      <div class="row">
+        <div *ngFor="let reservation of reservations" class="col-md-6 mb-4 d-flex align-items-stretch">
+          <div class="card w-100">
+            <div class="card-body">
+              <h5 class="card-title">Réservation #{{ reservation.numero_reservation }}</h5>
+              <p class="card-text"><strong>Date et heure :</strong> {{ reservation.datePriseEnCharge |
+                date:'dd/MM/yyyy \'à\' HH:mm' }}</p>
+              <p class="card-text"><strong>Départ:</strong> {{ reservation.lieuxPriseEnCharge }}</p>
+              <p class="card-text"><strong>Destination:</strong> {{ reservation.lieuxDestination }}</p>
+              <p class="card-text"><strong>Nombre de passagers:</strong> {{ reservation.nombrePassager }}</p>
+              <p class="card-text"><strong>Nombre de bagages:</strong> {{ reservation.nombreBagage }}</p>
+              <p class="card-text">
+                <strong>Tarif de vente de la course: </strong>
+                {{ reservation.coutDeVente | currency:'EUR':'symbol':'1.2-2' }}
+              </p>
+              <p class="card-text">
+                <strong>Tarif de la course: </strong>
+                <span *ngIf="reservation.modePaiement === 'payement_abord'" class="badge badge-info">
+                  {{ reservation.coutTotalReservation | currency:'EUR':'symbol':'1.2-2' }}
+                </span>
+                
+              </p>
+
+              <!-- Suppléments -->
+              <div class="my-1 mx-2" *ngIf="reservation.supplements.length > 0">
+                <p class="card-text"><strong>Suppléments :</strong></p>
+                <ul class="list-group">
+                  <li *ngFor="let item of reservation.supplements" class="list-group-item">
+                    {{ item.nom_attribut }} ({{ item.quantite }})
+                  </li>
+                </ul>
+              </div>
+
+              <!-- Liste des passagers ajoutés -->
+              <div class="my-1 mx-2" *ngIf="reservation.passagers.length > 0">
+                <p class="card-text"><strong>Liste des passagers ajoutés :</strong></p>
+                <ul class="list-group">
+                  <li *ngFor="let passenger of reservation.passagers" class="list-group-item">
+                    {{ passenger.content }}
+                  </li>
+                </ul>
+              </div>
+
+              <!-- Notes -->
+              <div class="my-1 mx-2" *ngIf="reservation.notes.length > 0">
+                <p class="card-text"><strong>Notes :</strong></p>
+                <ul class="list-group">
+                  <li *ngFor="let note of reservation.notes" class="list-group-item">
+                    {{ note.content }}
+                  </li>
+                </ul>
+              </div>
+
+              <!-- Point de rendez-vous Input -->
+              <div class="form-group">
+                <label for="pointRendezVous-{{ reservation.id }}">Point de rendez-vous: </label>
+                <input type="text" pInputText placeholder="Saisir le point de rendez-vous"
+                  id="pointRendezVous-{{ reservation.id }}" formControlName="pointRendezVous-{{ reservation.id }}"
+                  (focus)="initAutocomplete($event, reservation.id)">
+              </div>
+
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Save Button -->
+      <div class="text-center mt-4">
+        <button type="button" pButton pRipple class="p-button-raised p-button-info"
+          [disabled]="!areAllFieldsFilled() || isSaving" (click)="savePointsRendezVous()">Enregistrer les points de
+          rendez-vous</button>
+      </div>
+    </form>
+  </div>
+
+</div>
+
+<div class="loader-container" *ngIf="loading">
+  <p-progressSpinner class="spinner-size spinner-style" />
+</div>

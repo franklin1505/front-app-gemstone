@@ -1,0 +1,299 @@
+<p-dialog [(visible)]="visible" [modal]="true" [style]="{width: '55vw'}"
+  [breakpoints]="{ '1199px': '55vw', '575px': '90vw' }" header="Paramètres" (onHide)="closeDialog()">
+  <form [formGroup]="parametresForm" (ngSubmit)="onSubmit()">
+    <!-- Champs pour Clé API -->
+    <div *ngIf="type === 'api'" class="field">
+      <label for="valeur_cle_api">Clé API</label>
+      <input pInputText type="text" id="valeur_cle_api" formControlName="valeur_cle_api" class="w-full" />
+    </div>
+
+    <!-- Champs pour URLs -->
+    <div *ngIf="type === 'url'" class="field">
+      <label for="url_operateur">URL Opérateur</label>
+      <input pInputText type="text" id="url_operateur" formControlName="url_operateur" class="w-full" />
+      <label for="url_partenaire">URL Partenaire</label>
+      <input pInputText type="text" id="url_partenaire" formControlName="url_partenaire" class="w-full" />
+    </div>
+
+    <!-- Champs pour Code PIN -->
+    <div *ngIf="type === 'code'" class="field">
+      <label for="pass_standard">PIN Standard</label>
+      <input pInputText type="text" id="pass_standard" formControlName="pass_standard" class="w-full" />
+      <label for="pass_admin">PIN Administrateur</label>
+      <input pInputText type="text" id="pass_admin" formControlName="pass_admin" class="w-full" />
+    </div>
+
+    <!-- Champs pour Paramètres E-mail -->
+    <div *ngIf="type === 'email'" class="field">
+      <label for="smtp_server">Serveur SMTP</label>
+      <input pInputText type="text" id="smtp_server" formControlName="smtp_server" class="w-full" />
+      <label for="email_host_user">E-mail de l'hôte</label>
+      <input pInputText type="text" id="email_host_user" formControlName="email_host_user" class="w-full" />
+      <label for="email_host_password">Mot de passe de l'hôte</label>
+      <input pInputText type="password" id="email_host_password" formControlName="email_host_password" class="w-full" />
+    </div>
+
+    <!-- Champs pour Attribut -->
+    <div *ngIf="type === 'attribut'" class="field">
+      <label for="nom_attribut">Nom du supplement</label>
+      <input pInputText type="text" id="nom_attribut" formControlName="nom_attribut" class="w-full" />
+      <label for="prix_unitaire_attribut">Prix Unitaire</label>
+      <input pInputText type="number" id="prix_unitaire_attribut" formControlName="prix_unitaire_attribut"
+        class="w-full" />
+      <label for="nombre_maximum">Nombre Maximum</label>
+      <input pInputText type="number" id="nombre_maximum" formControlName="nombre_maximum" class="w-full" />
+      <label for="entreprise">Entreprise</label>
+      <p-dropdown id="entreprise" formControlName="entreprise" [options]="entrepriseList" optionLabel="nom"
+        optionValue="id" placeholder="Sélectionnez une entreprise" appendTo="body" styleClass="w-full">
+        <ng-template let-entreprise pTemplate="selectedItem">
+          <span>{{ entreprise?.nom }} <small class="text-blue-400">({{ entreprise?.type_entreprise
+              }})</small></span>
+        </ng-template>
+        <ng-template let-entreprise pTemplate="item">
+          <span>{{ entreprise.nom }} <small class="text-blue-400">({{ entreprise.type_entreprise
+              }})</small></span>
+        </ng-template>
+      </p-dropdown>
+    </div>
+
+    <!-- Champs pour Type de Véhicule -->
+    <div *ngIf="type === 'type_vehicule'" class="field">
+      <label for="nom_type">Nom du Type de Véhicule</label>
+      <input pInputText type="text" id="nom_type" formControlName="nom_type" class="w-full" />
+      <label for="description">Description</label>
+      <textarea pInputTextarea id="description" formControlName="description" class="w-full"></textarea>
+    </div>
+
+    <!-- Champs pour Méthode de paiement -->
+    <div *ngIf="type === 'methode'" class="field">
+      <label for="nom_type">Nom de la Méthode de payement</label>
+      <input pInputText type="text" id="nom" formControlName="nom" class="w-full" />
+      <label for="description">Description</label>
+      <textarea pInputTextarea id="description" formControlName="description" class="w-full"></textarea>
+    </div>
+
+    <!-- Champs pour Service Client -->
+    <div *ngIf="type === 'service_client'" class="field">
+      <label for="email">E-mail du Service Client</label>
+      <input pInputText type="email" id="email" formControlName="email" class="w-full" />
+      <label for="telephone">Téléphone du Service Client</label>
+      <input pInputText type="text" id="telephone" formControlName="telephone" class="w-full" />
+      <label for="horaires_ouverture">Horaires d'ouverture</label>
+      <input pInputText type="text" id="horaires_ouverture" formControlName="horaires_ouverture" class="w-full" />
+      <label for="adresse">Adresse du Service Client</label>
+      <input pInputText id="adresse" formControlName="adresse" class="w-full" />
+    </div>
+
+    <!-- Champs pour Configuration PayPal -->
+    <div *ngIf="type === 'paypal'" class="field">
+      <label for="client_id">Client ID</label>
+      <input pInputText type="text" id="client_id" formControlName="client_id" class="w-full" />
+      <label for="client_secret">Client Secret</label>
+      <input pInputText type="password" id="client_secret" formControlName="client_secret" class="w-full" />
+      <label for="api_url">API URL</label>
+      <input pInputText type="text" id="api_url" formControlName="api_url" class="w-full" />
+    </div>
+
+    <!-- Champs pour Virement Bancaire -->
+    <div *ngIf="type === 'virement_bancaire'" class="field">
+      <label for="banque">Banque</label>
+      <input pInputText type="text" id="banque" formControlName="banque" class="w-full" />
+      <label for="iban">IBAN</label>
+      <input pInputText type="text" id="iban" formControlName="iban" class="w-full" />
+      <label for="bic">BIC</label>
+      <input pInputText type="text" id="bic" formControlName="bic" class="w-full" />
+      <label for="titulaire">Titulaire</label>
+      <input pInputText type="text" id="titulaire" formControlName="titulaire" class="w-full" />
+      <label for="libelleCompte">Libellé du Compte</label>
+      <input pInputText type="text" id="libelleCompte" formControlName="libelleCompte" class="w-full" />
+    </div>
+
+    <!-- Champs pour Configuration Facture et Devis -->
+    <div *ngIf="type === 'facture' || type === 'devis'" class="field">
+      <label for="text_introductif">Texte Introductif</label>
+      <textarea pInputTextarea id="text_introductif" formControlName="text_introductif" class="w-full"></textarea>
+      <label for="pied_page_defaut">Pied de Page Défaut</label>
+      <textarea pInputTextarea id="pied_page_defaut" formControlName="pied_page_defaut" class="w-full"></textarea>
+      <label for="condition_general">Conditions Générales</label>
+      <textarea pInputTextarea id="condition_general" formControlName="condition_general" class="w-full"></textarea>
+      <label for="condition_reglement_defaut">Modalités de Paiement Standard</label>
+      <input pInputText type="text" id="condition_reglement_defaut" formControlName="condition_reglement_defaut"
+        class="w-full" />
+      <label for="interet_retard" class="my-2">Taux d'Intérêt en Cas de Retard</label>
+      <input pInputText type="text" id="interet_retard" formControlName="interet_retard" class="w-full" />
+    </div>
+
+    <p-footer>
+      <div class="flex justify-content-end align-content-end">
+        <p-button label="Annuler" class="mr-2" icon="pi pi-times" (click)="closeDialog()" size="small"
+          severity="secondary" />
+        <p-button type="submit" label="Enregistrer" icon="pi pi-check" [disabled]="parametresForm.invalid"
+          size="small" />
+      </div>
+    </p-footer>
+  </form>
+</p-dialog>
+
+
+<p-dialog [(visible)]="visiblePartenaire" [modal]="true" header="Fiche De Détails" (onHide)="closeDialogPartenaire()"
+  [style]="{width: '75vw'}" [closable]="true" [breakpoints]="{ '1199px': '75vw', '575px': '90vw' }">
+
+  <div *ngIf="entreprise">
+    <div class="grid align-items-stretch">
+      <!-- Column 1: Image -->
+      <div class="col-12 lg:col-4 xl:col-4 flex align-items-center justify-content-center" style="height: 100%;">
+        <img [src]="getLogoUrl(entreprise.logo)" alt="Profile Image" class="w-full h-auto"
+          style="object-fit: contain; max-width: 100%; height: 100%;" />
+      </div>
+
+      <!-- Column 2: Entreprise Details -->
+      <div class="col-12 lg:col-4 xl:col-4 flex align-items-center" style="height: 100%;">
+        <ul class="list-none p-0">
+          <li class="mb-2">
+            <span class="font-bold mr-2">Nom De l'Entreprise:</span>
+            <span>{{ entreprise.nom }}</span>
+          </li>
+          <li class="mb-2">
+            <span class="font-bold mr-2">Email:</span>
+            <span>{{ entreprise.email }}</span>
+          </li>
+          <li class="mb-2">
+            <span class="font-bold mr-2">Telephone:</span>
+            <span>{{ entreprise.telephone }}</span>
+          </li>
+          <li class="mb-2">
+            <span class="font-bold mr-2">Adresses:</span>
+            <span>{{ entreprise.adresse || 'pas renseigné'}}</span>
+          </li>
+          <li class="mb-2">
+            <span class="font-bold mr-2">Site web:</span>
+            <span>{{ entreprise.site_web || 'pas renseigné'}}</span>
+          </li>
+          <div *ngIf="entreprise.lieu_operation else noLieu">
+            <li class="mb-2">
+              <span class="font-bold mr-2">Lieu d'opération:</span>
+              <span>{{entreprise.lieu_operation }}</span>
+            </li>
+          </div>
+          <ng-template #noLieu>
+            <li class="mb-2">
+              <span class="font-bold mr-2">Lieu d'opération:</span>
+              <span>non renseignée</span>
+            </li>
+          </ng-template>
+          <li class="mb-2">
+            <span class="font-bold mr-2">Date ajout:</span>
+            <span>{{ entreprise.date_ajout | date: 'medium' }}</span>
+          </li>
+          <li class="mb-2">
+            <span class="font-bold mr-2">Entreprise Key:</span>
+            <span>{{ entreprise.entrepriseKey || 'pas générer' }} </span>
+          </li>
+
+          <li class="mb-2">
+            <span class="font-bold mr-2">Numéro TVA:</span>
+            <span>{{ entreprise.numero_tva || 'pas renseigné' }}</span>
+          </li>
+          <li class="mb-2">
+            <span class="font-bold mr-2">Code NAF:</span>
+            <span>{{ entreprise.code_Naf || 'pas renseigné' }}</span>
+          </li>
+          <li class="mb-2">
+            <span class="font-bold mr-2">Code Postal:</span>
+            <span>{{ entreprise.code_Postal || 'pas renseigné'}}</span>
+          </li>
+          <li class="mb-2">
+            <span class="font-bold mr-2">SIREN/SIRET:</span>
+            <span>{{ entreprise.siren_siret || 'pas renseigné'}}</span>
+          </li>
+        </ul>
+      </div>
+
+      <!-- Column 3: User Details and Additional Contacts -->
+      <div class="col-12 lg:col-4 xl:col-4 flex align-items-center" style="height: 100%;">
+        <ul class="list-none p-0">
+          <!-- User Info -->
+          <li class="mb-2">
+            <span class="font-bold">Adminstrateur</span>
+          </li>
+          <li class="mb-2">
+            <span class="font-bold mr-2">Nom:</span>
+            <span>{{ entreprise.user.last_name }} {{ entreprise.user.first_name }}</span>
+          </li>
+          <li class="mb-2">
+            <span class="font-bold mr-2">Contact:</span>
+            <span>{{ entreprise.user.email }} ({{ entreprise.user.telephone }})</span>
+          </li>
+          <!-- DG Info -->
+          <div *ngIf="entreprise.nom_DG && entreprise.email_DG && entreprise.contact_DG; else noDGInfo">
+            <li class="mb-2">
+              <span class="font-bold mr-2">Nom DG:</span>
+              <span>{{ entreprise.nom_DG }}</span>
+            </li>
+            <li class="mb-2">
+              <span class="font-bold mr-2">Contact DG:</span>
+              <span>{{ entreprise.email_DG }} ({{ entreprise.contact_DG }})</span>
+            </li>
+          </div>
+
+          <!-- Chargé de la clientèle Info -->
+          <div
+            *ngIf="entreprise.nom_Charge_de_la_clientele && entreprise.email_Charge_de_la_clientele && entreprise.contact_Charge_de_la_clientele; else noClientInfo">
+            <li class="mb-2">
+              <span class="font-bold mr-2">Nom Chargé de la clientèle:</span>
+              <span>{{ entreprise.nom_Charge_de_la_clientele }}</span>
+            </li>
+            <li class="mb-2">
+              <span class="font-bold mr-2">Contact Chargé de la clientèle:</span>
+              <span>{{ entreprise.email_Charge_de_la_clientele }} ({{ entreprise.contact_Charge_de_la_clientele
+                }})</span>
+            </li>
+          </div>
+
+          <!-- Dr des Finances Info -->
+          <div
+            *ngIf="entreprise.nom_Dr_des_Finances && entreprise.email_Dr_des_Finances && entreprise.contact_Dr_des_Finances; else noFinanceInfo">
+            <li class="mb-2">
+              <span class="font-bold mr-2">Nom Dr des Finances:</span>
+              <span>{{ entreprise.nom_Dr_des_Finances }}</span>
+            </li>
+            <li class="mb-2">
+              <span class="font-bold mr-2">Contact Dr des Finances:</span>
+              <span>{{ entreprise.email_Dr_des_Finances }} ({{ entreprise.contact_Dr_des_Finances }})</span>
+            </li>
+          </div>
+
+          <!-- No Info Templates -->
+          <ng-template #noDGInfo>
+            <li class="mb-2">
+              <span class="font-bold mr-2">DG:</span>
+              <span>Les informations du DG ne sont pas renseignées</span>
+            </li>
+          </ng-template>
+
+          <ng-template #noClientInfo>
+            <li class="mb-2">
+              <span class="font-bold mr-2">Chargé de la clientèle:</span>
+              <span>Chargé de la clientèle: Les informations du Chargé de la clientèle ne sont pas renseignées</span>
+            </li>
+          </ng-template>
+
+          <ng-template #noFinanceInfo>
+            <li class="mb-2">
+              <span class="font-bold mr-2">Dr des Finances:</span>
+              <span>Dr des Finances: Les informations du Dr des Finances ne sont pas renseignées</span>
+            </li>
+          </ng-template>
+        </ul>
+      </div>
+    </div>
+  </div>
+  <p-footer>
+    <div *ngIf="entreprise ">
+      <p-button label="Fermer" size="small" class="mr-2" severity="secondary" (click)="closeDialogPartenaire()" />
+      <p-button label="Mettre à Jour" size="small"  *ngIf="!isAdministrateur()"
+        [routerLink]="['/app/parametres/entreprisePartenaire', entreprise.id]"></p-button>
+    </div>
+  </p-footer>
+
+</p-dialog>

@@ -1,0 +1,39 @@
+<div class="card mb-2" *ngIf="!loading">
+  <h5 class="mb-3">Tarification du véhicule</h5>
+  <form [formGroup]="prixForm" class="p-fluid" (ngSubmit)="savePrix()">
+
+    <div class="field">
+      <label for="prixParKm">Tarif par Km (€)</label>
+      <p-inputNumber id="prixParKm" formControlName="prixParKm" mode="currency" currency="EUR" locale="fr-FR" required class="w-full"></p-inputNumber>
+    </div>
+
+    <div class="field">
+      <label for="prixParDuree">Tarif par heure (€)</label>
+      <p-inputNumber id="prixParDuree" formControlName="prixParDuree" mode="currency" currency="EUR" locale="fr-FR" required class="w-full"></p-inputNumber>
+    </div>
+
+    <div class="field">
+      <label for="fraisReservation">Tarif de base (€)</label>
+      <p-inputNumber id="fraisReservation" formControlName="fraisReservation" mode="currency" currency="EUR" locale="fr-FR" required class="w-full"></p-inputNumber>
+    </div>
+
+    <div class="field">
+      <label for="fraisLivraison">Tarif au Km D'approche (€)</label>
+      <p-inputNumber id="fraisLivraison" formControlName="fraisLivraison" mode="currency" currency="EUR" locale="fr-FR" required class="w-full"></p-inputNumber>
+    </div>
+
+    <div class="field">
+      <label for="fraisParDefaut">Tarif minimum (€)</label>
+      <p-inputNumber id="fraisParDefaut" formControlName="fraisParDefaut" mode="currency" currency="EUR" locale="fr-FR" required class="w-full"></p-inputNumber>
+    </div>
+
+    <div class="flex justify-content-end my-3">
+      <p-button label="Retour" icon="pi pi-times" [routerLink]="['/app/parametres/vehicules', entrepriseId, type_entreprise]" size="small" severity="danger" class="mx-2"></p-button>
+      <p-button type="submit" label="{{ prixId ? 'Modifier Les Tarifs' : 'Ajouter Les Tarifs' }}" icon="pi pi-check" size="small" severity="primary"></p-button>
+    </div>
+  </form>
+</div>
+
+<div class="loader-container" *ngIf="loading">
+  <p-progressSpinner class="spinner-size spinner-style" />
+</div>

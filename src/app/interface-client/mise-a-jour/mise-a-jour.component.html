@@ -1,0 +1,144 @@
+<div class="card mb-2" *ngIf="!loading">
+  <h5 class="mb-3">Modifier un Client</h5>
+  <form [formGroup]="clientForm" class="p-fluid">
+
+    <!-- Conditionally display type_client as readonly when updating -->
+    <div class="field">
+      <label for="type_client">Type de client</label>
+      <input pInputText id="type_client" [value]="getFormattedClientType(clientForm.get('type_client')?.value)"
+        class="w-full" readonly />
+    </div>
+
+    @if (clientForm.get('type_client')?.value === 'client_simple' ||
+    clientForm.get('type_client')?.value === 'client_liee_agence' ||
+    clientForm.get('type_client')?.value === 'client_liee_societe') {
+    <div class="field">
+      <label for="nom">Nom du client</label>
+      <input pInputText id="nom" formControlName="last_name" placeholder="Entrez le nom (ex: Doe)" class="w-full" />
+    </div>
+
+    <div class="field">
+      <label for="prenoms">Prénoms du client</label>
+      <input pInputText id="prenoms" formControlName="first_name" placeholder="Entrez les prénoms (ex: John)"
+        class="w-full" />
+    </div>
+
+    <div class="field">
+      <label for="numero_telephone">Numéro de téléphone</label>
+      <input pInputText id="numero_telephone" formControlName="telephone"
+        placeholder="Entrez le téléphone (ex: +33 1234 5678)" type="tel" class="w-full" />
+    </div>
+
+    <div class="field">
+      <label for="adresse">Adresse du client</label>
+      <input pInputText id="adresse" formControlName="adresse" placeholder="Entrez l'adresse complète"
+        (focus)="initAutocomplete()" class="w-full" />
+    </div>
+
+    <div class="field">
+      <label for="email">Adresse e-mail du client</label>
+      <input pInputText id="email" formControlName="email" placeholder="Entrez l'email (ex: exemple@domain.com)"
+        type="email" class="w-full" />
+    </div>
+    }
+
+    @if (!clientId && clientForm.get('type_client')?.value === 'client_liee_agence') {
+    <div class="field">
+      <label for="cle_agence">Clé Pour Lié à une Agence</label>
+      <input pInputText id="cle_agence" formControlName="cle_agence" placeholder="Entrez la clé d'agence"
+        class="w-full" />
+      <small *ngIf="clientForm.get('cle_agence')?.invalid && clientForm.get('cle_agence')?.touched" class="p-error">
+        La clé agence est requise
+      </small>
+    </div>
+    }
+
+    @if (!clientId && clientForm.get('type_client')?.value === 'client_liee_societe') {
+    <div class="field">
+      <label for="cle_societe">Clé Pour Lié à une Société</label>
+      <input pInputText id="cle_societe" formControlName="cle_societe" placeholder="Entrez la clé de société"
+        class="w-full" />
+      <small *ngIf="clientForm.get('cle_societe')?.invalid && clientForm.get('cle_societe')?.touched" class="p-error">
+        La clé société est requise
+      </small>
+    </div>
+    }
+
+    @if (clientForm.get('type_client')?.value === 'client_societe') {
+    <div class="field">
+      <label for="nom_societe">Nom Société</label>
+      <input pInputText id="nom_societe" formControlName="nom_societe" placeholder="Entrez le nom de la société"
+        class="w-full" />
+    </div>
+
+    <div class="field">
+      <label for="adresse_societe">Adresse Société</label>
+      <input pInputText id="adresse_societe" formControlName="adresse_societe"
+        placeholder="Entrez l'adresse de la société" class="w-full" (focus)="initAutocomplete()" />
+    </div>
+
+    <div class="field">
+      <label for="email_societe">Email Société</label>
+      <input pInputText id="email_societe" formControlName="email_societe" type="email"
+        placeholder="Entrez l'email de la société" class="w-full" />
+    </div>
+
+    <div class="field">
+      <label for="telephone_societe">Téléphone Société</label>
+      <input pInputText id="telephone_societe" formControlName="telephone_societe"
+        placeholder="Entrez le téléphone de la société" class="w-full" />
+    </div>
+    }
+
+    @if (clientForm.get('type_client')?.value === 'client_agence') {
+    <div class="field">
+      <label for="nom_agence">Nom Agence</label>
+      <input pInputText id="nom_agence" formControlName="nom_agence" placeholder="Entrez le nom de l'agence"
+        class="w-full" />
+    </div>
+
+    <div class="field">
+      <label for="adresse_agence">Adresse Agence</label>
+      <input pInputText id="adresse_agence" formControlName="adresse_agence" placeholder="Entrez l'adresse de l'agence"
+        class="w-full" (focus)="initAutocomplete()" />
+    </div>
+
+    <div class="field">
+      <label for="email_agence">Email Agence</label>
+      <input pInputText id="email_agence" formControlName="email_agence" type="email"
+        placeholder="Entrez l'email de l'agence" class="w-full" />
+    </div>
+
+    <div class="field">
+      <label for="telephone_agence">Téléphone Agence</label>
+      <input pInputText id="telephone_agence" formControlName="telephone_agence"
+        placeholder="Entrez le téléphone de l'agence" class="w-full" />
+    </div>
+    }
+
+    <div class="flex justify-content-end my-3">
+      <p-button label="Quitter" icon="pi pi-times" [routerLink]="['/app/client/profil']" size="small" severity="danger"
+        class="mx-2">
+      </p-button>
+      <p-button label="Mettre à Jour" icon="pi pi-check" size="small" severity="primary" (onClick)="showDialog()"/>
+    </div>
+  </form>
+</div>
+
+<div class="loader-container" *ngIf="loading">
+  <p-progressSpinner class="spinner-size spinner-style" />
+</div>
+
+<p-dialog header="Confirmation" [modal]="true" [(visible)]="visible" [style]="{width: '35vw'}"
+[breakpoints]="{ '1199px': '35vw', '575px': '90vw' }">
+  <div class="flex align-items-center gap-3 mb-3 my-2">
+    <span>
+      <i class="pi pi-exclamation-triangle mr-2 text-orange-400"></i>
+      Êtes-vous sûr de vouloir modifier les donneees de votre compte ?
+    </span>
+  </div>
+  <p-footer class="flex justify-content-end gap-2 ">
+    <p-button label="Non" severity="secondary" (onClick)="visible = false" size="small" />
+    <p-button label="Oui" (onClick)="onSubmit(); visible = false" size="small" />
+  </p-footer>
+</p-dialog>

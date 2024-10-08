@@ -1,0 +1,90 @@
+<div class="w-full">
+  <div class="card-w-title mb-2">
+    <p-breadcrumb [model]="breadcrumbItems" [home]="{icon: 'pi pi-home', command: navigateToDashboard}"></p-breadcrumb>
+  </div>
+
+  <div class="card">
+    <h5>Statistiques de vos factures</h5>
+    <div class="grid">
+      <!-- Factures partiellement réglées (partiement_regler) -->
+      <div class="col-12 lg:col-6 xl:col-6">
+        <div class="card mb-0 clickable-card" (click)="navigateWithQuery('partiement_regler')">
+          <div class="flex justify-content-between mb-2">
+            <div>
+              <span class="block text-500 font-medium mb-2">Factures partiellement réglées</span>
+              <div class="text-900 font-medium text-xl">{{ resultCount.acompte }}</div>
+            </div>
+            <div class="flex align-items-center justify-content-center bg-blue-100 border-round"
+              [ngStyle]="{width: '2.5rem', height: '2.5rem'}">
+              <i class="pi pi-calendar text-blue-500 text-xl"></i>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Factures impayées (non réglées) -->
+      <div class="col-12 lg:col-6 xl:col-6">
+        <div class="card mb-0 clickable-card" (click)="navigateWithQuery('non_regler')">
+          <div class="flex justify-content-between mb-2">
+            <div>
+              <span class="block text-500 font-medium mb-2">Factures impayées</span>
+              <div class="text-900 font-medium text-xl">{{ resultCount.impayer }}</div>
+            </div>
+            <div class="flex align-items-center justify-content-center bg-red-100 border-round"
+              [ngStyle]="{width: '2.5rem', height: '2.5rem'}">
+              <i class="pi pi-exclamation-circle text-red-500 text-xl"></i>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Factures payées (réglées) -->
+      <div class="col-12 lg:col-6 xl:col-6">
+        <div class="card mb-0 clickable-card" (click)="navigateWithQuery('regler')">
+          <div class="flex justify-content-between mb-2">
+            <div>
+              <span class="block text-500 font-medium mb-2">Factures payées</span>
+              <div class="text-900 font-medium text-xl">{{ resultCount.payer }}</div>
+            </div>
+            <div class="flex align-items-center justify-content-center bg-green-100 border-round"
+              [ngStyle]="{width: '2.5rem', height: '2.5rem'}">
+              <i class="pi pi-check-circle text-green-500 text-xl"></i>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Factures annulées -->
+      <div class="col-12 lg:col-6 xl:col-6">
+        <div class="card mb-0 clickable-card" (click)="navigateWithQuery('annule')">
+          <div class="flex justify-content-between mb-2">
+            <div>
+              <span class="block text-500 font-medium mb-2">Factures annulées</span>
+              <div class="text-900 font-medium text-xl">{{ resultCount.annuler }}</div>
+            </div>
+            <div class="flex align-items-center justify-content-center bg-orange-100 border-round"
+              [ngStyle]="{width: '2.5rem', height: '2.5rem'}">
+              <i class="pi pi-times-circle text-orange-500 text-xl"></i>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Total des factures -->
+      <div class="col-12 lg:col-6 xl:col-6">
+        <div class="card mb-0 clickable-card" (click)="navigateWithQuery('total_factures')">
+          <div class="flex justify-content-between mb-2">
+            <div>
+              <span class="block text-500 font-medium mb-2">Total des factures</span>
+              <div class="text-900 font-medium text-xl">{{ resultCount.total }}</div>
+            </div>
+            <div class="flex align-items-center justify-content-center bg-teal-100 border-round"
+              [ngStyle]="{width: '2.5rem', height: '2.5rem'}">
+              <i class="pi pi-chart-bar text-teal-500 text-xl"></i>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

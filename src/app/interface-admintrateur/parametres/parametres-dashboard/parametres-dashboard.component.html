@@ -1,0 +1,761 @@
+<div class="w-full" *ngIf="entrepriseList">
+  <div class="card-w-title mb-4">
+    <p-breadcrumb [model]="breadcrumbItems" [home]="{icon: 'pi pi-home'}"></p-breadcrumb>
+  </div>
+  <div *ngIf="entrepriseList.length === 0; else entrepriseCards">
+    <div class="card mb-0 p-3 surface-border border-round shadow-2">
+      <div class="flex justify-content-center align-items-center p-3 border-round border-1 border-300">
+        <div class="text-center p-4">
+          <h4 class="card-title text-nowrap">Mon Entreprise</h4>
+          <p class="text-900 block mr-2">Actuellement, vous n'avez pas encore d'entreprise enregistrée. Cliquez sur
+            le bouton ci-dessous pour créer votre entreprise.</p>
+          <p-button label="Enregistrer mon entreprise" size="small" [routerLink]="['/app/parametres/monEntreprise']" />
+
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <ng-template #entrepriseCards>
+    <div class="card mb-0 clickable-card-t p-3" *ngFor="let entreprise of entrepriseList">
+      <div class="flex flex-column md:flex-row align-content-around align-items-center">
+        <img [src]="getLogoUrl(entreprise.logo)" alt="Profile Image" class="profile-image mb-3 md:mb-0 md:mr-3" />
+        <div class="flex-auto mx-3 text-start md:text-left">
+          <h4
+            class="flex align-items-center gap-2 flex-wrap mt-3 justify-content-center md:justify-content-start text-2xl text-600 text-black-alpha-90">
+            {{ entreprise.nom }}</h4>
+          <div class="flex align-items-center gap-2 flex-wrap mt-3 justify-content-center md:justify-content-start">
+            <div class="mb-2 sm:mr-3 sm:mb-1">
+              <i class="pi pi-map-marker mr-2"></i>
+              <span>{{ entreprise.adresse }}</span>
+            </div>
+            <div class="mb-2 sm:mr-3 sm:mb-1">
+              <i class="pi pi-envelope mr-2"></i>
+              <span>{{ entreprise.email }}</span>
+            </div>
+            <div>
+              <i class="pi pi-phone mr-2 mb-1"></i>
+              <span>{{ entreprise.telephone }}</span>
+            </div>
+          </div>
+
+          <div class="flex align-items-center gap-2 flex-wrap mt-3 justify-content-center md:justify-content-start">
+            <p-chip label="Fiche De Détails" icon="pi pi-file" (click)="showDialog('details')"></p-chip>
+            <p-chip label="{{ entreprise.drivers_count }} Chauffeur(s)" icon="pi pi-users"
+              (click)="showMenu($event, 'chauffeursMenu')"></p-chip>
+            <p-chip label="{{ entreprise.vehicles_count }} Vehicule(s)" icon="pi pi-car"
+              (click)="showMenu($event, 'vehiclesMenu')"></p-chip>
+
+            <p-overlayPanel #vehiclesMenu>
+              <ul class="p-menu-list">
+                <li>
+                  <a [routerLink]="['/app/parametres/vehicules', entreprise.id, typeEntreprise]"
+                    class="flex align-items-center text-black-alpha-80">
+                    <i class="pi pi-eye mr-2"></i> Ma Flotte
+                  </a>
+                </li>
+                <li>
+                  <a [routerLink]="['/app/parametres/vehicule']" [queryParams]="{ entrepriseId: entreprise.id }"
+                    class="flex align-items-center text-black-alpha-80">
+                    <i class="pi pi-plus mr-2"></i> Nouveau Vehicule
+                  </a>
+                </li>
+              </ul>
+            </p-overlayPanel>
+
+            <p-overlayPanel #chauffeursMenu>
+              <ul class="p-menu-list">
+                <li>
+                  <a [routerLink]="['/app/parametres/chauffeurs', entreprise.id, typeEntreprise]"
+                    class="flex align-items-center text-black-alpha-80">
+                    <i class="pi pi-eye mr-2"></i> Mes Chauffeurs
+                  </a>
+                </li>
+                <li>
+                  <a [routerLink]="['/app/parametres/chauffeur']" [queryParams]="{ entrepriseId: entreprise.id }"
+                    class="flex align-items-center text-black-alpha-80">
+                    <i class="pi pi-plus mr-2"></i> Nouveau Chauffeur
+                  </a>
+                </li>
+              </ul>
+            </p-overlayPanel>
+          </div>
+        </div>
+      </div>
+    </div>
+  </ng-template>
+
+  <div class=" my-4 clickable-card-t2">
+    <p-menubar [model]="items" />
+  </div>
+
+  <div *ngIf="selectedSection === 'configuration' && !loading">
+    <div class="grid">
+      <!-- Section E-mail -->
+      <div class="col-12 lg:col-6 xl:col-6">
+        <div class="card mb-0 p-3 surface-border border-round shadow-2">
+          <span class="block text-500 font-medium mb-2">E-mail Pour l'Envoi de vos mails</span>
+          <div class="flex justify-content-between align-items-center p-3 border-round border-1 border-300">
+            <div *ngIf="parametresList.length > 0" class="w-full">
+              <div *ngFor="let parametres of parametresList"
+                class="flex justify-content-between align-items-center mb-2">
+                <div>
+                  <span class="text-900 block mb-1 font-bold">{{ parametres.email_host_user }}</span>
+                  <small class="text-orange-500 block">le : {{ parametres.createdAt | date:'dd MMM yyyy à HH:mm'
+                    }}</small>
+                </div>
+                <p-button icon="pi pi-pen-to-square" size="small" severity="warning" class="ml-2"
+                  (click)="openDialog(parametres, 'email')"></p-button>
+              </div>
+            </div>
+            <div *ngIf="parametresList.length === 0" class="flex justify-content-between align-items-center w-full">
+              <span class="text-900">Aucune E-mail n'a été ajoutée.</span>
+              <p-button icon="pi pi-plus" size="small" class="p-button-primary ml-2"
+                (click)="openDialog(null,'email')"></p-button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Section Clé API Google -->
+      <div class="col-12 lg:col-6 xl:col-6">
+        <div class="card mb-0 p-3 surface-border border-round shadow-2">
+          <span class="block text-500 font-medium mb-2">Clé API Google</span>
+          <div class="flex justify-content-between align-items-center p-3 border-round border-1 border-300">
+            <div *ngIf="apiList.length > 0" class="w-full">
+              <div *ngFor="let api of apiList" class="flex justify-content-between align-items-center mb-2">
+                <div>
+                  <span class="text-900 block mb-1">Clé API:
+                    <span [ngClass]="{ 'masked-text': !showApiKey }" class="text-blue-500 font-bold mr-2"
+                      style="word-break: break-all; overflow-wrap: break-word; max-width: 100%;">
+                      {{ showApiKey ? api.valeur_cle_api : '********' }}
+                    </span>
+                    <i class="{{ showApiKey ? 'pi pi-eye-slash' : 'pi pi-eye' }} ml-2"
+                      (click)="toggleVisibility('apiKey')" style="cursor: pointer;"></i>
+                  </span>
+                  <small class="text-orange-500 block">le : {{ api.createdAt | date:'dd MMM yyyy à HH:mm' }}</small>
+                </div>
+                <p-button icon="pi pi-pen-to-square" size="small" severity="warning" class="ml-2"
+                  (click)="openDialog(api, 'api')"></p-button>
+              </div>
+            </div>
+            <div *ngIf="apiList.length === 0" class="flex justify-content-between align-items-center w-full">
+              <span class="text-900">Aucune clé API n'a été ajoutée.</span>
+              <p-button icon="pi pi-plus" size="small" class="p-button-primary ml-2"
+                (click)="openDialog(null, 'api')"></p-button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Section URLs -->
+      <div class="col-12 lg:col-6 xl:col-6">
+        <div class="card mb-0 p-3 surface-border border-round shadow-2">
+          <span class="block text-500 font-medium mb-2">Urls (Routes)</span>
+          <div class="flex justify-content-between align-items-center p-3 border-round border-1 border-300">
+            <div *ngIf="urlList.length > 0" class="w-full">
+              <div *ngFor="let url of urlList" class="flex justify-content-between align-items-center mb-2">
+                <div>
+                  <span class="text-900 block mr-2">URL Opérateur: <span class="text-blue-500 font-bold">{{
+                      url.url_operateur }}</span></span>
+                  <span class="text-900 block mr-2">URL Partenaire: <span class="text-blue-500 font-bold">{{
+                      url.url_partenaire }}</span></span>
+                </div>
+                <p-button icon="pi pi-pen-to-square" size="small" severity="warning" class="ml-2"
+                  (click)="openDialog(url, 'url')"></p-button>
+              </div>
+            </div>
+            <div *ngIf="urlList.length === 0" class="flex justify-content-between align-items-center w-full">
+              <span class="text-900">Aucune URL n'a été ajoutée.</span>
+              <p-button icon="pi pi-plus" size="small" class="p-button-primary ml-2"
+                (click)="openDialog(null, 'url')"></p-button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Section Code PIN d'accès -->
+      <div class="col-12 lg:col-6 xl:col-6">
+        <div class="card mb-0 p-3 surface-border border-round shadow-2">
+          <span class="block text-500 font-medium mb-2">Code PIN d'accès</span>
+          <div class="flex justify-content-between align-items-center p-3 border-round border-1 border-300">
+            <div *ngIf="codeList.length > 0" class="w-full">
+              <div *ngFor="let code of codeList" class="flex justify-content-between align-items-center mb-2">
+                <div>
+                  <span class="text-900 block mb-1">PIN Standard: <span [ngClass]="{ 'masked-text': !showPassStandard }"
+                      class="text-blue-500 font-bold mr-2"
+                      style="word-break: break-all; overflow-wrap: break-word; max-width: 100%;">{{ showPassStandard ?
+                      code.pass_standard : '********' }}</span><i
+                      class="{{ showPassStandard ? 'pi pi-eye-slash' : 'pi pi-eye' }} ml-2"
+                      (click)="toggleVisibility('standard')" style="cursor: pointer;"></i></span>
+                  <span class="text-900 block">PIN Administrateur: <span [ngClass]="{ 'masked-text': !showPassAdmin }"
+                      class="text-blue-500 font-bold mr-2"
+                      style="word-break: break-all; overflow-wrap: break-word; max-width: 100%;">{{ showPassAdmin ?
+                      code.pass_admin : '********' }}</span><i
+                      class="{{ showPassAdmin ? 'pi pi-eye-slash' : 'pi pi-eye' }} ml-2"
+                      (click)="toggleVisibility('admin')" style="cursor: pointer;"></i></span>
+                </div>
+                <p-button icon="pi pi-pen-to-square" size="small" severity="warning" class="ml-2"
+                  (click)="openDialog(code, 'code')"></p-button>
+              </div>
+            </div>
+            <div *ngIf="codeList.length === 0" class="flex justify-content-between align-items-center w-full">
+              <span class="text-900">Aucun code PIN n'a été ajouté.</span>
+              <p-button icon="pi pi-plus" size="small" class="p-button-primary ml-2"
+                (click)="openDialog(null, 'code')"></p-button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Section Configuration de Facture -->
+      <div class="col-12 lg:col-6 xl:col-6">
+        <div class="card mb-0 p-3 surface-border border-round shadow-2">
+          <h5 class="mb-3">Configuration de Facture</h5>
+          <div *ngIf="ConfigFactureList.length === 0" class="surface-card border-round p-3 mb-3 border-1 border-300">
+            <p class="text-900 font-medium">Les informations nécessaires pour la génération d'une facture ne sont pas
+              renseignées.</p>
+            <p-button label="Configurer" icon="pi pi-cog" class="p-button-primary mt-2" size="small"
+              (click)="openDialog(null, 'facture')"></p-button>
+          </div>
+          <div *ngFor="let configFacture of ConfigFactureList"
+            class="surface-card border-round p-3 mb-3 border-1 border-300">
+            <ul class="list-none p-0 m-0 mb-2">
+              <li class="mb-2"><span class="font-bold mr-2">Modalités de Paiement Standard:</span><span>{{
+                  configFacture.condition_reglement_defaut }}</span></li>
+              <li class="mb-2"><span class="font-bold mr-2">Taux d'Intérêt en Cas de Retard:</span><span>{{
+                  configFacture.interet_retard }}</span></li>
+              <li class="mb-2"><span class="font-bold mr-2">Texte Introductif:</span><span>{{
+                  configFacture.text_introductif }}</span></li>
+              <li class="mb-2"><span class="font-bold mr-2">Pied de Page Défaut:</span><span>{{
+                  configFacture.pied_page_defaut }}</span></li>
+            </ul>
+            <p-accordion>
+              <p-accordionTab header="Termes et Conditions Généraux">
+                <p>{{ configFacture.condition_general }}</p>
+              </p-accordionTab>
+            </p-accordion>
+            <div class="mb-2">
+              <p-button label="Modifier la Configuration" icon="pi pi-pencil" size="small" severity="secondary"
+                (click)="openDialog(configFacture, 'facture')"></p-button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Section Configuration de Devis -->
+      <div class="col-12 lg:col-6 xl:col-6">
+        <div class="card mb-0 p-3 surface-border border-round shadow-2">
+          <h5 class="mb-3">Configuration de Devis</h5>
+          <div *ngIf="ConfigDevisList.length === 0" class="surface-card border-round p-3 mb-3 border-1 border-300">
+            <p class="text-900 font-medium">Les informations nécessaires pour la génération d'un devis ne sont pas
+              renseignées.</p>
+            <p-button label="Configurer" icon="pi pi-cog" size="small" class="p-button-primary mt-2"
+              (click)="openDialog(null, 'devis')"></p-button>
+          </div>
+          <div *ngFor="let configDevis of ConfigDevisList"
+            class="surface-card border-round p-3 mb-3 border-1 border-300">
+            <ul class="list-none p-0 m-0">
+              <li class="mb-2"><span class="font-bold mr-2">Modalités de Paiement Standard:</span><span>{{
+                  configDevis.condition_reglement_defaut }}</span></li>
+              <li class="mb-2"><span class="font-bold mr-2">Taux d'Intérêt en Cas de Retard:</span><span>{{
+                  configDevis.interet_retard }}</span></li>
+              <li class="mb-2"><span class="font-bold mr-2">Texte Introductif:</span><span>{{
+                  configDevis.text_introductif }}</span></li>
+              <li class="mb-2"><span class="font-bold mr-2">Pied de Page Défaut:</span><span>{{
+                  configDevis.pied_page_defaut }}</span></li>
+            </ul>
+            <p-accordion>
+              <p-accordionTab header="Termes et Conditions Généraux">
+                <p>{{ configDevis.condition_general }}</p>
+              </p-accordionTab>
+            </p-accordion>
+            <div class="mb-2">
+              <p-button label="Modifier la Configuration" icon="pi pi-pencil" size="small" severity="secondary"
+                (click)="openDialog(configDevis, 'devis')"></p-button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="col-12">
+        <div class="card mb-0 p-3 surface-border border-round shadow-2">
+          <!-- Card Header -->
+          <div class="flex justify-content-between align-items-center mb-3">
+            <h5 class="mb-0">Service Client</h5>
+          </div>
+          <div class="added-cards">
+            <!-- If no vehicle types are available -->
+            <div *ngIf="serviceClientList.length === 0" class="border-round surface-card p-3 mb-3 border-1 border-300">
+              <div class="flex justify-content-between align-items-start flex-column sm:flex-row">
+                <span class="text-900 font-medium">Aucune information n'a été enregistrée pour le service client.</span>
+                <p-button icon="pi pi-plus" size="small" (click)="openDialog(null, 'service_client')"></p-button>
+              </div>
+            </div>
+            <!-- If vehicle types are available -->
+            <div *ngIf="serviceClientList.length > 0">
+              <div *ngFor="let service of serviceClientList" class="border-round surface-card p-3 mb-3 border-1 border-300">
+                <div class="flex justify-content-between align-items-start flex-column sm:flex-row">
+                  <div>
+                    <h6 class="pb-2 mb-3 border-bottom-1 border-200">Détails</h6>
+                    <ul class="list-none p-0">
+                      <li class="mb-2">
+                        <span class="font-medium mr-2">Email:</span>
+                        <span class="font-bold">{{ service.email }}</span>
+                      </li>
+                      <li class="mb-2">
+                        <span class="font-medium mr-2">Téléphone:</span>
+                        <span class="font-bold">{{ service.telephone }}</span>
+                      </li>
+                      <li class="mb-2">
+                        <span class="font-medium mr-2">Adresse:</span>
+                        <span class="font-bold">{{ service.adresse }}</span>
+                      </li>
+                      <li class="mb-2">
+                        <span class="font-medium mr-2">Horaires d'ouverture:</span>
+                        <span class="font-bold">{{ service.horaires_ouverture }}</span>
+                      </li>
+                    </ul>
+                  </div>
+                  <div class="flex flex-column text-center sm:text-right mt-2 sm:mt-0">
+                    <div class="flex justify-content-end mb-2">
+                      <p-button icon="pi pi-pencil" size="small" severity="warning" class="mr-2"
+                        (click)="openDialog(service, 'service_client')"></p-button>
+                    </div>
+                    <small class="text-500">Créé le : {{ service.createdAt | date:'dd MMM yyyy à HH:mm' }}</small>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Section Types de véhicules -->
+      <div class="col-12">
+        <div class="card mb-0 p-3 surface-border border-round shadow-2">
+          <!-- Card Header -->
+          <div class="flex justify-content-between align-items-center mb-3">
+            <h5 class="mb-0">Types de véhicules</h5>
+            <p-button icon="pi pi-plus" size="small" (click)="openDialog(null, 'type_vehicule')"></p-button>
+          </div>
+          <div class="added-cards">
+            <!-- If no vehicle types are available -->
+            <div *ngIf="typeVehiculeList.length === 0" class="border-round surface-card p-3 mb-3 border-1 border-300">
+              <div class="flex justify-content-between align-items-start flex-column sm:flex-row">
+                <span class="text-900 font-medium">Aucun type de véhicule n'a été ajouté.</span>
+                <p-button icon="pi pi-plus" size="small" (click)="openDialog(null, 'type_vehicule')"></p-button>
+              </div>
+            </div>
+            <!-- If vehicle types are available -->
+            <div *ngIf="typeVehiculeList.length > 0">
+              <div *ngFor="let type of typeVehiculeList" class="border-round surface-card p-3 mb-3 border-1 border-300">
+                <div class="flex justify-content-between align-items-start flex-column sm:flex-row">
+                  <div>
+                    <h6 class="pb-2 mb-3 border-bottom-1 border-200">Détails du Type</h6>
+                    <ul class="list-none p-0">
+                      <li class="mb-2">
+                        <span class="font-medium mr-2">Type:</span>
+                        <span class="font-bold">{{ type.nom_type }} (<span class="text-primary">{{ type.entreprise
+                            }}</span>)</span>
+                      </li>
+                      <li class="mb-2">
+                        <span class="font-medium mr-2">Description:</span>
+                        <span class="font-bold">{{ type.description }}</span>
+                      </li>
+                    </ul>
+                  </div>
+                  <div class="flex flex-column text-center sm:text-right mt-2 sm:mt-0">
+                    <div class="flex justify-content-end mb-2">
+                      <p-button icon="pi pi-pencil" size="small" severity="warning" class="mr-2"
+                        (click)="openDialog(type, 'type_vehicule')"></p-button>
+                      <p-button icon="pi pi-trash" size="small" severity="danger"
+                        (click)="open(type.id, 'deleteTypeVehicule')"></p-button>
+                    </div>
+                    <small class="text-500">Créé le : {{ type.createdAt | date:'dd MMM yyyy à HH:mm' }}</small>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Section Suppléments -->
+      <div class="col-12">
+        <div class="card mb-0 p-3 surface-border border-round shadow-2">
+          <!-- Card Header -->
+          <div class="flex justify-content-between align-items-center mb-3">
+            <h5 class="mb-0">Suppléments</h5>
+            <p-button icon="pi pi-plus" *ngIf="attributList.length > 0" size="small" (click)="openDialog(null, 'attribut')"></p-button>
+          </div>
+          <div class="added-cards">
+            <!-- If no attributes are available -->
+            <div *ngIf="attributList.length === 0" class="border-round surface-card p-3 mb-3 border-1 border-300">
+              <div class="flex justify-content-between align-items-start flex-column sm:flex-row">
+                <span class="text-900 font-medium">Aucun supplément n'a été ajouté.</span>
+                <p-button icon="pi pi-plus" size="small" class="p-button-secondary"
+                  (click)="openDialog(null, 'attribut')"></p-button>
+              </div>
+            </div>
+            <!-- If attributes are available -->
+            <div *ngIf="attributList.length > 0">
+              <div *ngFor="let attribut of attributList" class="border-round surface-card p-3 mb-3 border-1 border-300">
+                <div class="flex justify-content-between align-items-start flex-column sm:flex-row">
+                  <div>
+                    <h6 class="pb-2 mb-3 border-bottom-1 border-200">Détails Des Suppléments</h6>
+                    <ul class="list-none p-0">
+                      <li class="mb-2">
+                        <span class="font-medium mr-2">Libellé:</span>
+                        <span class="font-bold">{{ attribut.nom_attribut }} (<span class="text-primary">{{
+                            attribut.prix_unitaire_attribut }}€</span>)</span>
+                      </li>
+                      <li class="mb-2">
+                        <span class="font-medium mr-2">Nombre Disponible:</span>
+                        <span class="font-bold">{{ attribut.nombre_maximum }}</span>
+                      </li>
+                      <li class="mb-2">
+                        <span class="font-medium mr-2">Entreprise:</span>
+                        <span class="font-bold">{{ attribut.entreprise }}</span>
+                      </li>
+                    </ul>
+                  </div>
+                  <div class="flex flex-column text-center sm:text-right mt-2 sm:mt-0">
+                    <div class="flex justify-content-end mb-2">
+                      <p-button icon="pi pi-pencil" size="small" severity="warning" class="mr-2"
+                        (click)="openDialog(attribut, 'attribut')"></p-button>
+                      <p-button icon="pi pi-trash" size="small" severity="danger"
+                        (click)="open(attribut.id, 'deleteAttribut')"></p-button>
+                    </div>
+                    <small class="text-500">Créé le : {{ attribut.createdAt | date:'dd MMM yyyy à HH:mm' }}</small>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div *ngIf="selectedSection === 'details-bancaires' && !loading">
+    <div class="grid">
+      <!-- Section Configuration des Informations du Compte Bancaire -->
+      <div class="col-12">
+        <div class="card mb-0 p-3 surface-border border-round shadow-2">
+          <h5 class="mb-3">Configuration des Informations du Compte Bancaire</h5>
+          <div *ngIf="virementList.length === 0" class="surface-card border-round p-3 mb-3 border-1 border-300">
+            <p class="text-900 font-medium">Les informations nécessaires pour la configuration du compte bancaire ne
+              sont pas encore renseignées.</p>
+            <p-button label="Configurer" icon="pi pi-cog" size="small" class="p-button-primary mt-2"
+              (click)="openDialog(null, 'virement_bancaire')"></p-button>
+          </div>
+          <div class="surface-card border-round p-3 mb-3 border-1 border-300">
+            <div *ngIf="virementList.length > 0" class="grid align-items-stretch">
+              <div class="col-12 lg:col-4 xl:col-4 flex align-items-center justify-content-center">
+                <div class="text-center">
+                  <img src="/assets/demo/images/banque.jpg" alt="Bank Image" class="mb-3 w-full h-auto"
+                    style="object-fit: contain; max-width: 100%; height: auto;" />
+                </div>
+              </div>
+              <div class="col-12 lg:col-8 xl:col-8">
+                <ul class="list-none p-0 m-0">
+                  <li *ngFor="let virement of virementList" class="mb-2">
+                    <div class="mb-2"><span class="font-bold mr-2">Titulaire Du Compte:</span><span>{{
+                        virement.titulaire }}</span></div>
+                    <div class="mb-2"><span class="font-bold mr-2">Libellé du Compte:</span><span>{{
+                        virement.libelleCompte }}</span></div>
+                    <div class="mb-2"><span class="font-bold mr-2">IBAN:</span><span>{{ virement.iban }}</span></div>
+                    <div class="mb-2"><span class="font-bold mr-2">BIC:</span><span>{{ virement.bic }}</span></div>
+                    <div class="mb-2" *ngIf="virement.description"><span
+                        class="font-bold mr-2">Description:</span><span>{{ virement.description }}</span></div>
+                  </li>
+                </ul>
+                <div class="mt-3">
+                  <p-button *ngFor="let virement of virementList" label="Modifier" icon="pi pi-pencil" size="small"
+                    (click)="openDialog(virement, 'virement_bancaire')"></p-button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Section Configuration des Informations du Compte PayPal -->
+      <div class="col-12">
+        <div class="card mb-0 p-3 surface-border border-round shadow-2">
+          <h5 class="mb-3">Configuration des Informations du Compte PayPal</h5>
+          <div *ngIf="paypalList.length === 0" class="surface-card border-round p-3 mb-3 border-1 border-300">
+            <p class="text-900 font-medium">Les informations nécessaires pour la configuration du compte PayPal ne sont
+              pas encore renseignées.</p>
+            <p-button label="Configurer" icon="pi pi-cog" size="small" class="p-button-primary mt-2"
+              (click)="openDialog(null, 'paypal')"></p-button>
+          </div>
+          <div *ngIf="paypalList.length > 0" class="surface-card border-round p-3 mb-3 border-1 border-300">
+            <div class="grid align-items-stretch">
+              <div class="col-12 lg:col-4 xl:col-4 flex align-items-center justify-content-center">
+                <div class="text-center">
+                  <img src="/assets/demo/images/paypal.png" alt="PayPal Image" class="mb-3 w-full h-auto"
+                    style="object-fit: contain; max-width: 100%; height: auto;" />
+                </div>
+              </div>
+              <div class="col-12 lg:col-8 xl:col-8">
+                <ul class="list-none p-0 m-0">
+                  <li *ngFor="let paypal of paypalList" class="mb-2">
+                    <div class="mb-2">
+                      <span class="font-bold mr-2">URL de l'API:</span>
+                      <span>{{ paypal.api_url }}</span>
+                    </div>
+                    <div class="mb-2">
+                      <span class="font-bold mr-2">Client ID:</span>
+                      <span [ngClass]="{ 'masked-text': !showClientId }" class="mr-2"
+                        style="word-break: break-all; overflow-wrap: break-word; max-width: 100%;">{{ showClientId ?
+                        paypal.client_id : '************' }}</span>
+                      <i class="{{ showClientId ? 'pi pi-eye-slash' : 'pi pi-eye' }} ml-2"
+                        (click)="toggleVisibility('clientId')" style="cursor: pointer;"></i>
+                    </div>
+                    <div class="mb-2">
+                      <span class="font-bold mr-2">Clé Sécrete:</span>
+                      <span [ngClass]="{ 'masked-text': !showClientSecret }" class="mr-2"
+                        style="word-break: break-all; overflow-wrap: break-word; max-width: 100%;">{{ showClientSecret ?
+                        paypal.client_secret : '************' }}</span>
+                      <i class="{{ showClientSecret ? 'pi pi-eye-slash' : 'pi pi-eye' }} ml-2"
+                        (click)="toggleVisibility('clientSecret')" style="cursor: pointer;"></i>
+                    </div>
+                  </li>
+                </ul>
+                <div class="mt-3">
+                  <p-button *ngFor="let paypal of paypalList" label="Modifier" icon="pi pi-pencil" size="small"
+                    class="p-button-secondary" (click)="openDialog(paypal, 'paypal')"></p-button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div *ngIf="selectedSection === 'moyens-de-paiement' && !loading">
+
+    <div class="col-12">
+      <div class="card mb-0 p-3 surface-border border-round shadow-2">
+        <!-- Card Header -->
+        <div class="flex justify-content-between align-items-center mb-3">
+          <h5 class="mb-0">Modes De Paiements</h5>
+          <p-button icon="pi pi-plus" size="small" (click)="openDialog(null, 'methode')"/>
+        </div>
+        <p class="mb-2">Configurer les modes de paiements qui seront disponibles dans votre module</p>
+
+        <div class="added-cards">
+          <div *ngFor="let mode of modeList" class="border-round surface-card p-3 mb-3 border-1 border-300">
+            <div class="flex justify-content-between align-items-start flex-column sm:flex-row">
+              <div>
+                <h6 class="pb-2 mb-3 border-bottom-1 border-200">Détails</h6>
+                <ul class="list-none p-0">
+                  <li class="mb-2">
+                    <span class="font-medium mr-2">Type:</span>
+                    <span class="font-bold">{{ formatPaymentMethodName(mode.nom) }}</span>
+                  </li>
+                  <li class="mb-2">
+                    <span class="font-medium mr-2">Etat:</span>
+                    <span class="font-bold"><p-tag [value]="mode.is_active ? 'Activer' : 'Désactiver'"
+                        [severity]="mode.is_active ? 'success' : 'danger'"></p-tag></span>
+                  </li>
+                </ul>
+              </div>
+              <div class="flex flex-column text-center sm:text-right mt-2 sm:mt-0">
+                <div class="flex justify-content-end mb-2">
+                  <p-button label="{{ mode.is_active ? 'Désactiver' : 'Activer' }}" size="small"
+                    (click)="toggleMethodeActive(mode)" class="p-button-rounded p-button-text"
+                    [severity]="mode.is_active ? 'danger' : 'success'">
+                  </p-button>
+                  <p-button *ngIf="isCustomMethode(mode)" icon="pi pi-pencil" class="ml-2" size="small" (click)="openDialog(mode, 'methode')"></p-button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <div class="flex justify-content-center" *ngIf="loading">
+    <p-progressSpinner class="spinner-size spinner-style" />
+  </div>
+
+</div>
+
+<p-dialog header="Fiche De Détails" [(visible)]="detailsDialogVisible" [modal]="true" [style]="{width: '75vw'}"
+  [closable]="true" [breakpoints]="{ '1199px': '75vw', '575px': '90vw' }">
+
+  <div *ngFor="let entreprise of entrepriseList">
+    <div class="grid align-items-stretch">
+      <!-- Column 1: Image -->
+      <div class="col-12 lg:col-4 xl:col-4 flex align-items-center justify-content-center" style="height: 100%;">
+        <img [src]="getLogoUrl(entreprise.logo)" alt="Profile Image" class="w-full h-auto"
+          style="object-fit: contain; max-width: 100%; height: 100%;" />
+      </div>
+
+      <!-- Column 2: Entreprise Details -->
+      <div class="col-12 lg:col-4 xl:col-4 flex align-items-center" style="height: 100%;">
+        <ul class="list-none p-0">
+          <li class="mb-2">
+            <span class="font-bold mr-2">Nom De l'Entreprise:</span>
+            <span>{{ entreprise.nom }}</span>
+          </li>
+          <li class="mb-2">
+            <span class="font-bold mr-2">Email:</span>
+            <span>{{ entreprise.email }}</span>
+          </li>
+          <li class="mb-2">
+            <span class="font-bold mr-2">Telephone:</span>
+            <span>{{ entreprise.telephone }}</span>
+          </li>
+          <li class="mb-2">
+            <span class="font-bold mr-2">Adresses:</span>
+            <span>{{ entreprise.adresse }}</span>
+          </li>
+          <li class="mb-2">
+            <span class="font-bold mr-2">Site web:</span>
+            <span>{{ entreprise.site_web }}</span>
+          </li>
+          <li class="mb-2">
+            <span class="font-bold mr-2">Lieu d'opération:</span>
+            <span>{{ entreprise.lieu_operation }}</span>
+          </li>
+          <li class="mb-2">
+            <span class="font-bold mr-2">Date ajout:</span>
+            <span>{{ entreprise.date_ajout | date: 'medium' }}</span>
+          </li>
+          <li class="mb-2">
+            <span class="font-bold mr-2">Entreprise Key:</span>
+            <span>{{ entreprise.entrepriseKey || 'pas générer' }} </span>
+          </li>
+
+          <li class="mb-2">
+            <span class="font-bold mr-2">Numéro TVA:</span>
+            <span>{{ entreprise.numero_tva || 'pas renseigné' }}</span>
+          </li>
+          <li class="mb-2">
+            <span class="font-bold mr-2">Code NAF:</span>
+            <span>{{ entreprise.code_Naf || 'pas renseigné' }}</span>
+          </li>
+          <li class="mb-2">
+            <span class="font-bold mr-2">Code Postal:</span>
+            <span>{{ entreprise.code_Postal || 'pas renseigné'}}</span>
+          </li>
+          <li class="mb-2">
+            <span class="font-bold mr-2">SIREN/SIRET:</span>
+            <span>{{ entreprise.siren_siret || 'pas renseigné'}}</span>
+          </li>
+        </ul>
+      </div>
+
+      <!-- Column 3: User Details and Additional Contacts -->
+      <div class="col-12 lg:col-4 xl:col-4 flex align-items-center" style="height: 100%;">
+        <ul class="list-none p-0">
+          <!-- User Info -->
+          <li class="mb-2">
+            <span class="font-bold">Adminstrateur</span>
+          </li>
+          <li class="mb-2">
+            <span class="font-bold mr-2">Nom:</span>
+            <span>{{ entreprise.user.last_name }} {{ entreprise.user.first_name }}</span>
+          </li>
+          <li class="mb-2">
+            <span class="font-bold mr-2">Contact:</span>
+            <span>{{ entreprise.user.email }} ({{ entreprise.user.telephone }})</span>
+          </li>
+
+          <!-- DG Info -->
+          <div *ngIf="entreprise.nom_DG && entreprise.email_DG && entreprise.contact_DG; else noDGInfo">
+            <li class="mb-2">
+              <span class="font-bold mr-2">Nom DG:</span>
+              <span>{{ entreprise.nom_DG }}</span>
+            </li>
+            <li class="mb-2">
+              <span class="font-bold mr-2">Contact DG:</span>
+              <span>{{ entreprise.email_DG }} ({{ entreprise.contact_DG }})</span>
+            </li>
+          </div>
+
+          <!-- Chargé de la clientèle Info -->
+          <div
+            *ngIf="entreprise.nom_Charge_de_la_clientele && entreprise.email_Charge_de_la_clientele && entreprise.contact_Charge_de_la_clientele; else noClientInfo">
+            <li class="mb-2">
+              <span class="font-bold mr-2">Nom Chargé de la clientèle:</span>
+              <span>{{ entreprise.nom_Charge_de_la_clientele }}</span>
+            </li>
+            <li class="mb-2">
+              <span class="font-bold mr-2">Contact Chargé de la clientèle:</span>
+              <span>{{ entreprise.email_Charge_de_la_clientele }} ({{ entreprise.contact_Charge_de_la_clientele
+                }})</span>
+            </li>
+          </div>
+
+          <!-- Dr des Finances Info -->
+          <div
+            *ngIf="entreprise.nom_Dr_des_Finances && entreprise.email_Dr_des_Finances && entreprise.contact_Dr_des_Finances; else noFinanceInfo">
+            <li class="mb-2">
+              <span class="font-bold mr-2">Nom Dr des Finances:</span>
+              <span>{{ entreprise.nom_Dr_des_Finances }}</span>
+            </li>
+            <li class="mb-2">
+              <span class="font-bold mr-2">Contact Dr des Finances:</span>
+              <span>{{ entreprise.email_Dr_des_Finances }} ({{ entreprise.contact_Dr_des_Finances }})</span>
+            </li>
+          </div>
+
+          <!-- No Info Templates -->
+          <ng-template #noDGInfo>
+            <li class="mb-2">
+              <span class="font-bold mr-2">DG:</span>
+              <span>Les informations du DG ne sont pas renseignées</span>
+            </li>
+          </ng-template>
+
+          <ng-template #noClientInfo>
+            <li class="mb-2">
+              <span class="font-bold mr-2">Chargé de la clientèle:</span>
+              <span>Chargé de la clientèle: Les informations du Chargé de la clientèle ne sont pas renseignées</span>
+            </li>
+          </ng-template>
+
+          <ng-template #noFinanceInfo>
+            <li class="mb-2">
+              <span class="font-bold mr-2">Dr des Finances:</span>
+              <span>Dr des Finances: Les informations du Dr des Finances ne sont pas renseignées</span>
+            </li>
+          </ng-template>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <p-footer>
+    <div *ngFor="let entreprise of entrepriseList">
+      <p-button label="Fermer" size="small" class="mr-2" severity="secondary" (click)="detailsDialogVisible = false" />
+      <p-button label="Mettre à Jour" size="small" [routerLink]="['/app/parametres/monEntreprise', entreprise.id]"
+        (click)="detailsDialogVisible = false" />
+    </div>
+  </p-footer>
+</p-dialog>
+
+<app-parametre-dialog [(visible)]="dialogVisible" [parametres]="selectedParametres" [type]="dialogType"
+  (onClose)="dialogVisible = false; getEntreprise()">
+</app-parametre-dialog>
+
+<p-dialog header="Confirmation" [modal]="true" [(visible)]="visible" [style]="{ width: '25rem' }">
+  <div class="flex align-items-center gap-3 mb-3 my-2">
+    <span>
+      <i class="pi pi-exclamation-triangle mr-2 text-orange-400"></i>
+      Êtes-vous sûr de vouloir supprimer ce element ?
+    </span>
+  </div>
+  <p-footer class="flex justify-content-end gap-2 ">
+    <p-button label="Annuler" severity="secondary" (onClick)="validate('non');" size="small" />
+    <p-button label="Confirmé" (onClick)="validate('oui')" size="small" />
+  </p-footer>
+</p-dialog>

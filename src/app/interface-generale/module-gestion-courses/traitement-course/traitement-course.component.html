@@ -1,0 +1,119 @@
+<!-- Page de félicitations affichée lorsque la course est terminée -->
+<div class="container centered-content" *ngIf="courseTerminee">
+  <div class="page-container">
+    <div class="card mb-2">
+      <div class="card-header text-start">
+        <h3 class="mb-2 text-uppercase">🎉 Félicitations ! 🎉</h3>
+        <p class="mb-2 my-1">
+          Vous avez terminé la course avec succès. Nous vous remercions pour votre service. Nous espérons vous retrouver
+          bientôt pour une nouvelle mission.
+        </p>
+      </div>
+      <div class="my-3 text-center">
+        <button pButton pRipple (click)="quitter()" class="p-button-raised p-button-secondary">Quitter</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Page de traitement de la course, affichée uniquement si la course n'est pas terminée et que loading est false -->
+<div class="container" *ngIf="!loading && !courseTerminee">
+  <div class="page-container">
+    <!-- Alerte de démarrage avec compte à rebours -->
+
+    <div class="card mb-2">
+      <div class="card-header text-start">
+        <h3 class="mb-2 text-uppercase">Course : {{ reservation?.numero_reservation || "" }}</h3>
+        <p class="mb-2 my-1">
+          Consultez les informations ci-dessous pour la course que vous allez gérer. Appuyez sur le bouton pour
+          commencer la course. Merci pour votre attention !
+        </p>
+      </div>
+    </div>
+
+    <div class="card mb-2">
+      <div class="card-body demo-vertical-spacing demo-only-element">
+        <div #mapContainer id="map" style="height: 310px;"></div>
+        <div class="d-flex flex-row justify-content-start align-items-start mt-3">
+          <div>
+            <span><i class='pi pi-users'></i>&nbsp;<strong>{{ reservation?.nombrePassager || "" }}</strong></span>
+            <span class="mx-1"><i class='pi pi-briefcase'></i>&nbsp;<strong>{{ reservation?.nombreBagage || ""
+                }}</strong></span>
+            <span class="mx-1"><i class="pi pi-map"></i>&nbsp;<strong>{{ reservation?.distance || "" }}
+                Km</strong></span>
+            <span><i class="pi pi-clock"></i>&nbsp;<strong>{{ reservation?.duree || "" }}</strong></span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="card mb-2 booking-container">
+      <div class="booking-header d-flex align-items-center">
+        <h5 class="ml-2 text-uppercase">Détails supplémentaires</h5>
+      </div>
+      <div class="booking-detail">
+        <div class="my-1 mx-2">
+          <strong>Mode de paiement :</strong> {{ formatPaymentMethodName(reservation?.modePaiement || "") }}
+        </div>
+        <div class="my-1 mx-2" *ngIf="reservation?.compagnieAerienne">
+          <strong>Nº De Vol/Train :</strong> {{ reservation?.compagnieAerienne }}
+        </div>
+        <div class="my-1 mx-2">
+          <strong>Lieu de rencontre :</strong> {{ reservation?.lieu_rendez_vous || 'Non spécifié' }}
+        </div>
+
+        <div class="my-1 mx-2">
+          <strong>Tarif de vente de la course :</strong>
+          {{ reservation?.coutDeVente | currency:'EUR':'symbol':'1.2-2' }}
+        </div>
+
+        <div class="my-1 mx-2">
+          <strong>Tarif de la course :</strong>
+          <span *ngIf="reservation?.modePaiement === 'payement_abord'" class="badge badge-info">
+            {{ reservation?.coutTotalReservation | currency:'EUR':'symbol':'1.2-2' }}
+          </span>
+        </div>
+        <div class="my-1 mx-2" *ngIf="affichageForm.value.supplements.length > 0">
+          <p class="card-text"><strong>Suppléments :</strong></p>
+          <ul class="list-group">
+            <li *ngFor="let item of affichageForm.value.supplements" class="list-group-item">
+              {{ item.nom_attribut }} ({{ item.quantite }})
+            </li>
+          </ul>
+        </div>
+
+        <div class="my-1 mx-2" *ngIf="affichageForm.value.passagers.length > 0">
+          <p class="card-text"><strong>Liste des passagers ajoutés :</strong></p>
+          <ul class="list-group">
+            <li *ngFor="let passenger of affichageForm.value.passagers" class="list-group-item">
+              {{ passenger.content }}
+            </li>
+          </ul>
+        </div>
+
+        <div class="my-1 mx-2" *ngIf="affichageForm.value.notes.length > 0">
+          <p class="card-text"><strong>Notes :</strong></p>
+          <ul class="list-group">
+            <li *ngFor="let note of affichageForm.value.notes" class="list-group-item">
+              {{ note.content }}
+            </li>
+          </ul>
+        </div>
+      </div>
+      <div class="my-3 text-center">
+        <button pButton pRipple *ngIf="reservation?.statutReservation === 'chauffeur_notifier'"
+          (click)="changeReservationStatus('en_approche')" class="p-button-raised">Mettre en Approche</button>
+        <button pButton pRipple *ngIf="reservation?.statutReservation === 'en_approche'" [disabled]="courseEnCours"
+          (click)="changeReservationStatus('en_cours')" class="p-button-raised p-button-warning">{{ countdownText
+          }}</button>
+        <button pButton pRipple *ngIf="reservation?.statutReservation === 'en_cours'" [disabled]="courseActive"
+          (click)="changeReservationStatus('terminer')" class="p-button-raised p-button-success">{{
+          durationCountdownText }}</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="loader-container" *ngIf="loading">
+  <p-progressSpinner class="spinner-size spinner-style" />
+</div>

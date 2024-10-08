@@ -1,0 +1,62 @@
+<div class="w-full" *ngIf="infoProfile">
+  <div class="card-w-title mb-4">
+    <p-breadcrumb [model]="breadcrumbItems" [home]="{icon: 'pi pi-home'}"></p-breadcrumb>
+  </div>
+
+  <div class="my-4 card mb-0 clickable-card-t p-3" *ngIf="infoProfile?.chauffeur_info">
+    <div class="flex flex-column md:flex-row align-content-around align-items-center">
+      <img [src]="getLogoUrl(infoProfile.chauffeur_info.photo)" alt="Profile Image"
+        class="profile-image mb-3 md:mb-0 md:mr-3" />
+
+      <div class="flex-auto mx-3 text-start md:text-left">
+        <h4
+          class="flex align-items-center gap-2 flex-wrap mt-3 justify-content-center md:justify-content-start text-2xl text-600 text-black-alpha-90">
+          {{ infoProfile?.chauffeur_info?.nom }}
+        </h4>
+
+        <div class="flex align-items-center gap-2 flex-wrap mt-3 justify-content-center md:justify-content-start">
+
+          <div class="mb-2 sm:mr-3 sm:mb-1">
+            <i class="pi pi-gift mr-2"></i>
+            <span class="text-blue-500 font-semibold">{{ infoProfile?.total_points_fidelite }} pts</span>
+          </div>
+          <div class="mb-2 sm:mr-3 sm:mb-1">
+            <i class="pi pi-map-marker mr-2"></i>
+            <span>{{ infoProfile?.chauffeur_info?.adresse }}</span>
+          </div>
+          <div class="mb-2 sm:mr-3 sm:mb-1">
+            <i class="pi pi-envelope mr-2"></i>
+            <span>{{ infoProfile?.chauffeur_info?.email }}</span>
+          </div>
+
+          <div>
+            <i class="pi pi-phone mr-2 mb-1"></i>
+            <span>{{ infoProfile?.chauffeur_info?.telephone }}</span>
+          </div>
+
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="grid">
+    <div class="col-12">
+      <div class="card flex flex-column align-items-center justify-content-center p-5 shadow-2 h-full">
+        <!-- Text Section -->
+        <div class="text-center">
+          <h3 class="text-900 font-bold mb-4">Bienvenue au Marché des Cadeaux ! 🎁🥳</h3>
+
+          <i class="pi pi-gift text-blue-500 mt-2" style="font-size: 100px; width: 100px; height: 100px;"></i>
+
+          <p class="text-700 mt-4">
+            Actuellement, aucun cadeau n'est disponible pour que vous puissiez profiter de vos points de fidélité.
+            ✨ Nous vous invitons à revenir bientôt afin de découvrir les offres spéciales que nous vous réservons. 🎉
+          </p>
+
+          <button pButton class="mb-2" routerLink="/app/reservations/" label="Quitter le marché"></button>
+        </div>
+
+      </div>
+    </div>
+  </div>
+
+</div>

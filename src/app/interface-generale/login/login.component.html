@@ -1,0 +1,167 @@
+<div class="container centered-content"  *ngIf="!loading">
+  <div class="page-container w-auto ">
+    <p-messages [(value)]="msgs" [enableService]="false" [closable]="false" />
+    <!-- j'ai changer *ngIf="!isResetPasswordVisible" pour pouvoir modifier l'interface je dois me rappller de remmetre la version dans le commentaire  -->
+    <div class="card flex justify-content-center " *ngIf="!isResetPasswordVisible">
+      <div class="flex flex-column align-items-center w-full lg:w-6">
+
+        <div class="text-center mb-5">
+          <img src="assets/layout/images/Logo-app.png" alt="Image" height="50" class="mb-3">
+          <div class="text-900 text-3xl font-medium mb-3">CONNEXION</div>
+        </div>
+
+        <form id="formAuthentication" (ngSubmit)="onSubmit()" [formGroup]="loginForm">
+
+          <div>
+            <label for="email1" class="block text-900 font-medium mb-2">Email ou
+              Telephone</label>
+            <input id="email1" type="text" pInputText class="w-full w-20rem mb-3"
+              placeholder="Entrer l'email ou le numero" formControlName="email_ou_telephone">
+            <!-- Afficher les erreurs du champ email_ou_telephone -->
+            <div class="mb-1"
+              *ngIf="loginForm.get('email_ou_telephone')?.touched && loginForm.get('email_ou_telephone')?.errors">
+              <div
+                *ngIf="loginForm.get('email_ou_telephone')?.hasError('required') && loginForm.get('email_ou_telephone')?.touched">
+                <span class="text-red-500">Ce champ est
+                  requis.</span>
+              </div>
+              <div *ngIf="loginForm.get('email_ou_telephone')?.hasError('pattern')">
+                <span class="text-red-500">Le format de
+                  l'email ou du numéro est
+                  incorrect.</span>
+              </div>
+              <!-- Ajoutez d'autres messages d'erreur au besoin -->
+            </div>
+          </div>
+
+          <div>
+            <label for="password1" class="block text-900 font-medium mb-2">Password</label>
+            <p-password id="password1" placeholder="Password" [toggleMask]="true" styleClass="w-full mb-5"
+              inputStyleClass="w-full" formControlName="passCode"></p-password>
+
+            <div class="mb-1"
+              *ngIf="loginForm.get('passCode')?.hasError('required') && loginForm.get('passCode')?.touched">
+              <span class="text-red-500">Ce champ est requis.</span>
+            </div>
+
+          </div>
+
+
+          <div class="flex align-items-center justify-content-between mb-3">
+            <div class="flex align-items-center">
+              <!-- Additional content can be added here if needed -->
+            </div>
+            <a (click)="toggleResetForm()"
+              class="font-medium no-underline ml-2 text-blue-500 text-right cursor-pointer">Mots Passe Oublie?</a>
+          </div>
+          <div class="flex align-items-center justify-content-center">
+            <button pButton pRipple label="Se Connecter" class="w-full" type="submit"
+              [disabled]="!loginForm.valid"></button>
+          </div>
+        </form>
+
+      </div>
+    </div>
+    <div class="card flex justify-content-center lg:w-12" *ngIf="isResetPasswordVisible">
+
+      <div class="flex flex-column align-items-center " *ngIf="!isVerificationPasswordVisible">
+        <div class="text-900 text-2xl font-medium mb-6">Mot de passe oublié? 🔒</div>
+
+        <form id="formAuthentication" (ngSubmit)="onSubmit()" [formGroup]="emailForm" class="mb-4">
+
+          <div class="flex align-items-center justify-content-center mb-3">
+
+            <input id="email1" type="email" pInputText class="w-20rem mb-2 " placeholder="Entrer votre Email"
+              formControlName="emailOrPhone">
+            <div *ngIf="emailForm.get('emailOrPhone')?.hasError('required') && emailForm.get('emailOrPhone')?.touched">
+              <span class="text-danger">Ce champ est requis.</span>
+            </div>
+          </div>
+
+          <div class="flex align-items-center justify-content-center">
+            <button pButton pRipple label="Envoyer la requête" class="w-full" type="submit" (click)="toggleVerificationForm()"
+              [disabled]="emailForm.invalid"></button>
+          </div>
+        </form>
+        <div class="flex align-items-center justify-content-center">
+          <button pButton pRipple icon="pi pi-arrow-left" label="Retourner à la connexion" class="p-button-text"
+            (click)="onConnexionClick()"></button>
+        </div>
+      </div>
+      <!-- ici aussi je dois changer je dois me referer au code orignale pour faire les corrections  -->
+      <div class="flex flex-column align-items-center " *ngIf="isVerificationPasswordVisible">
+
+        <div *ngIf="!isVerifierPasswordVisible">
+          <div class="text-900 text-2xl font-medium mb-2 capitalize uppercase">Vérification en deux étapes 💬</div>
+          <div class="text-color-secondary mb-5">
+            <p>Veuillez entrer le code envoyé à votre email ci-dessous.</p>
+          </div>
+          <form id="twoStepsForm" [formGroup]="passwordResetControlForm">
+            <p-inputOtp formControlName="verificationCode" [length]="6" style="gap: 0">
+              <ng-template pTemplate="input" let-token let-events="events" let-index="index">
+                <input pInputText type="text" [maxLength]="1" (input)="events.input($event)"
+                  (keydown)="events.keydown($event)" [attr.value]="token" class="custom-otp-input" />
+                <div *ngIf="index === 3" class="px-3">
+                  <i class="pi pi-minus"></i>
+                </div>
+              </ng-template>
+            </p-inputOtp>
+            <div class="flex justify-content-between mt-5 align-self-stretch">
+              <p-button label="Renvoyer le code " [link]="true" class="p-0" (click)="renvoyerCode()" />
+              <p-button label="Vérifier" (click)="toggleVerifiernForm()" size="small" />
+            </div>
+
+          </form>
+        </div>
+        <div *ngIf="isVerifierPasswordVisible">
+          <div class="text-900 text-2xl font-medium mb-2 capitalize uppercase">Réinitialiser Le Mot De Passe 🔓</div>
+          <div class="text-color-secondary mb-5">
+          </div>
+          <form id="formAuthentication" class="mb-3" [formGroup]="passwordResetForm">
+            <div class="mb-2 form-password-toggle">
+              <label for="password1" class="block text-900 font-medium mb-2">Nouveau Mot De Passe</label>
+              <p-password id="password1" formControlName="newPassword" placeholder="Nouveau Mot De Passe"
+                [toggleMask]="true" styleClass="w-full mb-3" inputStyleClass="w-25rem"></p-password>
+
+              <div *ngIf="passwordResetForm.get('newPassword')?.hasError('invalidPassword')" class="text-red-500">
+                Le mot de passe doit contenir au moins une lettre majuscule, une lettre minuscule, un
+                chiffre, un caractère spécial et avoir une longueur minimale de 8 caractères.
+              </div>
+            </div>
+
+            <div class="mb-2 form-password-toggle">
+
+              <label for="password3" class="block text-900 font-medium mb-2">Confirmez Le Mot De Passe</label>
+              <p-password id="password3" placeholder="Nouveau Mot De Passe" [toggleMask]="true" styleClass="w-full mb-3"
+                inputStyleClass="w-25rem" formControlName="confirmNewPassword"></p-password>
+
+              <div *ngIf="passwordResetForm.get('confirmNewPassword')?.hasError('invalidPassword')"
+                class="text-red-500">
+                Les mots de passe ne correspondent pas ou ne respectent pas les critères de sécurité.
+              </div>
+
+            </div>
+            <div class="flex align-items-center justify-content-center">
+              <button pButton pRipple class="w-full" (click)="resetPassword()" label="Sauvegarder">
+              </button>
+            </div>
+            <div class="flex align-items-center justify-content-center">
+              <button pButton pRipple icon="pi pi-arrow-left" label="Retourner à la connexion" class="p-button-text"
+                (click)="onConnexionClick()"></button>
+            </div>
+
+          </form>
+
+        </div>
+
+      </div>
+
+    </div>
+  </div>
+</div>
+
+
+<div class="loader-container" *ngIf="loading">
+  <p-progressSpinner class="spinner-size spinner-style" />
+</div>
+

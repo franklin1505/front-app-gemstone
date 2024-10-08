@@ -1,0 +1,221 @@
+<div class="w-full" *ngIf="!loading">
+  <div class="card-w-title mb-2">
+    <p-breadcrumb [model]="breadcrumbItems" [home]="{icon: 'pi pi-home', command: navigateToDashboard}"></p-breadcrumb>
+  </div>
+  <p-dataView [value]="vehicules" layout="grid">
+    <ng-template pTemplate="header">
+
+      <div class="flex justify-content-between">
+        <div></div>
+        <p-button type="button" label="Retour" class="font-bold" size="small" severity="danger"
+          routerLink="/app/partenaire/profil" />
+      </div>
+    </ng-template>
+
+    <ng-template let-vehicule pTemplate="grid">
+      <div class="grid grid-nogutter">
+        <div class="col-12 sm:col-4 md:col-4 xl:col-4 p-2" *ngFor="let vehicule of vehicules">
+          <div class="vehicule-card p-4 border-1 surface-border surface-card border-round flex flex-column">
+            <div class="surface-50 flex justify-content-center border-round p-3">
+
+              <div class="relative mx-auto">
+                <img class="border-round w-full" [src]="getLogoUrl(vehicule.galerie)" [alt]="vehicule.marque" />
+                <p-tag [value]="vehicule.validation ? 'Activé' : 'Désactivé'" [severity]="getSeverity(vehicule)"
+                  [style.left.px]="2" [style.top.px]="2" class="absolute">
+                </p-tag>
+              </div>
+
+            </div>
+            <div class="pt-4">
+              <div class="flex flex-row justify-content-between align-items-start gap-2">
+                <div>
+                  <p-tag [value]="vehicule.marque + ' ' + vehicule.modele " severity="secondary"></p-tag>
+                </div>
+              </div>
+              <div class="my-3 flex flex-wrap text-nowrap gap-0">
+                <span>Type: {{ vehicule.typeVehicule }}</span>
+                <span class="mx-2">|</span>
+                <span>Pass: {{ vehicule.capacite_passagers }}</span>
+                <span class="mx-2">|</span>
+                <span>Bags: {{ formatCapaciteChargement(vehicule.capacite_chargement) }}</span>
+                <span class="mx-2">|</span>
+                <span>Base:{{ vehicule.lieu_de_base }}</span>
+              </div>
+              <div class="flex">
+                <p-button label="Détails" icon="pi pi-info-circle" severity="info" size="small"
+                  (click)="showDetails(vehicule)" class="flex-auto md:flex-initial white-space-nowrap mr-2" />
+                <p-splitButton label="Actions" severity="warning" size="small" [model]="items">
+                  <!-- (onDropdownClick)="action(vehicule,vehicule.id)"--> </p-splitButton>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </ng-template>
+
+    <ng-template pTemplate="empty">
+      <div class="flex flex-column justify-content-center align-items-center" style="height: 100px;">
+        <h6 class="block pt-3">Actuellement, il n'a aucun vehicule enregistrée dans le compte de cet enreprise</h6>
+      </div>
+    </ng-template>
+
+  </p-dataView>
+</div>
+
+<p-dialog header="Fiche De Détails" [(visible)]="detailsDialogVisible" [modal]="true" [style]="{width: '75vw'}"
+  [closable]="true" [breakpoints]="{ '1199px': '75vw', '575px': '90vw' }">
+
+  <div *ngIf="selectedVehicule">
+    <div class="grid align-items-stretch">
+      <div class="col-12 lg:col-4 xl:col-4 flex align-items-center justify-content-center" style="height: 100%;">
+        <img [src]="getLogoUrl(selectedVehicule.galerie)" alt="Image du Véhicule" class="w-full h-auto border-round"
+          style="object-fit: contain; max-width: 100%; height: 100%;" />
+      </div>
+      <div class="col-12 lg:col-4 xl:col-4" style="height: 100%;">
+        <ul class="list-none p-0">
+          <li class="mb-2">
+            <span class="font-bold mr-2">Marque:</span>
+            <span>{{ selectedVehicule.marque || 'Données non renseignées' }}</span>
+          </li>
+          <li class="mb-2">
+            <span class="font-bold mr-2">Modèle:</span>
+            <span>{{ selectedVehicule.modele || 'Données non renseignées' }}</span>
+          </li>
+          <li class="mb-2">
+            <span class="font-bold mr-2">Type de Véhicule:</span>
+            <span>{{ selectedVehicule.typeVehicule || 'Données non renseignées' }}</span>
+          </li>
+          <li class="mb-2">
+            <span class="font-bold mr-2">Capacité de Passagers:</span>
+            <span>{{ selectedVehicule.capacite_passagers || 'Données non renseignées' }}</span>
+          </li>
+          <li class="mb-2">
+            <span class="font-bold mr-2">Capacité de Chargement:</span>
+            <span>{{ formatCapaciteChargement(selectedVehicule.capacite_chargement) || 'Données non renseignées'
+              }}</span>
+          </li>
+          <li class="mb-2">
+            <span class="font-bold mr-2">Temps de Disponibilité:</span>
+            <span>{{ selectedVehicule.tempsDisponibilite ? selectedVehicule.tempsDisponibilite + ' heures' : 'Données
+              pas renseignées' }}</span>
+          </li>
+          <li class="mb-2">
+            <span class="font-bold mr-2">Lieu de Base:</span>
+            <span>{{ selectedVehicule.lieu_de_base || 'Données non renseignées' }}</span>
+          </li>
+          <li class="mb-2" *ngIf="selectedVehicule.vehicule_prix?.length > 0">
+            <span class="font-bold mr-2">Tarif par Km:</span>
+            <span>{{ selectedVehicule.vehicule_prix[0]?.prixParKm | currency:'EUR':'symbol' }}</span>
+          </li>
+          <li class="mb-2" *ngIf="selectedVehicule.vehicule_prix?.length > 0">
+            <span class="font-bold mr-2">Tarif par heure:</span>
+            <span>{{ selectedVehicule.vehicule_prix[0]?.prixParDuree | currency:'EUR':'symbol' }}</span>
+          </li>
+          <li class="mb-2" *ngIf="selectedVehicule.vehicule_prix?.length > 0">
+            <span class="font-bold mr-2">Tarif de base:</span>
+            <span>{{ selectedVehicule.vehicule_prix[0]?.fraisReservation | currency:'EUR':'symbol' }}</span>
+          </li>
+        </ul>
+      </div>
+      <div class="col-12 lg:col-4 xl:col-4" style="height: 100%;">
+        <ul class="list-none p-0">
+          <li class="mb-2" *ngIf="selectedVehicule.vehicule_prix?.length > 0">
+            <span class="font-bold mr-2">Tarif au Km d'approche:</span>
+            <span>{{ selectedVehicule.vehicule_prix[0]?.fraisLivraison | currency:'EUR':'symbol' }}</span>
+          </li>
+          <li class="mb-2" *ngIf="selectedVehicule.vehicule_prix?.length > 0">
+            <span class="font-bold mr-2">Tarif minimum:</span>
+            <span>{{ selectedVehicule.vehicule_prix[0]?.fraisParDefaut | currency:'EUR':'symbol' }}</span>
+          </li>
+          <li class="mb-2">
+            <span class="font-bold mr-2">Année de Fabrication:</span>
+            <span>{{ selectedVehicule.annee_fabrication || 'Données non renseignées' }}</span>
+          </li>
+          <li class="mb-2">
+            <span class="font-bold mr-2">Immatriculation:</span>
+            <span>{{ selectedVehicule.immatriculation || 'Données non renseignées' }}</span>
+          </li>
+          <li class="mb-2">
+            <span class="font-bold mr-2">Type de Carburant:</span>
+            <span>{{ selectedVehicule.type_carburant || 'Données non renseignées' }}</span>
+          </li>
+          <li class="mb-2">
+            <span class="font-bold mr-2">Moteur:</span>
+            <span>{{ selectedVehicule.moteur || 'Données non renseignées' }}</span>
+          </li>
+          <li class="mb-2">
+            <span class="font-bold mr-2">Transmission:</span>
+            <span>{{ selectedVehicule.transmission || 'Données non renseignées' }}</span>
+          </li>
+          <li class="mb-2">
+            <span class="font-bold mr-2">Couleur Extérieure:</span>
+            <span>{{ selectedVehicule.couleur_exterieur || 'Données non renseignées' }}</span>
+          </li>
+          <li class="mb-2">
+            <span class="font-bold mr-2">Couleur Intérieure:</span>
+            <span>{{ selectedVehicule.couleur_interieur || 'Données non renseignées' }}</span>
+          </li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+
+  <p-footer>
+    <p-button label="Fermer" size="small" severity="secondary" (click)="detailsDialogVisible = false" class="mr-1" />
+    <p-button *ngIf="selectedVehicule" label="Supprimer" size="small" severity="danger"
+      (click)="showDialog(selectedVehicule)" class="mr-1" />
+    <p-button *ngIf="selectedVehicule" label="Mettre à Jour" size="small" (click)="detailsDialogVisible = false"
+      routerLink="/app/parametres/updateVehicule/{{selectedVehicule.id}}"
+      [queryParams]="{ entrepriseId: entrepriseId }" />
+  </p-footer>
+</p-dialog>
+
+<p-dialog header="Confirmation" [modal]="true" [(visible)]="visible" [style]="{ width: '25rem' }">
+  <div class="flex align-items-center gap-3 mb-3 my-2">
+    <span>
+      <i class="pi pi-exclamation-triangle mr-2 text-orange-400"></i>
+      Êtes-vous sûr de vouloir supprimer ce vehicule ?
+    </span>
+  </div>
+  <p-footer class="flex justify-content-end gap-2 ">
+    <p-button label="Annuler" severity="secondary" (onClick)="visible = false" size="small" />
+    <p-button label="Confirmé" (onClick)="delete(selectedVehicule); visible = false" size="small" />
+  </p-footer>
+</p-dialog>
+
+<p-dialog header="Tarification" [modal]="true" [(visible)]="tarifVisible" [style]="{width: '35vw'}" [closable]="true"
+  [breakpoints]="{ '1199px': '35vw', '575px': '90vw' }">
+  <div class="flex flex-column gap-3 mb-3 my-3">
+    <div class="flex justify-content-between align-items-center">
+      <span class="font-bold">Tarif par Km:</span>
+      <span>{{ prix?.prixParKm | currency:'EUR':'symbol' }}</span>
+    </div>
+    <div class="flex justify-content-between align-items-center">
+      <span class="font-bold">Tarif par heure:</span>
+      <span>{{ prix?.prixParDuree | currency:'EUR':'symbol' }}</span>
+    </div>
+    <div class="flex justify-content-between align-items-center">
+      <span class="font-bold">Tarif de base:</span>
+      <span>{{ prix?.fraisReservation | currency:'EUR':'symbol' }}</span>
+    </div>
+    <div class="flex justify-content-between align-items-center">
+      <span class="font-bold">Tarif au Km d'approche:</span>
+      <span>{{ prix?.fraisLivraison | currency:'EUR':'symbol' }}</span>
+    </div>
+    <div class="flex justify-content-between align-items-center">
+      <span class="font-bold">Tarif minimum:</span>
+      <span>{{ prix?.fraisParDefaut | currency:'EUR':'symbol' }}</span>
+    </div>
+  </div>
+  <p-footer class="flex justify-content-end ">
+    <p-button label="Fermer" severity="secondary" (onClick)="tarifVisible = false" size="small"></p-button>
+    <p-button label="{{ hasPrix(id) ? 'Modifier Les Tarifs' : 'Ajouter Les Tarifs' }}" (onClick)="tarifVisible = false"
+      [routerLink]="hasPrix(id) ? ['/app/parametres/tarification', getPrixId(id)] : ['/app/parametres/tarification']"
+      [queryParams]="{ vehiculeId: id, entrepriseId: entrepriseId }" size="small"></p-button>
+  </p-footer>
+</p-dialog>
+
+<div class="loader-container" *ngIf="loading">
+  <p-progressSpinner class="spinner-size spinner-style" />
+</div>

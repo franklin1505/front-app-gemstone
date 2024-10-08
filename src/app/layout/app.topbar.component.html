@@ -1,0 +1,54 @@
+<div class="layout-topbar">
+  <a class="layout-topbar-logo">
+    <img src="assets/layout/images/Logo-app.png" alt="logo">
+    <span>NDJO</span>
+  </a>
+
+  <button #menubutton class="p-link layout-menu-button layout-topbar-button" (click)="layoutService.onMenuToggle()">
+    <i class="pi pi-bars"></i>
+  </button>
+
+  <p-button #topbarmenubutton class="p-link layout-topbar-menu-button layout-topbar-button" icon="pi pi-user"
+    [rounded]="true" [text]="true" severity="secondary" (onClick)="menu2.toggle($event)">
+    <i class="pi pi-user"></i>
+  </p-button>
+
+  <div #topbarmenu class="layout-topbar-menu"
+    [ngClass]="{'layout-topbar-menu-mobile-active': layoutService.state.profileSidebarVisible}">
+    <p-button icon="pi pi-user" [rounded]="true" [text]="true" severity="secondary" (onClick)="menu2.toggle($event)"
+      class="p-link layout-topbar-button">
+      <i class="pi pi-user"></i>
+    </p-button>
+  </div>
+</div>
+<p-menu #menu2 [model]="items2" [popup]="true" styleClass="w-full md:w-auto p-2">
+  <ng-template pTemplate="end">
+    <button pRipple
+      class="relative overflow-hidden w-full p-link flex align-items-center p-3 pl-4 text-color hover:surface-100 border-noround">
+      <p-avatar image="assets/layout/images/avatar7.png" class="mr-2" shape="circle" />
+      <span class="inline-flex flex-column">
+        <span class="font-bold mb-2">{{ userInfo.email || "Utilisateur"}}</span>
+        <p-tag severity="info">{{ userInfo.type_utilisateur || "Type Utilisateur"}}</p-tag>
+        <span class="text-sm "></span>
+      </span>
+    </button>
+  </ng-template>
+</p-menu>
+
+<p-dialog header="Code de vérification" [(visible)]="display" [modal]="true" showEffect="fade" [style]="{width: '30vw'}"
+  [breakpoints]="{'960px': '75vw'}">
+  <div class="line-height-3 m-0">
+
+    <p>Veuillez saisir le code de verification avant d'acceder a l'expace de parametrage </p>
+
+    <div class="flex justify-content-center">
+      <p-inputOtp [length]="6" [(ngModel)]="codeVerification" />
+    </div>
+    <!-- Affichez un message d'erreur si nécessaire -->
+    <p *ngIf="errorMessage" class="text-danger">{{ errorMessage }}</p>
+  </div>
+
+  <ng-template pTemplate="footer">
+    <button pButton icon="pi pi-check" (click)="verifyCode()" label="Ok" class="p-button-outlined"></button>
+  </ng-template>
+</p-dialog>

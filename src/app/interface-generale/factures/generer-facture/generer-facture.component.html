@@ -1,0 +1,378 @@
+<div class="w-full" *ngIf="!loading">
+  <div class="card-w-title mb-4">
+    <p-breadcrumb [model]="breadcrumbItems" [home]="{icon: 'pi pi-home', command: navigateToDashboard}"></p-breadcrumb>
+  </div>
+
+  <div class="grid text" *ngIf="reservations.length > 0; else noReservations">
+
+    <div class="col-12 lg:col-8 xl:col-8 mb-1">
+      <ng-container *ngIf="!previsualisationFacture">
+        <div class="card mt-3">
+          <div class="card-header">
+            <div class="header-row">
+              <div>
+                <h4 class="mb-1"><strong>Facture</strong></h4>
+                <h6 class="mb-1">Client : <strong>{{ clientDetails?.last_name }}</strong>
+                  <strong *ngIf="clientDetails.first_name !== 'XXXXX'">
+                    {{ clientDetails?.first_name }}</strong>
+                </h6>
+              </div>
+
+              <div class="top-end-tags">
+                <button pButton type="button" label="Ajouter" class="p-button-sm p-button-primary" size="small"
+                  (click)="openModal('content')"></button>
+              </div>
+            </div>
+          </div>
+          <div class="card-body">
+            <div class="card mt-3">
+              <p-table [value]="reservations" [tableStyle]="{ 'min-width': '50rem' }">
+                <ng-template pTemplate="header">
+                  <tr>
+                    <th>Detail de la course</th>
+                    <th>Actions</th>
+                  </tr>
+                </ng-template>
+                <ng-template pTemplate="body" let-reservation>
+                  <tr>
+                    <td style="width: 70%;  overflow-wrap: break-word;">
+                      <strong>Date et heure: </strong>{{reservation.datePriseEnCharge | date:'dd MMM yyyy à
+                      HH:mm'}}<br />
+                      <strong>Depart: </strong>{{reservation.lieuxPriseEnCharge}}<br />
+                      <strong>Destination: </strong>{{reservation.lieuxDestination}}<br />
+                      <strong>Tarif: </strong>{{reservation.coutTotalReservation | currency:'EUR'}}
+                    </td>
+                    <td>
+                      <button pButton type="button" class="p-button-danger p-button-sm" icon="pi pi-trash"
+                        (click)="retirerReservation(reservation.id)">
+                      </button>
+                    </td>
+                  </tr>
+                </ng-template>
+              </p-table>
+            </div>
+
+            <div class="card mt-3">
+              <p-table [value]="[{}]" [tableStyle]="{ 'min-width': '100%' }">
+                <ng-template pTemplate="header">
+                  <tr>
+                    <th class="p-2" style="white-space: nowrap;">Résumé des Réservations</th>
+                    <th class="p-2 text-end" style="white-space: nowrap;">Détails</th>
+                  </tr>
+                </ng-template>
+                <ng-template pTemplate="body">
+                  <tr>
+                    <td class="p-2" style="white-space: normal; overflow-wrap: break-word;">
+                      Nombre de réservations choisies:
+                    </td>
+                    <td class="p-2 text-end" style="white-space: normal; overflow-wrap: break-word;">
+                      <strong>{{ nombreReservations }}</strong>
+                    </td>
+                  </tr>
+                  <tr>
+                    <td class="p-2" style="white-space: normal; overflow-wrap: break-word;">
+                      Coût hors taxes (HT):
+                    </td>
+                    <td class="p-2 text-end" style="white-space: normal; overflow-wrap: break-word;">
+                      <strong>{{ coutHorsTaxes | currency:'EUR' }}</strong>
+                    </td>
+                  </tr>
+                  <tr>
+                    <td class="p-2" style="white-space: normal; overflow-wrap: break-word;">
+                      TVA (10%):
+                    </td>
+                    <td class="p-2 text-end" style="white-space: normal; overflow-wrap: break-word;">
+                      <strong>{{ tva | currency:'EUR' }}</strong>
+                    </td>
+                  </tr>
+                  <tr>
+                    <td class="p-2" style="white-space: normal; overflow-wrap: break-word;">
+                      Coût total:
+                    </td>
+                    <td class="p-2 text-end" style="white-space: normal; overflow-wrap: break-word;">
+                      <a href="#"><strong>{{ coutTotal | currency:'EUR' }}</strong></a>
+                    </td>
+                  </tr>
+                </ng-template>
+              </p-table>
+            </div>
+
+
+          </div>
+        </div>
+      </ng-container>
+      <ng-container *ngIf="previsualisationFacture">
+        <form [formGroup]="factureForm">
+          <div class="p-fluid card mt-3">
+
+            <!-- En-tête Facture -->
+            <div class="grid mb-3">
+              <div class="col-6">
+                <p-image [src]="getLogoUrl(entrepriseList[0]?.logo)" width="110" height="110" class="rounded"></p-image>
+              </div>
+              <div class="col-6 text-right">
+                <h5 class="mb-2" style="font-size: 1.25rem; font-weight: bold;">
+                  Facture # <span style="font-weight: normal;">Inconnue</span>
+                </h5>
+                <div style="font-size: 0.875rem;">
+                  <div class="mb-1">
+                    <span>Créée le:</span>
+                    <strong>{{ factureForm.get('dateEmission')?.value | date:'dd MMM yyyy'}}</strong>
+                  </div>
+                  <div>
+                    <span>À payer le:</span>
+                    <strong>{{ factureForm.get('dateEcheance')?.value | date:'dd MMM yyyy'}}</strong>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <p-divider></p-divider>
+
+            <!-- Détails émetteur et destinataire -->
+            <div class="grid mb-3">
+              <div class="col-6">
+                <h5>Émetteur:</h5>
+                <div *ngFor="let entreprise of entrepriseList">
+                  <p><strong>Société:</strong> {{entreprise.nom || '??'}}</p>
+                  <p><strong>Contact:</strong> {{entreprise.nom_DG || '??'}}</p>
+                  <p><strong>Adresse:</strong> {{entreprise.adresse || '??'}}</p>
+                  <p><strong>Téléphone:</strong> {{entreprise.telephone || '??'}}</p>
+                  <p><strong>E-mail:</strong> {{entreprise.email || '??'}}</p>
+                  <p><strong>Site Web:</strong> {{entreprise.site_web || '??'}}</p>
+                </div>
+              </div>
+              <div class="col-6">
+                <h5>Destinataire:</h5>
+                <p><strong>Nom:</strong> <span
+                    *ngIf="clientDetails.first_name !== 'XXXXX'">{{clientDetails?.first_name}}</span>
+                  {{clientDetails?.last_name}}</p>
+                <p><strong>Adresse:</strong> {{clientDetails.adresse}}</p>
+                <p><strong>Téléphone:</strong> {{clientDetails.telephone}}</p>
+                <p><strong>E-mail:</strong> {{clientDetails.email}}</p>
+              </div>
+            </div>
+
+            <!-- Table des réservations -->
+            <p-table [value]="reservations" responsiveLayout="scroll" class="p-datatable-gridlines">
+              <ng-template pTemplate="header">
+                <tr>
+                  <th>Type</th>
+                  <th>Description</th>
+                  <th>Prix (HT)</th>
+                  <th>Qté</th>
+                  <th>TVA</th>
+                  <th>Total HT</th>
+                </tr>
+              </ng-template>
+              <ng-template pTemplate="body" let-reservation let-i="rowIndex">
+                <tr>
+                  <td style="vertical-align: top;">Course {{ i + 1 }}</td>
+                  <td style="vertical-align: top;">
+                    <p style="margin: 0;"><strong>D:</strong> {{ reservation.lieuxPriseEnCharge }}</p>
+                    <p style="margin: 0;"><strong>A:</strong> {{ reservation.lieuxDestination }}</p>
+                    <p style="margin: 0;"><strong>Date et Heure:</strong> {{ reservation.datePriseEnCharge | date:'dd
+                      MMM yyyy à HH:mm' }}</p>
+                    <p style="margin: 0;"><strong>Passager et Bagages:</strong> {{ reservation.nombrePassager || '???'
+                      }} Pass ; {{ reservation.nombreBagage || '???' }} bags</p>
+                    <p style="margin: 0;"><strong>Véhicule:</strong> {{ reservation.vehicule?.marque }} {{
+                      reservation.vehicule?.modele }} ({{ reservation.vehicule?.typeVehicule }})</p>
+                  </td>
+                  <td style="vertical-align: top;">{{ reservation.coutTotalReservation -
+                    (reservation.coutTotalReservation * tauxTVA) | currency:'EUR' }}</td>
+                  <td style="vertical-align: top;">1</td>
+                  <td style="vertical-align: top;">{{ reservation.coutTotalReservation * tauxTVA | currency:'EUR' }}
+                  </td>
+                  <td style="vertical-align: top;">{{ reservation.coutTotalReservation -
+                    (reservation.coutTotalReservation * tauxTVA) | currency:'EUR' }}</td>
+                </tr>
+              </ng-template>
+            </p-table>
+
+            <!-- Section pour les données supplémentaires -->
+            <div formArrayName="donneesSupplementaires" class="mb-3">
+              <div *ngFor="let donnee of donneesSupplementaires.controls; let i = index" [formGroupName]="i"
+                class="repeater-wrapper pt-0 pt-md-4">
+                <div class="d-flex border rounded position-relative p-3">
+                  <div class="grid w-full">
+                    <div class="col-6 mb-3">
+                      <label for="item" class="form-label">Item</label>
+                      <input type="text" pInputText formControlName="item" placeholder="Item à ajouter">
+                      <textarea pInputTextarea formControlName="description" rows="2"
+                        class="w-full p-component p-inputtext p-filled"
+                        placeholder="Description de l'item à ajouter"></textarea>
+                    </div>
+                    <div class="col-3 mb-3">
+                      <label for="prixUnitaireHT" class="form-label">Prix Unitaire HT</label>
+                      <p-inputNumber formControlName="prixUnitaireHT" mode="currency" currency="EUR"
+                        locale="fr-FR"></p-inputNumber>
+                      <label for="tva" class="form-label">TVA</label>
+                      <p-inputNumber formControlName="tva" mode="decimal"></p-inputNumber>
+                    </div>
+                    <div class="col-2 mb-3">
+                      <label for="quantite" class="form-label">Qté</label>
+                      <p-inputNumber formControlName="quantite" [min]="1"></p-inputNumber>
+                      <div class="my-3">
+                        <small>Total TTC:</small>
+                        <p class="mb-0">{{ donnee.get('totalTTC')?.value | currency:'EUR' }}</p>
+                      </div>
+                    </div>
+                    <div class="col-1 d-flex flex-column align-items-center justify-content-center">
+                      <!-- Boutons pour valider et supprimer une donnée -->
+                      <button pButton pRipple type="button" icon="pi pi-trash"
+                        (click)="supprimerDonneeSupplementaire(i)"
+                        class="p-button-danger p-button-rounded p-button-sm mb-2"></button>
+                      <button pButton pRipple type="button" icon="pi pi-check" (click)="validerElement(i)"
+                        class="p-button-success p-button-rounded p-button-sm"></button>
+                    </div>
+                  </div>
+                </div>
+                <p-divider></p-divider>
+              </div>
+
+              <div class="row">
+                <div class="col-12 my-2">
+                  <p-button type="button" label="Donnee Supplementaire" icon="pi pi-plus"
+                    (click)="ajouterDonneeSupplementaire()" [disabled]="estValide.includes(false)"></p-button>
+                </div>
+              </div>
+
+            </div>
+
+            <!-- Calcul des coûts -->
+            <div class="grid">
+              <div class="col-9"></div>
+              <div class="col-3">
+                <div class="invoice-calculations">
+                  <div class="d-flex justify-content-between mb-2">
+                    <span>Coût HT: </span>
+                    <span><strong>{{ coutHorsTaxes | currency:'EUR' }}</strong></span>
+                  </div>
+                  <div class="d-flex justify-content-between mb-2">
+                    <span>TVA (10%): </span>
+                    <span><strong>{{ tva | currency:'EUR' }}</strong></span>
+                  </div>
+                  <p-divider></p-divider>
+                  <div class="d-flex justify-content-between">
+                    <span>Coût total: </span>
+                    <span class="text-green-500"> <strong>{{ coutTotal | currency:'EUR' }}</strong> </span>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Notes -->
+            <div class="field">
+              <label for="note" class="form-label">Note:</label>
+              <textarea id="note" pInputTextarea rows="4" class="w-full p-component p-inputtext p-filled"
+                formControlName="notesInternes" placeholder="Ajouter une note..."></textarea>
+            </div>
+          </div>
+        </form>
+      </ng-container>
+    </div>
+    <div class="col-12 lg:col-4 xl:col-4 mb-1">
+      <div class="card mt-3">
+
+        <div class="card-body">
+          <div class="flex flex-wrap gap-3 p-fluid mb-4">
+
+            <div class="flex-auto" *ngIf="!previsualisationFacture">
+              <p-button label="Previsualiser La Facture" [raised]="true" class="w-full" size="small"
+                (click)="afficherPrevisualisationFacture()" />
+            </div>
+
+            <div class="flex-auto" *ngIf="previsualisationFacture">
+              <p-button label="Creer la Facture" severity="success" size="small" (click)="soumettreFacture()"
+                [disabled]="!peutSoumettre" />
+            </div>
+
+            <div class="flex-auto" *ngIf="previsualisationFacture">
+              <p-button label="Revenir en arrière " [raised]="true" (click)="afficherPrevisualisationFacture()"
+                severity="danger" class="w-full" size="small" />
+            </div>
+
+
+            <div class="flex-auto" *ngIf="!previsualisationFacture">
+              <p-button label="Quitter la page" severity="secondary" [raised]="true" class="w-full"
+                routerLink="/app/reservations/" size="small" />
+            </div>
+
+          </div>
+        </div>
+      </div>
+
+
+      <div class="card mt-3" *ngIf="previsualisationFacture">
+        <div class="flex flex-wrap gap-3 p-fluid mb-4">
+          <div class="flex-auto">
+            <label for="paymentOption" class="form-label">Options de paiement</label>
+            <p-dropdown [options]="paymentOptions" [(ngModel)]="selectedPaymentOption" class="w-full"
+              (onChange)="setPaymentOption($event)">
+            </p-dropdown>
+          </div>
+        </div>
+
+        <div *ngIf="isCustomOptionSelected" class="flex flex-wrap gap-3 p-fluid mb-4">
+          <div class="flex-auto">
+            <label for="customDays" class="form-label">Nombre de jours pour l'échéance</label>
+            <p-inputNumber [(ngModel)]="customDays" id="customDays" [min]="1" (ngModelChange)="setCustomDays($event)">
+            </p-inputNumber>
+          </div>
+        </div>
+      </div>
+
+
+    </div>
+  </div>
+</div>
+
+<ng-template #noReservations>
+  <div class="p-d-flex p-jc-center p-ai-center" style="height: 100vh;">
+    <div class="card p-shadow-3">
+      <div class="card-body text-center">
+        <h6 class="mb-2">Les données pour creer la facture ne sont pas disponibles.</h6>
+        <p-button size="small" label="Retour" routerLink="/app/reservations/"></p-button>
+      </div>
+    </div>
+  </div>
+</ng-template>
+
+<div class="loader-container" *ngIf="loading">
+  <p-progressSpinner class="spinner-size spinner-style" />
+</div>
+
+<p-dialog header="Ajouter des réservations a liste" [modal]="true" [(visible)]="isContent" [style]="{ width: '50rem' }"
+  [breakpoints]="{ '1199px': '75vw', '575px': '90vw' }">
+
+  <div class="modal-body">
+    <div class="card">
+      <p-table [value]="reservationsSansFacture" [tableStyle]="{ 'min-width': '50rem' }">
+        <ng-template pTemplate="header">
+          <tr>
+            <th></th>
+            <th>Detail de la course</th>
+          </tr>
+        </ng-template>
+        <ng-template pTemplate="body" let-reservation>
+          <tr>
+            <td>
+              <p-checkbox binary="true" (onChange)="toggleSelection(reservation, $event)"></p-checkbox>
+            </td>
+            <td>
+              <strong>Date et heure: </strong>{{ reservation.datePriseEnCharge | date:'dd MMM yyyy à HH:mm' }}<br />
+              <strong>Départ: </strong>{{ reservation.lieuxPriseEnCharge }}<br />
+              <strong>Destination: </strong>{{ reservation.lieuxDestination }}<br />
+              <strong>Tarif: </strong>{{ reservation.coutTotalReservation | currency:'EUR' }}
+            </td>
+          </tr>
+        </ng-template>
+      </p-table>
+    </div>
+  </div>
+
+  <div class="flex justify-content-end gap-2">
+    <p-button label="Ajouter Sélectionnés" size="small" severity="primary" (click)="ajouterSelectionsAuFacture()" />
+    <p-button label="Annuler" size="small" severity="danger" (onClick)="isContent = false" />
+  </div>
+</p-dialog>

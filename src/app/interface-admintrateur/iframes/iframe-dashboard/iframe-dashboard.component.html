@@ -1,0 +1,51 @@
+<div class="w-full">
+  <div class="card-w-title mb-2">
+    <p-breadcrumb [model]="breadcrumbItems" [home]="{icon: 'pi pi-home'}"></p-breadcrumb>
+  </div>
+
+  <div class="card">
+
+    <div class="card-body">
+      <p-tag value="Module De Reservation Client"  class="text-uppercase"></p-tag>
+
+      <div class="reservation-details mt-3">
+        <div class="field">
+          <span class="block font-bold">Code d'intégration :</span>
+          <pre [innerHtml]="iframeCode" class="mt-1 ml-1 text-blue-400 overflow-auto" style="max-width: 100%; white-space: pre-wrap;"></pre>
+        </div>
+
+        <div class="field my-2">
+          <span class="block font-bold">Description :</span>
+          <p class="mt-1 ml-1">
+            Ce module de réservation est destiné aux clients. Il peut être intégré sur n'importe quel site web grâce au
+            code d'intégration iframe généré dynamiquement. Il permet aux clients de faire des réservations que vous, en
+            tant qu'administrateur, allez gérer. Ce système simplifie le processus de réservation pour les utilisateurs
+            finaux tout en centralisant la gestion pour les administrateurs. Copiez et collez ce code sur votre site
+            pour intégrer le contenu.
+          </p>
+        </div>
+
+        <div class="field mt-3">
+          <button pButton type="button" label="Aperçu" icon="pi pi-eye" severity="secondary" (click)="showDialog()"
+            class="mr-2"></button>
+          <button pButton type="button" label="Tester le module" icon="pi pi-external-link"
+            routerLink="/moduleDeReservation"></button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+<p-dialog header="Aperçu" [modal]="true" [(visible)]="visible" [style]="{width: '50vw'}" [closable]="true"
+  [breakpoints]="{ '1199px': '50vw', '575px': '90vw' }">
+  <div class="flex align-items-center gap-3 mb-3 my-2">
+    <div class="text-center">
+      <img src="/assets/layout/images/moduleResa.jpeg" alt="Module de reservation" class="img-fluid mx-auto d-block"
+        style="max-width: 90%;" />
+    </div>
+  </div>
+  <p-footer class="flex justify-content-end gap-2 ">
+    <p-button label="Fermer" severity="secondary" (onClick)="visible = false" size="small" />
+  </p-footer>
+</p-dialog>

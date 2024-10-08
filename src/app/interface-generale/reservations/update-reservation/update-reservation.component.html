@@ -1,0 +1,428 @@
+<div class="w-full" *ngIf="!loading ">
+  <div class="card-w-title mb-4">
+    <p-breadcrumb [model]="breadcrumbItems" [home]="{icon: 'pi pi-home', command: navigateToDashboard}"></p-breadcrumb>
+  </div>
+
+  <div *ngIf="reservation">
+    <div class="grid text">
+      <div class="col-12 md:col-12 lg:col-12 xl:col-12 mb-1">
+        <div class="card mb-2">
+          <div class="flex justify-content-between">
+            <div class="card-header text-left">
+              <h5 class="mb-2 text-uppercase">Course : {{ reservation?.numero_reservation || "" }}</h5>
+              <p class="mb-1 my-1">
+                Creer le: <strong>{{ reservation.createdAt |
+                  date:'dd MMM yyyy à HH:mm'}}</strong>
+              </p>
+            </div>
+            <div class="text-right">
+              <p-button severity="secondary" label="Retour" size="small"
+                routerLink="/app/reservations/detail/{{ reservationId }}" />
+            </div>
+          </div>
+
+        </div>
+        <div class="card mb-2">
+          <div class="card-body">
+            <form [formGroup]="reserverForm">
+              <div class="flex flex-wrap gap-3 p-fluid mb-4">
+                <div class="flex-auto">
+                  <label for="numReservation" class="mb-2 capitalize">Nº réservation</label>
+                  <input pInputText id="numReservation" formControlName="numero_reservation" readonly />
+                </div>
+                <div class="flex-auto">
+                  <label for="distance" class="mb-2 capitalize">Distance(km)</label>
+                  <input pInputText id="distance" formControlName="distance" readonly />
+                </div>
+                <div class="flex-auto">
+                  <label for="duree" class="mb-2 capitalize">Durée</label>
+                  <input pInputText id="duree" formControlName="duree" readonly />
+                </div>
+              </div>
+
+              <!-- Utilisateur -->
+              <div class="flex flex-column gap-2 mb-4">
+                <label for="utilisateur" class="mb-1 capitalize">Client</label>
+                <input pInputText id="utilisateur" formControlName="utilisateur" readonly class="w-full" />
+              </div>
+              <!-- Date Prise En Charge -->
+              <div class="flex flex-wrap gap-3 p-fluid mb-4">
+                <div class="flex-auto">
+                  <label class="form-label">Date de prise en charge</label>
+                  <p-inputGroup *ngIf="!isDatePriseEnChargeEdit; else editDatePriseEnCharge">
+                    <input pInputText type="text" [value]="reserverForm.get('datePriseEnCharge')?.value | date:'dd MMM yyyy à HH:mm'" readonly />
+                    <p-button icon="pi pi-pen-to-square" severity="secondary" (click)="Field('datePriseEnCharge')" />
+                  </p-inputGroup>
+                </div>
+              </div>
+              <ng-template #editDatePriseEnCharge>
+                <div class="flex flex-wrap gap-3 p-fluid mb-4">
+                  <div class="flex-auto">
+                    <p-inputGroup>
+                      <p-calendar formControlName="datePriseEnChargeDate" [iconDisplay]="'input'" [showIcon]="true"
+                                  inputId="icondisplay"></p-calendar>
+                      <p-calendar formControlName="datePriseEnChargeTime" [iconDisplay]="'input'" [showIcon]="true"
+                                  [timeOnly]="true" inputId="datePriseEnChargeTime">
+                        <ng-template pTemplate="inputicon" let-clickCallBack="clickCallBack">
+                          <i class="pi pi-clock pointer-events-none" (click)="clickCallBack($event)"></i>
+                        </ng-template>
+                      </p-calendar>
+                      <p-button icon="pi pi-check-circle" severity="success"
+                                (click)="validateEdit('datePriseEnCharge')" />
+                      <p-button icon="pi pi-times-circle" severity="danger" (click)="cancelEdit('datePriseEnCharge')" />
+                    </p-inputGroup>
+                  </div>
+                </div>
+                <!-- Messages d'erreur pour la date et l'heure de prise en charge -->
+                <div *ngIf="errorMessage" class="text-red-500">
+                  {{ errorMessage }}
+                </div>
+              </ng-template>
+
+
+              <div class="flex flex-wrap gap-3 p-fluid mb-4">
+                <div class="flex-auto">
+                  <label class="form-label">Lieu de prise en charge</label>
+                  <ng-container *ngTemplateOutlet="editableInputGroup; context: {
+                    formControlName: 'lieuxPriseEnCharge',
+                    isEdit: isLieuxPriseEnChargeEdit,
+                    fieldName: 'lieuxPriseEnCharge'
+                  }"></ng-container>
+                </div>
+
+                <div class="flex-auto">
+                  <label class="form-label">Lieu de destination</label>
+                  <ng-container *ngTemplateOutlet="editableInputGroup; context: {
+                    formControlName: 'lieuxDestination',
+                    isEdit: isLieuxDestinationEdit,
+                    fieldName: 'lieuxDestination'
+                  }"></ng-container>
+                </div>
+              </div>
+              <ng-template #editableInputGroup let-formControlName="formControlName" let-isEdit="isEdit"
+                let-fieldName="fieldName">
+                <p-inputGroup *ngIf="!isEdit">
+                  <input pInputText type="text" class="form-control" [formControlName]="formControlName" readonly />
+                  <p-button icon="pi pi-pen-to-square" severity="secondary" (click)="Field(fieldName)" />
+                </p-inputGroup>
+
+                <p-inputGroup *ngIf="isEdit">
+                  <input pInputText type="text" #lieuxPriseEnChargeInput class="form-control"
+                    [formControlName]="formControlName" (focus)="initAutocomplete()" />
+                  <p-button icon="pi pi-check-circle" severity="success" (click)="validateEdit(fieldName)" />
+                  <p-button icon="pi pi-times-circle" severity="danger" (click)="cancelEdit(fieldName)" />
+                </p-inputGroup>
+              </ng-template>
+
+              <div class="flex flex-wrap gap-3 p-fluid mb-4" *ngIf="vehiculeData">
+                <!-- Nombre de Passagers -->
+                <div class="flex-auto">
+                  <label class="form-label">Nombre de passagers</label>
+                  <p-inputGroup *ngIf="!isNombrePassagerEdit; else editNombrePassager">
+                    <input pInputText type="text" formControlName="nombrePassager" readonly />
+                    <p-button icon="pi pi-pen-to-square" severity="secondary" (click)="Field('nombrePassager')" />
+                  </p-inputGroup>
+                </div>
+
+                <!-- Nombre de Bagages -->
+                <div class="flex-auto">
+                  <label class="form-label">Nombre de bagages</label>
+                  <p-inputGroup *ngIf="!isNombreBagageEdit; else editNombreBagage">
+                    <input pInputText type="text" formControlName="nombreBagage" readonly />
+                    <p-button icon="pi pi-pen-to-square" severity="secondary" (click)="Field('nombreBagage')" />
+                  </p-inputGroup>
+                </div>
+
+              </div>
+
+              <!-- Template pour éditer Nombre de Passagers -->
+              <ng-template #editNombrePassager>
+                <div class="flex flex-wrap gap-3 p-fluid mb-4">
+                  <div class="flex-auto">
+                    <p-inputGroup>
+                      <input pInputText type="number" formControlName="nombrePassager" min="1"
+                        [max]="vehiculeData.capacite_passagers" />
+                      <p-button icon="pi pi-check-circle" severity="success" (click)="validateEdit('nombrePassager')" />
+                      <p-button icon="pi pi-times-circle" severity="danger" (click)="cancelEdit('nombrePassager')" />
+                    </p-inputGroup>
+                  </div>
+                </div>
+              </ng-template>
+
+              <!-- Template pour éditer Nombre de Bagages -->
+              <ng-template #editNombreBagage>
+                <div class="flex flex-wrap gap-3 p-fluid mb-4">
+                  <div class="flex-auto">
+                    <p-inputGroup>
+                      <input pInputText type="number" formControlName="nbre" min="1" [max]="capaciteChargement" />
+                      <input pInputText type="text" [value]="type_bagages" readonly />
+                      <p-button icon="pi pi-check-circle" severity="success" (click)="validateEdit('nombreBagage')" />
+                      <p-button icon="pi pi-times-circle" severity="danger" (click)="cancelEdit('nombreBagage')" />
+                    </p-inputGroup>
+                  </div>
+                </div>
+              </ng-template>
+
+
+              <div class="flex flex-wrap gap-3 p-fluid mb-4">
+                <div class="flex-auto">
+                  <label class="form-label">Véhicule</label>
+                  <div *ngIf="!isVehiculeEdit; else editVehicule">
+                    <p-inputGroup>
+                      <input pInputText type="text" class="form-control" formControlName="vehiculeView" readonly />
+                      <p-button icon="pi pi-pen-to-square" severity="secondary" (click)="Field('vehicule')"></p-button>
+                    </p-inputGroup>
+                  </div>
+                  <ng-template #editVehicule>
+                    <p-inputGroup>
+                      <p-dropdown [options]="vehiculeOptions" (onChange)="selectVehicule($event)"
+                        placeholder="Sélectionnez un véhicule"></p-dropdown>
+                      <p-button icon="pi pi-check-circle" severity="success"
+                        (click)="isVehiculeEdit = false"></p-button>
+                      <p-button icon="pi pi-times-circle" severity="danger" (click)="cancelEdit('vehicule')"></p-button>
+                    </p-inputGroup>
+                  </ng-template>
+                </div>
+              </div>
+
+              <div class="flex flex-wrap gap-3 p-fluid mb-4">
+                <!-- CompagnieAerienne -->
+                <div class="flex-auto">
+                  <label class="form-label">Numero Vol/Train</label>
+                  <p-inputGroup *ngIf="isCompagnieAerienneEdit; else compagnieAerienneView">
+                    <input pInputText type="text" formControlName="compagnieAerienne" />
+                    <p-button icon="pi pi-check-circle" severity="success"
+                      (click)="validateEdit('compagnieAerienne')"></p-button>
+                    <p-button icon="pi pi-times-circle" severity="danger"
+                      (click)="cancelEdit('compagnieAerienne')"></p-button>
+                  </p-inputGroup>
+                  <ng-template #compagnieAerienneView>
+                    <p-inputGroup>
+                      <input pInputText type="text" formControlName="compagnieAerienne" placeholder="vide" readonly />
+                      <p-button icon="pi pi-pen-to-square" severity="secondary"
+                        (click)="Field('compagnieAerienne')"></p-button>
+                    </p-inputGroup>
+                  </ng-template>
+                </div>
+
+                <!-- Numero De Dossier -->
+                <div class="flex-auto">
+                  <label class="form-label">Numero De Dossier</label>
+                  <p-inputGroup *ngIf="isNumeroDossierEdit; else numeroDossierView">
+                    <input pInputText type="text" formControlName="numero_dossier" />
+                    <p-button icon="pi pi-check-circle" severity="success"
+                      (click)="validateEdit('numero_dossier')"></p-button>
+                    <p-button icon="pi pi-times-circle" severity="danger"
+                      (click)="cancelEdit('numero_dossier')"></p-button>
+                  </p-inputGroup>
+                  <ng-template #numeroDossierView>
+                    <p-inputGroup>
+                      <input pInputText type="text" formControlName="numero_dossier" placeholder="vide" readonly />
+                      <p-button icon="pi pi-pen-to-square" severity="secondary"
+                        (click)="Field('numero_dossier')"></p-button>
+                    </p-inputGroup>
+                  </ng-template>
+                </div>
+
+                <!-- Mode de paiement -->
+                <div class="flex-auto">
+                  <label class="form-label">Mode de paiement</label>
+                  <p-inputGroup *ngIf="isModePaiementEdit; else paymentInput">
+                    <p-dropdown [options]="paymentDropdownOptions" formControlName="modePaiement"
+                      placeholder="Choisissez la méthode" (onChange)="updatePaymentMethod($event)">
+                    </p-dropdown>
+                    <p-button icon="pi pi-check-circle" severity="success"
+                      (click)="validateEdit('modePaiement')"></p-button>
+                    <p-button icon="pi pi-times-circle" severity="danger"
+                      (click)="cancelEdit('modePaiement')"></p-button>
+                  </p-inputGroup>
+
+
+                  <ng-template #paymentInput>
+                    <p-inputGroup>
+                      <input pInputText type="text" [value]="getFormattedPaymentMode()" readonly />
+                      <p-button icon="pi pi-pen-to-square" severity="secondary"
+                        (click)="Field('modePaiement')"></p-button>
+                    </p-inputGroup>
+                  </ng-template>
+                </div>
+              </div>
+
+              <!-- Affichage des passagers -->
+              <div class="flex flex-wrap gap-3 p-fluid mb-4">
+                <div class="flex-auto">
+                  <div *ngIf="passengers.length > 0 || isAddingPassenger">
+                    <div formArrayName="passengers">
+                      <div *ngFor="let passenger of passengers.controls; let i = index" [formGroupName]="i" class="mb-3">
+                        <label class="form-label">
+                          Passager {{ i + 1 }}
+                          <span *ngIf="i === 0" class="text-blue-500">(Passager principal)</span>
+                        </label>
+                        <p-inputGroup *ngIf="!isPassengerEdit[i]; else editPassenger">
+                          <input pInputText formControlName="name" placeholder="Nom" readonly />
+                          <input pInputText formControlName="phone" placeholder="Numéro de téléphone" readonly />
+                          <p-button icon="pi pi-pen-to-square" severity="secondary" (click)="Field('passenger', i)"></p-button>
+                          <p-button icon="pi pi-trash" severity="danger" (click)="removePassenger(i)"></p-button>
+                        </p-inputGroup>
+
+                        <ng-template #editPassenger>
+                          <p-inputGroup>
+                            <input pInputText formControlName="name" placeholder="Nom" />
+                            <input pInputText formControlName="phone" placeholder="Numéro de téléphone" />
+                            <p-button icon="pi pi-check-circle" severity="success" (click)="validateEdit('passenger', i)"></p-button>
+                            <p-button icon="pi pi-times-circle" severity="danger" (click)="cancelEdit('passenger', i)"></p-button>
+                          </p-inputGroup>
+                        </ng-template>
+                      </div>
+
+                      <!-- Section pour ajouter un nouveau passager -->
+                      <div *ngIf="isAddingPassenger" [formGroup]="newPassengerForm" class="mb-3">
+                        <label class="form-label">Nouveau Passager</label>
+                        <p-inputGroup>
+                          <input pInputText formControlName="name" placeholder="Nom" />
+                          <input pInputText formControlName="phone" placeholder="Numéro de téléphone" />
+                          <p-button icon="pi pi-check-circle" severity="success" (click)="saveNewPassenger()"></p-button>
+                          <p-button icon="pi pi-times-circle" severity="danger" (click)="cancelNewPassenger()"></p-button>
+                        </p-inputGroup>
+                      </div>
+
+                    </div>
+                  </div>
+                  <div class="justify-content-start my-1">
+                    <p-button icon="pi pi-plus" severity="secondary" label="Ajouter des passagers à la course"
+                      (click)="addPassenger()"></p-button>
+                  </div>
+                </div>
+              </div>
+
+
+              <!-- Affichage des notes -->
+              <div class="flex flex-wrap gap-3 p-fluid mb-4">
+                <div class="flex-auto">
+                  <label class="form-label">Note</label>
+                  <p-inputGroup *ngIf="isNoteEdit; else noteView">
+                    <input pInputText type="text" formControlName="note" />
+                    <p-button icon="pi pi-check-circle" severity="success" (click)="validateEdit('note')"></p-button>
+                    <p-button icon="pi pi-times-circle" severity="danger" (click)="cancelEdit('note')"></p-button>
+                  </p-inputGroup>
+                  <ng-template #noteView>
+                    <p-inputGroup>
+                      <input pInputText type="text" formControlName="note" placeholder="Aucune note ajoutée" readonly />
+                      <p-button icon="pi pi-pen-to-square" severity="secondary" (click)="Field('note')"></p-button>
+                    </p-inputGroup>
+                  </ng-template>
+                </div>
+              </div>
+
+
+
+              <div class="flex flex-wrap gap-3 p-fluid mb-4">
+                <!-- Coût Transport -->
+                <div class="flex-auto">
+                  <label class="form-label">Coût du trajet (€)</label>
+                  <p-inputGroup>
+                    <p-inputNumber mode="currency" currency="EUR" locale="fr-FR" formControlName="coutTransport"
+                      [readonly]="!isCoutTransportEdit"></p-inputNumber>
+                    <ng-container *ngIf="!isCoutTransportEdit">
+                      <p-button icon="pi pi-pen-to-square" severity="secondary"
+                        (click)="Field('coutTransport')"></p-button>
+                    </ng-container>
+                    <ng-container *ngIf="isCoutTransportEdit">
+                      <p-button icon="pi pi-check-circle" severity="success"
+                        (click)="validateEdit('coutTransport')"></p-button>
+                      <p-button icon="pi pi-times-circle" severity="danger"
+                        (click)="cancelEdit('coutTransport')"></p-button>
+                    </ng-container>
+                  </p-inputGroup>
+                </div>
+
+                <!-- Coût Majoré -->
+                <div class="flex-auto">
+                  <label class="form-label">Coût majoré (€)</label>
+                  <p-inputGroup>
+                    <p-inputNumber mode="currency" currency="EUR" locale="fr-FR" formControlName="coutMajorer"
+                      [readonly]="!isCoutMajorerEdit"></p-inputNumber>
+                    <ng-container *ngIf="!isCoutMajorerEdit">
+                      <p-button icon="pi pi-pen-to-square" severity="secondary"
+                        (click)="Field('coutMajorer')"></p-button>
+                    </ng-container>
+                    <ng-container *ngIf="isCoutMajorerEdit">
+                      <p-button icon="pi pi-check-circle" severity="success"
+                        (click)="validateEdit('coutMajorer')"></p-button>
+                      <p-button icon="pi pi-times-circle" severity="danger"
+                        (click)="cancelEdit('coutMajorer')"></p-button>
+                    </ng-container>
+                  </p-inputGroup>
+                </div>
+
+                <!-- Total Attribut Cost -->
+                <div class="flex-auto">
+                  <label class="form-label">Coût suppléments (€)</label>
+                  <p-inputGroup>
+                    <p-inputNumber mode="currency" currency="EUR" locale="fr-FR" formControlName="totalAttributCost"
+                      [readonly]="!isTotalAttributCostEdit"></p-inputNumber>
+                    <ng-container *ngIf="!isTotalAttributCostEdit">
+                      <p-button icon="pi pi-pen-to-square" severity="secondary"
+                        (click)="Field('totalAttributCost')"></p-button>
+                    </ng-container>
+                    <ng-container *ngIf="isTotalAttributCostEdit">
+                      <p-button icon="pi pi-check-circle" severity="success"
+                        (click)="validateEdit('totalAttributCost')"></p-button>
+                      <p-button icon="pi pi-times-circle" severity="danger"
+                        (click)="cancelEdit('totalAttributCost')"></p-button>
+                    </ng-container>
+                  </p-inputGroup>
+                </div>
+              </div>
+
+              <!-- CoutTotalReservation -->
+              <div class="flex flex-wrap gap-3 p-fluid mb-4">
+                <div class="flex-auto">
+                  <label class="mb-1 capitalize">Coût total de la réservation(Є)</label>
+                  <p-inputNumber mode="currency" currency="EUR" locale="fr-FR" formControlName="coutTotalReservation"
+                    readonly class="w-full"></p-inputNumber>
+                </div>
+              </div>
+            </form>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="loader-container" *ngIf="loading">
+  <p-progressSpinner class="spinner-size spinner-style" />
+</div>
+
+<p-dialog header="Confirmer la mise a jour" [(visible)]="isValidation" [modal]="true" showEffect="fade"
+  [style]="{width: '30vw'}" [breakpoints]="{'960px': '75vw'}">
+  <div class="flex flex-wrap gap-3 p-fluid mb-4">
+    <div class="flex-auto">
+      <span *ngIf="contentManage; else otherMessage">
+        Voulez-vous modifier toutes les réservations associées a cette reservation reccurente?
+      </span>
+      <ng-template #otherMessage>
+        <span>
+          Êtes-vous sûr de vouloir mettre à jour les informations de réservation ?
+        </span>
+      </ng-template>
+
+    </div>
+
+  </div>
+  <ng-template pTemplate="footer">
+    <div *ngIf="contentManage">
+      <p-button label="Non, seulement cette réservation" size="small" severity="secondary"
+        (click)="updateRecurrentReservation('modifier_seulement');isValidation = false" />
+      <p-button icon="pi pi-check" (click)="updateRecurrentReservation('modifier_et_propager'); isValidation = false"
+        label="Oui, appliquer à toutes" size="small" />
+    </div>
+    <div *ngIf="!contentManage">
+      <p-button label="Non" size="small" severity="secondary"
+        (click)="isValidation = false; showError('Vous avez annulé l\'action')" />
+      <p-button icon="pi pi-check" (click)="prepareAndUpdateReservation(); isValidation = false" label="Oui"
+        size="small" />
+    </div>
+  </ng-template>
+</p-dialog>

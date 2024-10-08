@@ -1,0 +1,333 @@
+<div class="w-full" *ngIf="!loading">
+  <div class="card-w-title mb-4">
+    <p-breadcrumb [model]="breadcrumbItems" [home]="{icon: 'pi pi-home', command: navigateToDashboard}"></p-breadcrumb>
+  </div>
+
+  <div class="grid text" *ngIf="factures">
+    <div class="col-12 lg:col-8 xl:col-8 mb-1 position-relative">
+      <div class="card mt-3">
+        <div class="card-header">
+          <h4 class="mb-3"><strong>Facture# </strong>{{ factures.numeroFacture }}</h4>
+          <div class="header-row">
+            <div class="client-details">
+              <div class="detail-item">
+                <span>Client:
+                  <strong class="client-name font-bold">{{ factures.client?.last_name }}</strong>
+                  <strong *ngIf="factures.client?.first_name && factures.client.first_name !== 'XXXXX'"
+                    class="ml-1 font-bold">
+                    {{ factures.client?.first_name }}
+                  </strong>
+                </span>
+              </div>
+              <div *ngIf="factures.client?.email" class="detail-item">
+                <span class="mr-2">Email:</span>
+                <span class="detail-value font-bold">{{ factures.client.email }}</span>
+              </div>
+              <div *ngIf="factures.client?.telephone" class="detail-item">
+                <span class="mr-2">Téléphone:</span>
+                <span class="detail-value font-bold">{{ factures.client.telephone }}</span>
+              </div>
+              <div *ngIf="factures.client?.adresse" class="detail-item">
+                <span class="mr-2">Adresse:</span>
+                <span class="detail-value font-bold">{{ factures.client.adresse }}</span>
+              </div>
+            </div>
+
+            <div class="top-end-tags">
+              <div class="client-details">
+                <div class="detail-item">
+                  <span class="mr-2">Date d'émission:</span>
+                  <span class="detail-value font-bold">{{ factures.dateEmission ? (factures.dateEmission | date: 'dd MMM
+                    yyyy') : 'Non disponible' }}</span>
+                </div>
+                <div class="detail-item">
+                  <span class="mr-2">Date d'échéance:</span>
+                  <span class="detail-value font-bold">{{ factures.dateEcheance ? (factures.dateEcheance | date: 'dd MMM
+                    yyyy') : 'Non disponible' }}</span>
+                </div>
+
+                <div class="detail-item">
+                  <span class="mr-2">Mode de paiement:</span>
+                  <span class="detail-value font-bold">{{ factures.methodePaiement ? factures.methodePaiement : 'Non
+                    disponible' }}</span>
+                </div>
+                <div class="detail-item">
+                  <span class="mr-2">Date de paiement:</span>
+                  <span class="detail-value font-bold">{{ factures.datePaiement ? (factures.datePaiement | date: 'dd MMM
+                    yyyy') : 'Non disponible' }}</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="card-body">
+          <div class="card mt-3">
+            <p-table [value]="factures.reservations" [tableStyle]="{ 'min-width': '50rem' }">
+              <ng-template pTemplate="header">
+                <tr>
+                  <th>Détail de la course</th>
+                  <th>Actions</th>
+                </tr>
+              </ng-template>
+              <ng-template pTemplate="body" let-reservation>
+                <tr>
+                  <td style="width: 70%; overflow-wrap: break-word;">
+                    <p class="mb-1"><strong>Date et heure: </strong>{{ reservation.datePriseEnCharge | date:'dd MMM yyyy
+                      à HH:mm' }}</p>
+                    <p class="mb-1"><strong>Départ: </strong>{{ reservation.lieuxPriseEnCharge }}</p>
+                    <p class="mb-1"><strong>Destination: </strong>{{ reservation.lieuxDestination }}</p>
+                    <p class="mb-1"><strong>Tarif: </strong>{{ reservation.coutTotalReservation | currency:'EUR' }}</p>
+                  </td>
+                  <td>
+                    <!-- <button pButton type="button" class="p-button-danger p-button-sm" icon="pi pi-trash"
+                      (click)="retirerReservation(reservation.id)">
+                    </button> -->
+                  </td>
+                </tr>
+              </ng-template>
+            </p-table>
+          </div>
+
+          <div class="card mt-3">
+            <p-table [value]="[{}]" [tableStyle]="{ 'min-width': '100%' }">
+              <ng-template pTemplate="header">
+                <tr>
+                  <th class="p-2" style="white-space: nowrap;">Résumé des Réservations</th>
+                  <th class="p-2 text-end" style="white-space: nowrap;">Détails</th>
+                </tr>
+              </ng-template>
+              <ng-template pTemplate="body">
+                <tr>
+                  <td class="p-2" style="white-space: normal; overflow-wrap: break-word;">Nombre de réservations
+                    choisies:</td>
+                  <td class="p-2 text-end" style="white-space: normal; overflow-wrap: break-word;"><strong>{{
+                      factures.reservations?.length }}</strong></td>
+                </tr>
+                <tr>
+                  <td class="p-2" style="white-space: normal; overflow-wrap: break-word;">Coût hors taxes (HT):</td>
+                  <td class="p-2 text-end" style="white-space: normal; overflow-wrap: break-word;"><strong>{{
+                      factures.totalHT | currency: 'EUR' }}</strong></td>
+                </tr>
+                <tr>
+                  <td class="p-2" style="white-space: normal; overflow-wrap: break-word;">TVA (10%):</td>
+                  <td class="p-2 text-end" style="white-space: normal; overflow-wrap: break-word;"><strong>{{
+                      factures.totalTVA | currency: 'EUR' }}</strong></td>
+                </tr>
+
+                <ng-container *ngIf="factures.type_facture === 'partiement_regler'">
+                  <tr>
+                    <td class="p-2" style="white-space: normal; overflow-wrap: break-word;">Montant payé:</td>
+                    <td class="p-2 text-end" style="white-space: normal; overflow-wrap: break-word;"><strong>{{
+                        factures.sommePayee | currency: 'EUR' }}</strong></td>
+                  </tr>
+                  <tr>
+                    <td class="p-2" style="white-space: normal; overflow-wrap: break-word;">Reste à payer:</td>
+                    <td class="p-2 text-end" style="white-space: normal; overflow-wrap: break-word;"><strong>{{
+                        factures.resteAPayer | currency: 'EUR' }}</strong></td>
+                  </tr>
+                </ng-container>
+
+                <tr>
+                  <td class="p-2" style="white-space: normal; overflow-wrap: break-word;">Coût total:</td>
+                  <td class="p-2 text-end" style="white-space: normal; overflow-wrap: break-word;">
+                    <a href="#"><strong>{{ factures.totalTTC | currency: 'EUR' }}</strong></a>
+                  </td>
+                </tr>
+              </ng-template>
+            </p-table>
+          </div>
+        </div>
+      </div>
+
+      <!-- Superimposed Paid Image -->
+      <div *ngIf="factures?.type_facture === 'regler'" class="paid-stamp">
+        <img src="assets/layout/images/paid.png" alt="Paid Stamp">
+      </div>
+    </div>
+
+    <div class="col-12 lg:col-4 xl:col-4 mb-1">
+      <div class="card mt-3">
+        <div class="card-body">
+          <div class="flex flex-wrap gap-3 p-fluid mb-4" *ngIf="userType === 'administrateur'">
+            <!-- Bouton Partager -->
+            <div class="flex-auto">
+              <p-button label="Partager" icon="pi pi-share-alt" severity="help" class="w-full" size="small"
+                (onClick)="menu.toggle($event)" />
+            </div>
+
+            <!-- Bouton Modifier (S'affiche si non réglée) -->
+            <ng-container *ngIf="factures?.type_facture !== 'regler'">
+              <div class="flex-auto">
+                <p-button label="Modifier" icon="pi pi-pencil" severity="secondary" class="w-full" size="small"
+                  (onClick)="editMenu.toggle($event)" />
+              </div>
+            </ng-container>
+
+            <!-- Boutons de règlement (Valider, Partiel, Annuler) -->
+            <ng-container
+              *ngIf="factures?.type_facture === 'non_regler' || factures?.type_facture === 'partiement_regler'">
+              <div class="flex-auto">
+                <p-button label="Valider le règlement" [raised]="true" severity="success" icon="pi pi-check"
+                  class="w-full" size="small" (onClick)="confirmAction('regler')" />
+              </div>
+              <div class="flex-auto">
+                <p-button label="Règlement partiel" [raised]="true" severity="info" icon="pi pi-wallet" class="w-full"
+                  size="small" (onClick)="openPartielDialog()" />
+              </div>
+              <div class="flex-auto">
+                <p-button label="Annuler la facture" [raised]="true" severity="danger" icon="pi pi-trash" class="w-full"
+                  size="small" (onClick)="confirmAction('annuler')" />
+              </div>
+            </ng-container>
+
+            <!-- Bouton Restaurer la facture -->
+            <ng-container *ngIf="factures?.type_facture === 'annule'">
+              <div class="flex-auto">
+                <p-button label="Restaurer la facture" [raised]="true" severity="warning" icon="pi pi-replay"
+                  class="w-full" size="small" (onClick)="confirmAction('restaurer')" />
+              </div>
+            </ng-container>
+
+            <!-- Bouton Quitter -->
+            <div class="flex-auto">
+              <p-button label="Quitter" icon="pi pi-times" [raised]="true" severity="contrast"
+                routerLink="/app/factures/" class="w-full" size="small"></p-button>
+            </div>
+
+          </div>
+          <div class="flex flex-wrap gap-3 p-fluid mb-4" *ngIf="userType === 'client'">
+            <div class="flex-auto">
+              <p-button label="Facture en PDF" icon="pi pi-file-pdf" [raised]="true" severity="info"
+                (onClick)="generatePDF()" class="w-full" size="small"></p-button>
+            </div>
+            <!-- Bouton Quitter -->
+            <div class="flex-auto">
+              <p-button label="Quitter" icon="pi pi-times" [raised]="true" severity="danger" routerLink="/app/factures/"
+                class="w-full" size="small"></p-button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<p-tieredMenu #editMenu [model]="editMenuItems" [popup]="true"></p-tieredMenu>
+
+<p-tieredMenu #menu [model]="shareMenuItems" [popup]="true"></p-tieredMenu>
+
+<div class="loader-container" *ngIf="loading">
+  <p-progressSpinner class="spinner-size spinner-style"></p-progressSpinner>
+</div>
+
+<p-dialog header="Confirmation" [modal]="true" [(visible)]="confirmationDialogVisible" [style]="{ width: '30rem' }">
+  <div class="flex align-items-center gap-3 mb-3 my-2">
+    <span>
+      <i class="pi pi-exclamation-triangle mr-2 text-orange-400"></i>
+      Êtes-vous sûr de vouloir {{ actionType === 'annuler' ? 'annuler' : actionType === 'restaurer' ? 'restaurer' :
+      'régler' }} cette facture ?
+    </span>
+  </div>
+  <p-footer class="flex justify-content-end gap-2">
+    <p-button label="Annuler" severity="secondary" (onClick)="confirmationDialogVisible = false" size="small" />
+    <p-button label="Confirmer" (onClick)="executeAction(); confirmationDialogVisible = false" size="small" />
+  </p-footer>
+</p-dialog>
+
+<p-dialog header="Règlement partiel" [(visible)]="partielDialogVisible" [modal]="true" [style]="{ width: '30rem' }">
+  <div class="flex flex-column gap-3 p-fluid" *ngIf="factures">
+    <div class="flex gap-2">
+      <div class="field flex-1">
+        <label for="totalTTC">Total TTC</label>
+        <p-inputNumber id="totalTTC" [(ngModel)]="factures.totalTTC" [readonly]="true" class="w-full" mode="currency"
+          currency="EUR" inputStyleClass="w-full" />
+      </div>
+
+      <div class="field flex-1">
+        <label for="resteAPayer">Reste à payer</label>
+        <p-inputNumber id="resteAPayer" [(ngModel)]="factures.resteAPayer" [readonly]="true" class="w-full"
+          mode="currency" currency="EUR" inputStyleClass="w-full" />
+      </div>
+    </div>
+
+    <div class="field">
+      <label for="sommePayee">Somme payée</label>
+      <p-inputNumber id="sommePayee" [(ngModel)]="sommePayee" class="w-full" mode="currency" currency="EUR"
+        [class.p-invalid]="sommePayee > factures.resteAPayer || sommePayee <= 0" inputStyleClass="w-full" />
+      <small *ngIf="sommePayee > factures.resteAPayer || sommePayee <= 0" class="p-error">
+        Veuillez saisir une somme valide.
+      </small>
+    </div>
+  </div>
+
+  <p-footer class="flex justify-content-end gap-2">
+    <p-button label="Annuler" severity="secondary" (onClick)="partielDialogVisible = false" size="small" />
+    <p-button label="Confirmer" severity="success" (onClick)="submitPartielPayment()" size="small" />
+  </p-footer>
+</p-dialog>
+
+<p-dialog [(visible)]="displayConfirmationClient" header="Confirmation" [modal]="true" [closable]="false"
+  [style]="{ width: '30rem' }">
+  <p>Voulez-vous vraiment envoyer la facture à cet email : {{ clientEmail }} ?</p>
+  <p-footer>
+    <p-button label="Oui" (onClick)="confirmSendEmail('mailClient'); displayConfirmationClient = false" size="small"
+      class="mr-2" />
+    <p-button label="Non" (onClick)="displayConfirmationClient = false" severity="secondary" size="small" />
+  </p-footer>
+</p-dialog>
+
+<p-dialog [(visible)]="displayConfirmationOther" header="Confirmation" [modal]="true" [closable]="false"
+  [style]="{ width: '30rem' }">
+  <div *ngIf="!confirmingOtherEmail">
+    <p>Veuillez entrer l'email du destinataire :</p>
+    <input pInputText type="email" [(ngModel)]="otherEmail" placeholder="Email destinataire" class="w-full">
+  </div>
+  <div *ngIf="confirmingOtherEmail">
+    <p>Voulez-vous vraiment envoyer la facture à cet email : {{ otherEmail }} ?</p>
+  </div>
+  <p-footer>
+    <p-button label="Oui" (onClick)="confirmSendEmail('mailAutre');displayConfirmationOther = false" class="mr-2"
+      size="small" *ngIf="confirmingOtherEmail"></p-button>
+    <p-button label="Valider l'email" (onClick)="confirmOtherEmail()" class="mr-2" *ngIf="!confirmingOtherEmail"
+      size="small"></p-button>
+    <p-button label="Annuler" (onClick)="displayConfirmationOther = false" severity="secondary" size="small"></p-button>
+  </p-footer>
+</p-dialog>
+
+
+<p-dialog [(visible)]="displayDialog" header="Modifier le mode de paiement" [closable]="false"
+  [style]="{ width: '30rem' }">
+
+  <div class="p-fluid">
+    <p-dropdown [options]="paymentMethods" [(ngModel)]="selectedMethod" class="w-full" appendTo="body">
+    </p-dropdown>
+  </div>
+  <p-footer>
+    <button pButton label="Annuler" class="mr-2" (click)="displayDialog = false" severity="secondary"
+      size="small"></button>
+    <button pButton label="Valider" (click)="updatePaymentMethod(); displayDialog = false" size="small"></button>
+  </p-footer>
+</p-dialog>
+<p-dialog [(visible)]="displayDateDialog" header="Modifier la date d'échéance" [closable]="false"
+  [style]="{ width: '30rem' }">
+  <div class="p-fluid">
+    <p-dropdown [options]="paymentOptions" [(ngModel)]="selectedPaymentOption" class="w-full" appendTo="body"
+      (onChange)="setPaymentOption($event)">
+    </p-dropdown>
+  </div>
+
+  <div *ngIf="isCustomOptionSelected" class="p-fluid">
+    <label for="customDays" class="form-label mt-2 mb-2">Nombre de jours pour l'échéance</label>
+    <p-inputNumber [(ngModel)]="customDays" id="customDays" [min]="1" (ngModelChange)="setCustomDays($event)">
+    </p-inputNumber>
+  </div>
+
+  <p-footer>
+    <button pButton label="Annuler" class="mr-2" size="small" severity="secondary"
+      (click)="displayDateDialog = false"></button>
+    <button pButton label="Valider" size="small" (click)="validateDateEcheance();displayDateDialog = false"></button>
+  </p-footer>
+
+</p-dialog>

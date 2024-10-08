@@ -1,0 +1,54 @@
+<div class="card mb-2" *ngIf="!loading">
+  <h5 class="mb-3">Ajouter Un Chauffeur</h5>
+  <form [formGroup]="chauffeurForm" (ngSubmit)="onSubmit()" class="p-fluid">
+    <div class="field">
+      <label for="nom">Nom du chauffeur</label>
+      <input pInputText type="text" id="nom" formControlName="last_name" placeholder="Doe" class="w-full" />
+    </div>
+    <div class="field">
+      <label for="prenoms">Prénoms du chauffeur</label>
+      <input pInputText type="text" id="prenoms" formControlName="first_name" placeholder="John" class="w-full" />
+    </div>
+    <div class="field">
+      <label for="numero_telephone">Numéro de téléphone</label>
+      <input pInputText type="tel" id="numero_telephone" formControlName="telephone" placeholder="+33 2323 2333"
+        class="w-full" />
+    </div>
+    <div class="field">
+      <label for="adresse">Adresse du chauffeur</label>
+      <input pInputText type="text" id="adresse" formControlName="adresse" placeholder="Adresse..."
+        (focus)="initAutocomplete()" class="w-full" />
+    </div>
+    <div class="field">
+      <label for="email">Adresse e-mail du chauffeur</label>
+      <input pInputText type="email" id="email" formControlName="email" placeholder="exple@exple.com" class="w-full" />
+    </div>
+    <div class="field">
+      <label for="annee_experience">Année d'expérience du chauffeur</label>
+      <input pInputText type="number" id="annee_experience" formControlName="annee_experience"
+        placeholder="Année expérience" class="w-full" />
+    </div>
+    <div class="field">
+      <label>Langues parlées par le chauffeur</label>
+      <p-multiSelect [options]="langues" optionLabel="nom" optionValue="id" formControlName="langues_parlees"
+        defaultLabel="Sélectionnez les langues" class="w-full">
+      </p-multiSelect>
+    </div>
+
+    <div class="field">
+      <label for="photo">Photo du chauffeur</label>
+      <p-fileUpload mode="basic" [customUpload]="true" (onSelect)="onFileSelected($event)" accept=".jpg, .jpeg, .png"
+        chooseLabel="Choisir un fichier"></p-fileUpload>
+    </div>
+    <div class="flex justify-content-end my-3">
+      <p-button label="Retour" icon="pi pi-times" (onClick)="retour()" size="small" severity="danger"
+        class="mx-2"></p-button>
+      <p-button type="submit" label="Ajouter" icon="pi pi-check" size="small" severity="primary"></p-button>
+    </div>
+  </form>
+</div>
+
+<div class="loader-container" *ngIf="loading">
+  <p-progressSpinner class="spinner-size spinner-style" />
+</div>
+

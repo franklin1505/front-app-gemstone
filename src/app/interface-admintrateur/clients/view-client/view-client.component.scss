@@ -1,0 +1,42 @@
+/* Mobile styles */
+.mobile-only {
+  display: block; /* Ensure it's visible on mobile */
+}
+
+.desktop-only {
+  display: none; /* Hide on mobile */
+}
+
+@media (min-width: 768px) {
+  /* Desktop styles */
+  .mobile-only {
+    display: none; /* Hide on desktop */
+  }
+  .desktop-only {
+    display: block; /* Ensure it's visible on desktop */
+  }
+}
+
+/* Ajoutez ces styles à votre fichier CSS */
+
+.client-card {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  /* Ajustez la hauteur minimum si nécessaire */
+  min-height: 200px;
+  /* Assurez-vous que les cartes prennent la même hauteur */
+  box-sizing: border-box;
+}
+
+/* Assurez-vous que le contenu de la carte utilise tout l'espace disponible */
+.client-card .pt-4 {
+  flex-grow: 1;
+}
+
+/* Assurez-vous que les colonnes ont une hauteur cohérente */
+.col-12, .sm\:col-4, .md\:col-4, .xl\:col-4 {
+  display: flex;
+  flex-direction: column;
+}
+

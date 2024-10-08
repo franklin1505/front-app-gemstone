@@ -1,0 +1,170 @@
+<div *ngIf="reservation && reservation.statutReservation !== 'en_traitement'; else traitementTemplate">
+
+  <div class="container centered-content">
+    <div class="page-container">
+      <div class="card mb-2">
+        <div class="card-header text-start">
+          <h3 class="mb-2 text-uppercase">❗Attention</h3>
+          <p class="mb-2 my-1">
+            Cette course a déjà été traitée. Vous pouvez quitter cette page en utilisant le bouton ci-dessous. Merci
+            pour votre vigilance !
+          </p>
+        </div>
+        <div class="my-3 text-center">
+          <button pButton pRipple (click)="fermerPage()" class="p-button-raised p-button-secondary">Quitter</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+
+</div>
+<ng-template #traitementTemplate>
+
+  <div class="container" *ngIf="!showConfirmationMessage && !loading">
+    <div class="page-container">
+      <!-- Alerte de démarrage avec compte à rebours -->
+      <div class="card mb-2">
+        <div class="card-header text-start">
+          <h4 class="mb-2 text-uppercase">Course : {{ reservation?.numero_reservation || "" }}</h4>
+          <p class="mb-2 my-1">
+            Consultez les informations ci-dessous pour la course que nous vous proposons. Appuyez sur les boutons
+            ci-dessous pour soit l'accepteé ou la refusé. Merci pour votre attention !
+          </p>
+        </div>
+      </div>
+
+      <div class="card mb-2">
+        <div class="card-body demo-vertical-spacing demo-only-element">
+          <div #mapContainer id="map" style="height: 310px;"></div>
+          <div class="d-flex flex-row justify-content-start align-items-start mt-3">
+            <div>
+              <span><i class='pi pi-users'></i>&nbsp;<strong>{{ reservation?.nombrePassager || "" }}</strong></span>
+              <span class="mx-1"><i class='pi pi-briefcase'></i>&nbsp;<strong>{{ reservation?.nombreBagage || ""
+                  }}</strong></span>
+              <span class="mx-1"><i class="pi pi-map"></i>&nbsp;<strong>{{ reservation?.distance || "" }}
+                  Km</strong></span>
+              <span><i class="pi pi-clock"></i>&nbsp;<strong>{{ reservation?.duree || "" }}</strong></span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="card mb-2 booking-container">
+        <div class="booking-header d-flex align-items-center">
+          <h5 class="ml-2 text-uppercase">Détails supplémentaires</h5>
+        </div>
+        <div class="booking-detail">
+          <div class="my-1 mx-2">
+            <strong>Date et Heure :</strong> {{ reservation?.datePriseEnCharge | date: 'dd MMM yyyy à HH:mm' || "" }}
+          </div>
+          <div class="my-1 mx-2">
+            <strong>Départ :</strong> {{ reservation?.lieuxPriseEnCharge || " " }}
+          </div>
+          <div class="my-1 mx-2">
+            <strong>Destination :</strong> {{ reservation?.lieuxDestination || "" }}
+          </div>
+          <div class="my-1 mx-2" *ngIf="vehiculeDetails">
+            <strong>vehicule :</strong> {{ vehiculeDetails.marque}}{{
+            vehiculeDetails.modele}}({{vehiculeDetails.typeVehicule}})
+          </div>
+          <div class="my-1 mx-2" *ngIf="clientDetails">
+            <strong>Client :</strong> <span *ngIf="clientDetails?.first_name !== 'XXXXX'">{{clientDetails?.first_name
+              }}</span> {{ clientDetails?.last_name}}
+          </div>
+
+          <div class="my-1 mx-2">
+            <strong>Mode de paiement :</strong> {{ formatPaymentMethodName(reservation?.modePaiement || "") }}
+          </div>
+          <div class="my-1 mx-2" *ngIf="reservation?.compagnieAerienne">
+            <strong>Nº De Vol/Train :</strong> {{ reservation?.compagnieAerienne }}
+          </div>
+          <div class="my-1 mx-2">
+            <strong>Lieu de rencontre :</strong> {{ reservation?.lieu_rendez_vous || 'Non spécifié' }}
+          </div>
+
+          <div class="my-1 mx-2">
+            <strong>Tarif de vente de la course :</strong>
+            {{ reservation?.coutDeVente | currency:'EUR':'symbol':'1.2-2' }}
+          </div>
+          <div class="my-1 mx-2" *ngIf="reservation?.modePaiement === 'payement_abord'">
+            <strong>Tarif de la course :</strong>
+            <span class="badge badge-info">
+              {{ reservation?.coutTotalReservation | currency:'EUR':'symbol':'1.2-2' }}
+            </span>
+
+          </div>
+          <div class="my-1 mx-2" *ngIf="affichageForm.value.supplements.length > 0">
+            <p class="card-text"><strong>Suppléments :</strong></p>
+            <ul class="list-group">
+              <li *ngFor="let item of affichageForm.value.supplements" class="list-group-item">
+                {{ item.nom_attribut }} ({{ item.quantite }})
+              </li>
+            </ul>
+          </div>
+
+          <div class="my-1 mx-2" *ngIf="affichageForm.value.passagers.length > 0">
+            <p class="card-text"><strong>Liste des passagers ajoutés :</strong></p>
+            <ul class="list-group">
+              <li *ngFor="let passenger of affichageForm.value.passagers" class="list-group-item">
+                {{ passenger.content }}
+              </li>
+            </ul>
+          </div>
+
+          <div class="my-1 mx-2" *ngIf="affichageForm.value.notes.length > 0">
+            <p class="card-text"><strong>Notes :</strong></p>
+            <ul class="list-group">
+              <li *ngFor="let note of affichageForm.value.notes" class="list-group-item">
+                {{ note.content }}
+              </li>
+            </ul>
+          </div>
+        </div>
+        <div class="my-4 text-center" *ngIf="!showConfirmationMessage">
+          <button pButton pRipple (click)="rejectReservation()" class="p-button-raised p-button-danger">Refuser</button>
+          <button pButton pRipple (click)="acceptReservation()"
+            class="p-button-raised p-button-success mx-2">Accepter</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="container centered-content" *ngIf="showConfirmationMessage">
+    <div class="page-container">
+      <div class="card mb-2" *ngIf="showAcceptMessage">
+        <div class="card-header text-start">
+          <h3 class="mb-2 text-uppercase">🥳 Réservation Acceptée</h3>
+          <p class="mb-2 my-1">
+            Merci d'avoir accepté cette course. Veuillez vous connecter à votre compte pour obtenir des informations
+            supplémentaires sur la réservation.
+          </p>
+        </div>
+        <div class="my-3 text-center">
+
+          <button pButton pRipple (click)="fermerPage()" class="p-button-raised p-button-secondary">Fermer</button>
+          <button pButton pRipple (click)="redirectToPartner()" class="p-button-raised p-button-primary mx-2">Se
+            Connecter</button>
+
+        </div>
+      </div>
+      <div class="card mb-2" *ngIf="showRejectMessage">
+        <div class="card-header text-start">
+          <h3 class="mb-2 text-uppercase">😔 Réservation Refusée</h3>
+          <p class="mb-2 my-1">
+            Nous vous remercions de nous avoir informés de votre indisponibilité pour cette course. Nous espérons
+            collaborer avec vous une prochaine fois.
+          </p>
+        </div>
+        <div class="my-3 text-center">
+          <button pButton pRipple (click)="fermerPage()" class="p-button-raised p-button-secondary">Fermer</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</ng-template>
+
+<div class="loader-container" *ngIf="loading">
+  <p-progressSpinner class="spinner-size spinner-style" />
+</div>

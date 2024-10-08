@@ -1,0 +1,147 @@
+<div class="w-full" *ngIf="!loading">
+  <div class="card-w-title mb-2">
+    <p-breadcrumb [model]="breadcrumbItems" [home]="{icon: 'pi pi-home', command: navigateToDashboard}"></p-breadcrumb>
+  </div>
+  <p-dataView [value]="chauffeurs" layout="grid">
+    <ng-template pTemplate="header">
+
+      <div class="flex justify-content-between">
+        <div></div>
+        <p-button type="button" label="Retour" class="font-bold" size="small" severity="danger"
+          routerLink="/app/partenaire/profil" />
+      </div>
+    </ng-template>
+
+    <ng-template let-chauffeur pTemplate="grid">
+      <div class="grid grid-nogutter">
+        <div class="col-12 sm:col-4 md:col-4 xl:col-4 p-2" *ngFor="let chauffeur of chauffeurs">
+          <div class="p-4 border-1 surface-border surface-card border-round flex flex-column">
+            <div class="surface-50 flex justify-content-center border-round p-3">
+
+              <div class="relative mx-auto">
+                <img class="border-round w-full" [src]="getLogoUrl(chauffeur.photo)" [alt]="chauffeur.last_name" />
+                <p-tag [value]="chauffeur.validation ? 'Activé' : 'Désactivé'" [severity]="getSeverity(chauffeur)"
+                  [style.left.px]="2" [style.top.px]="2" class="absolute">
+                </p-tag>
+              </div>
+
+            </div>
+            <div class="pt-4">
+              <div class="flex flex-row justify-content-between align-items-start gap-2">
+                <div>
+                  <p-tag [value]="chauffeur.first_name + ' ' + chauffeur.last_name " severity="secondary"></p-tag>
+                </div>
+              </div>
+              <div class="my-3 flex flex-wrap text-nowrap gap-0">
+                <span>Telehone: {{chauffeur.telephone}}</span>
+                <span class="mx-2">|</span>
+                <span>E-mail: {{chauffeur.email}}</span>
+                <span class="mx-2">|</span>
+                <span>Adresse: {{chauffeur.adresse}}</span>
+              </div>
+              <div class="flex">
+                <p-button label="Détails" icon="pi pi-info-circle" severity="info" size="small"
+                  (click)="showDetails(chauffeur)" class="flex-auto md:flex-initial white-space-nowrap mr-2" />
+                  <p-splitButton label="Actions" severity="warning" size="small" [model]="items"
+                  (onDropdownClick)="action(chauffeur, chauffeur.id_chauffeur)">
+                </p-splitButton>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </ng-template>
+
+    <ng-template pTemplate="empty">
+      <div class="flex flex-column justify-content-center align-items-center" style="height: 100px;">
+        <h6 class="block pt-3">Actuellement, il n'a aucun chauffeur enregistrée dans le compte de votre enreprise</h6>
+      </div>
+    </ng-template>
+
+  </p-dataView>
+
+</div>
+
+<p-dialog header="Fiche De Détails" [(visible)]="detailsDialogVisible" [modal]="true" [style]="{width: '55vw'}"
+  [closable]="true" [breakpoints]="{ '1199px': '55vw', '575px': '90vw' }">
+
+  <div *ngIf="selectedChauffeur">
+    <div class="grid align-items-stretch">
+      <div class="col-12 lg:col-4 xl:col-4 flex align-items-center justify-content-center" style="height: 100%;">
+        <img [src]="getLogoUrl(selectedChauffeur.photo)" alt="Image du Véhicule" class="w-full h-auto border-round"
+          style="object-fit: contain; max-width: 100%; height: 100%;" />
+      </div>
+      <div class="col-12 lg:col-8 xl:col-8" style="height: 100%;">
+        <ul class="list-none p-0">
+          <li class="mb-2">
+            <span class="font-bold mr-2">Nom complet:</span>
+            <span>{{selectedChauffeur.last_name }} {{selectedChauffeur.first_name }}</span>
+          </li>
+          <li class="mb-2">
+            <span class="font-bold mr-2">Adresse E-mail:</span>
+            <span>{{selectedChauffeur.email}}</span>
+          </li>
+          <li class="mb-2">
+            <span class="font-bold mr-2">Telephone:</span>
+            <span>{{selectedChauffeur.telephone}}</span>
+          </li>
+          <li class="mb-2">
+            <span class="font-bold mr-2">Adresse:</span>
+            <span>{{ selectedChauffeur.adresse || 'Données non renseignées' }}</span>
+          </li>
+          <li class="mb-2">
+            <span class="font-bold mr-2">Année experience:</span>
+            <span>{{selectedChauffeur.annee_experience}} ans</span>
+          </li>
+          <li class="mb-2">
+            <span class="font-bold mr-2">Langues parlée(s):</span>
+            <span>{{ formatLanguesParlees(selectedChauffeur.langues_parlees) }}</span>
+          </li>
+
+        </ul>
+      </div>
+
+    </div>
+  </div>
+
+  <p-footer>
+    <p-button label="Fermer" size="small" severity="secondary" (click)="detailsDialogVisible = false" class="mr-2" />
+    <p-button *ngIf="selectedChauffeur" label="Supprimer" size="small" severity="danger"
+      (click)="showDialog(selectedChauffeur); detailsDialogVisible = false" class="mr-2" />
+  </p-footer>
+</p-dialog>
+
+<p-dialog header="Confirmation" [modal]="true" [(visible)]="visible" [style]="{ width: '25rem' }">
+  <div class="flex align-items-center gap-3 mb-3 my-2">
+    <span>
+      <i class="pi pi-exclamation-triangle mr-2 text-orange-400"></i>
+      Êtes-vous sûr de vouloir supprimer ce chauffeur ?
+    </span>
+  </div>
+  <p-footer class="flex justify-content-end gap-2 ">
+    <p-button label="Annuler" severity="secondary" (onClick)="visible = false" size="small" />
+    <p-button label="Confirmé" (onClick)="delete(selectedChauffeur); visible = false" size="small" />
+  </p-footer>
+</p-dialog>
+
+<div class="loader-container" *ngIf="loading">
+  <p-progressSpinner class="spinner-size spinner-style" />
+</div>
+
+<p-dialog [(visible)]="visibleDialog" [modal]="true" [style]="{width: '35vw'}" (onHide)="closeDialog()"
+  [breakpoints]="{ '1199px': '35vw', '575px': '90vw' }">
+
+  <ng-template pTemplate="header">
+    <h4>{{ getDialogTitle() }}</h4>
+  </ng-template>
+
+  <ng-template pTemplate="content">
+    <p>{{ getDialogContent() }}</p>
+  </ng-template>
+
+  <p-footer *ngIf="getDialogFooter()">
+    <p-button label="Annuler" icon="pi pi-times" (click)="closeDialog()" size="small" severity="danger"></p-button>
+    <p-button label="Oui" icon="pi pi-check" size="small" class="mr-2" (click)="submitAction()"></p-button>
+  </p-footer>
+
+</p-dialog>

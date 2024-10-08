@@ -1,0 +1,812 @@
+<div class="w-full" *ngIf="!loading && !sendData">
+  <div class="card-w-title mb-4">
+    <p-breadcrumb [model]="breadcrumbItems" [home]="{icon: 'pi pi-home', command: navigateToDashboard}"></p-breadcrumb>
+  </div>
+
+  <div *ngIf="reservation">
+    <div class="grid text">
+      <div class="col-12 md:col-8 lg:col-8 xl:col-8 mb-1">
+        <div class="card mb-2">
+          <div class="card-header text-start">
+            <h5 class="mb-2 text-uppercase">Course : {{ reservation?.numero_reservation || "" }}</h5>
+            <p class="mb-1 my-1">
+              Creer le: <strong>{{ reservation.createdAt |
+                date:'dd MMM yyyy à HH:mm'}}</strong>
+            </p>
+            <p class="mb-2 my-1">
+              Statut: <p-tag [severity]="getStatusTag(reservation).severity"
+                [value]="getStatusTag(reservation).value"></p-tag>
+            </p>
+          </div>
+        </div>
+
+        <div class="card mb-2">
+          <div class="card-body demo-vertical-spacing demo-only-element">
+            <div #mapContainer id="map" style="height: 310px;"></div>
+            <div class="d-flex flex-row justify-content-start align-items-start mt-3">
+              <div>
+                <span><i class='pi pi-users'></i>&nbsp;<strong>{{ reservation?.nombrePassager || "" }}</strong></span>
+                <span class="mx-1"><i class='pi pi-briefcase'></i>&nbsp;<strong>{{ reservation?.nombreBagage || ""
+                    }}</strong></span>
+                <span class="mx-1"><i class="pi pi-map"></i>&nbsp;<strong>{{ reservation?.distance || "" }}
+                    Km</strong></span>
+                <span><i class="pi pi-clock"></i>&nbsp;<strong>{{ reservation?.duree || "" }}</strong></span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="card mb-2 booking-container">
+          <div class="booking-header d-flex align-items-center">
+            <h5 class="ml-2 text-uppercase">Détails supplémentaires</h5>
+          </div>
+          <div class="booking-detail">
+            <div class="my-1 mx-2">
+              <strong>Date et Heure :</strong> {{ reservation?.datePriseEnCharge | date: 'dd MMM yyyy à HH:mm' || "" }}
+            </div>
+            <div class="my-1 mx-2">
+              <strong>Départ :</strong> {{ reservation?.lieuxPriseEnCharge || " " }}
+            </div>
+            <div class="my-1 mx-2">
+              <strong>Destination :</strong> {{ reservation?.lieuxDestination || "" }}
+            </div>
+            <div class="my-1 mx-2" *ngIf="vehiculeData">
+              <strong>vehicule :</strong> {{ vehiculeData.marque}}{{
+              vehiculeData.modele}}({{vehiculeData.typeVehicule}})
+            </div>
+            <div class="my-1 mx-2" *ngIf="clientDetails">
+              <strong>Client :</strong> <span *ngIf="clientDetails?.first_name !== 'XXXXX'">{{clientDetails?.first_name
+                }}</span> {{ clientDetails?.last_name}}
+            </div>
+
+            <div class="my-1 mx-2">
+              <strong>Mode de paiement :</strong> {{ formatPaymentMethodName(reservation?.modePaiement || "") }}
+            </div>
+            <div class="my-1 mx-2" *ngIf="reservation?.compagnieAerienne">
+              <strong>Nº De Vol/Train :</strong> {{ reservation?.compagnieAerienne }}
+            </div>
+            <div *ngIf="reservation?.chauffeur_affecte || reservation?.chauffeur_externe_info" class="my-1 mx-2">
+              <div *ngIf="reservation?.chauffeur_affecte">
+                <strong>Chauffeur affecté :</strong> {{ reservation.chauffeur_affecte.first_name }} {{
+                reservation.chauffeur_affecte.last_name }}
+                <span class="text-primary">({{reservation.chauffeur_affecte.telephone }})</span>
+              </div>
+              <div *ngIf="!reservation?.chauffeur_affecte && reservation?.chauffeur_externe_info">
+                <strong>Chauffeur affecté :</strong> {{ reservation.chauffeur_externe_info.nom }}
+                <span class="text-primary">({{reservation.chauffeur_externe_info.numero }})</span>
+              </div>
+            </div>
+
+            <div class="my-1 mx-2">
+              <strong>Lieu de rendez-vous :</strong> {{ reservation?.lieu_rendez_vous || 'Non spécifié' }}
+            </div>
+            <ng-container *ngIf="userType === 'administrateur' || userType === 'client'">
+              <div class="my-1 mx-2">
+                <strong>Cout de trajet :</strong>
+                <span>
+                  {{ reservation?.coutTransport | currency:'EUR':'symbol':'1.2-2' }}
+                </span>
+              </div>
+
+              <!-- Afficher "Cout de vente" uniquement pour les administrateurs -->
+              <div class="my-1 mx-2" *ngIf="userType === 'administrateur' && reservation?.coutDeVente">
+                <strong>Cout de vente chauffeur de la course :</strong>
+                <span>
+                  {{ reservation?.coutDeVente | currency:'EUR':'symbol':'1.2-2' }}
+                </span>
+              </div>
+              <div class="my-1 mx-2" *ngIf="userType === 'administrateur' && reservation?.prixVentePartenaire">
+                <strong>Cout de vente partenaire de la course :</strong>
+                <span>
+                  {{ reservation?.prixVentePartenaire | currency:'EUR':'symbol':'1.2-2' }}
+                </span>
+              </div>
+
+              <div class="my-1 mx-2" *ngIf="reservation?.totalAttributCost > 0">
+                <strong>Cout des supplements :</strong>
+                <span>
+                  {{ reservation?.totalAttributCost | currency:'EUR':'symbol':'1.2-2' }}
+                </span>
+              </div>
+
+              <div class="my-1 mx-2">
+                <strong>Tarif de la course :</strong>
+                <span class="badge badge-info">
+                  {{ reservation?.coutTotalReservation | currency:'EUR':'symbol':'1.2-2' }}
+                </span>
+              </div>
+            </ng-container>
+
+            <ng-container *ngIf="userType === 'chauffeur' ">
+              <div *ngIf=" reservation?.coutDeVente; ">
+                <div class="my-1 mx-2">
+                  <strong>Tarif de la course :</strong>
+                  <span class="badge badge-info">{{ reservation?.coutDeVente | currency:'EUR':'symbol':'1.2-2' }}</span>
+                </div>
+              </div>
+            </ng-container>
+
+            <ng-container *ngIf="userType === 'partenaire' ">
+              <div *ngIf=" reservation?.coutDeVente">
+                <div class="my-1 mx-2">
+                  <strong>cout de vente chauffeur de la course :</strong>
+                  <span class="badge badge-info">{{ reservation?.coutDeVente | currency:'EUR':'symbol':'1.2-2' }}</span>
+                </div>
+              </div>
+              <div class="my-1 mx-2" *ngIf="reservation?.prixVentePartenaire">
+                <strong>Cout de vente partenaire de la course :</strong>
+                <span>
+                  {{ reservation?.prixVentePartenaire | currency:'EUR':'symbol':'1.2-2' }}
+                </span>
+              </div>
+            </ng-container>
+
+            <div class="mb-4 my-3">
+              <div *ngIf="isContentVisible">
+                <div class="mb-1 mx-2"
+                  *ngIf="affichageForm.value.passagers && affichageForm.value.passagers.length > 0">
+                  <strong class="mb-2">Liste des passagers ajoutés :</strong>
+                  <ul class="p-list ml-3">
+                    <li *ngFor="let passenger of affichageForm.value.passagers" class="p-list-item">
+                      <i class="pi pi-user mr-2"></i>{{ passenger.content }}
+                    </li>
+                  </ul>
+                </div>
+
+                <div class="mb-1 mx-2"
+                  *ngIf="affichageForm.value.supplements && affichageForm.value.supplements.length > 0">
+                  <strong class="mb-2">Suppléments :</strong>
+                  <ul class="p-list ml-2">
+                    <li *ngFor="let item of affichageForm.value.supplements" class="p-list-item">
+                      <i class="pi pi-plus-circle mr-2"></i>{{ item.nom_attribut }} ({{ item.quantite }})
+                    </li>
+                  </ul>
+                </div>
+
+                <div class="mb-1 mx-2" *ngIf="affichageForm.value.notes && affichageForm.value.notes.length > 0">
+                  <strong class="mb-2">Note :</strong>
+                  <span *ngFor="let note of affichageForm.value.notes">
+                    {{ note.content }}
+                  </span>
+                </div>
+              </div>
+
+              <div class="py-2">
+                <p-button [label]="isContentVisible ? 'Voir moins' : 'Voir plus'" (click)="toggleVisibility()"
+                  size="small" [text]="true" severity="secondary">
+                </p-button>
+              </div>
+            </div>
+          </div>
+
+        </div>
+      </div>
+      <div class="col-12 md:col-4 lg:col-4 xl:col-4 mb-1">
+        <div class="card mb-2">
+          <div class="card-header text-start">
+            <h5 class="mb-2 text-uppercase">Actions</h5>
+          </div>
+          <div class="card-body">
+            <div class="flex flex-wrap gap-3 p-fluid mb-4">
+
+              <div class="flex-auto ">
+                <add-to-calendar-button [attr.name]="title" options="'Google','Apple','iCal','Yahoo'"
+                  [attr.startDate]="startDate" size="3" lightMode="bodyScheme" label="Ajouter à l'Agenda"
+                  [attr.location]="location" [attr.description]="description" timeZone="currentBrowser"
+                  [attr.endTime]="endTime" [attr.startTime]="startTime">
+                </add-to-calendar-button>
+              </div>
+              <div class="flex-auto">
+                <p-button label="Quitter" severity="secondary" [raised]="true" class="w-full"
+                  routerLink="/app/reservations/liste" />
+              </div>
+              <ng-container *ngIf="userType === 'administrateur'">
+                <div class="flex-auto">
+                  <p-button label="Modifier La Réservation" [raised]="true" class="w-full"
+                    routerLink="/app/reservations/update/{{ reservation.id }}" size="small" />
+                </div>
+                <div class="flex-auto">
+                  <p-button label="Changer Le Statut De La Course" [raised]="true" severity="warning" class="w-full"
+                    (click)="ouvrirModal('changerStatut','')" size="small" />
+                </div>
+                <div class="flex-auto">
+                  <p-button severity="info" class="w-full" (click)="toggleSendMode()" label="Partager La Réservation"
+                    size="small" />
+                </div>
+                <div class="flex-auto">
+                  <p-button severity="help" class="w-full" (click)="showDialog('com')" label="Commission - Compensation"
+                    size="small" />
+                </div>
+                <div class="flex-auto" *ngIf="!reservation.is_reglerPartenaire && reservation.partenaire_affecte">
+                  <p-button class="w-full" (click)="ouvrirModal('reglement', 'partenaire')"
+                    label="Valider le paiement du partenaire" severity="success" size="small" />
+                </div>
+                <div class="flex-auto" *ngIf="!reservation.is_regler && reservation.chauffeur_affecte">
+                  <p-button class="w-full" (click)="ouvrirModal('reglement', 'chauffeur')"
+                    label="Valider le paiement du chauffeur" severity="primary" size="small" />
+                </div>
+
+                <div class="flex-auto" *ngIf="!reservation.is_recurring && !reservation.reservation_origine">
+                  <p-button severity="contrast" label="Annuler La Réservation" [raised]="true" class="w-full"
+                    (click)="confirm2($event, 'cancel')" size="small" />
+                </div>
+                <div class="flex-auto" *ngIf="!reservation.is_recurring && !reservation.reservation_origine">
+                  <p-button label="Supprimer La Réservation" severity="danger" [raised]="true" class="w-full"
+                    (click)="openCodeVerificationModal('verifierCode', 'supprimer')" size="small" />
+                </div>
+                <div class="flex-auto" *ngIf="reservation.is_recurring || reservation.reservation_origine">
+                  <p-button severity="contrast" label="Annuler Réservation" [raised]="true" class="w-full"
+                    (click)="confirm3($event, 'annuler')" size="small" />
+                </div>
+                <div class="flex-auto" *ngIf="reservation.is_recurring || reservation.reservation_origine">
+                  <p-button severity="danger" label="Supprimer Réservation" [raised]="true" class="w-full"
+                    (click)="confirm4($event)" size="small" />
+                </div>
+                <div class="flex-auto" *ngIf="reservation.is_recurring || reservation.reservation_origine">
+                  <p-button severity="help" label="Arrêter la Répétition Récurente" [raised]="true" class="w-full"
+                    (click)="openCodeVerificationModal('verifierCode', 'stop')" size="small" />
+                </div>
+              </ng-container>
+              <ng-container *ngIf="userType === 'client'">
+                <div class="flex-auto">
+                  <p-button severity="info" label="Resumer de la course en PDF" [raised]="true" class="w-full"
+                    size="small" (click)="generatePDF('commande')" />
+                </div>
+                <div class="flex-auto">
+                  <p-button severity="danger" label="Demander l'Annulation La Reservation" [raised]="true"
+                    class="w-full" size="small" (click)="showAnnulationDialog()" />
+                </div>
+                <div class="flex-auto">
+                  <p-button severity="warning" label="Contacter le service client" [raised]="true" class="w-full"
+                    size="small" (onClick)="serviceClientMenu.toggle($event)" />
+                </div>
+
+              </ng-container>
+              <ng-container *ngIf="userType === 'chauffeur'">
+                <div class="flex-auto">
+                  <p-button label="Contactez le passager" severity="info" class="w-full" size="small"
+                    (onClick)="contactMenu.toggle($event)" />
+                </div>
+                <div class="flex-auto">
+                  <p-button label="Annuler la course" severity="warning" class="w-full" size="small"
+                    (onClick)="cancelMenu.toggle($event)" />
+                </div>
+                <div class="flex-auto">
+                  <p-button label="Signaler No-Show" (onClick)="showNoShowDialog()" severity="danger" class="w-full"
+                    size="small" />
+                </div>
+                <div class="flex-auto" *ngIf="!reservation.is_regler">
+                  <p-button label="Demandé un reglement" (onClick)="showDemandeReglementDialog()" severity="help"
+                    class="w-full" size="small" />
+                </div>
+              </ng-container>
+              <ng-container *ngIf="userType === 'partenaire'">
+                <div class="flex-auto">
+                  <p-button label="Contactez le passager" severity="info" class="w-full" size="small"
+                    (onClick)="contactMenu.toggle($event)" />
+                </div>
+                <div class="flex-auto">
+                  <p-button severity="success" label="Resumer de la course en PDF" [raised]="true" class="w-full"
+                    size="small" (click)="generatePDF('commande')" />
+                </div>
+                <div class="flex-auto">
+                  <p-button label="Demande d'annulation de la course" severity="warning" class="w-full" size="small"
+                    (onClick)="showRequeteAnnulationDialog()" />
+                </div>
+                <div class="flex-auto" *ngIf="!reservation.is_reglerPartenaire">
+                  <p-button label="Demandé un reglement" (onClick)="showDemandeReglementDialog()" severity="help"
+                    class="w-full" size="small" />
+                </div>
+                <div class="flex-auto" *ngIf="!reservation.is_regler && reservation.chauffeur_affecte">
+                  <p-button class="w-full" (click)="ouvrirModal('reglement', 'chauffeur')"
+                    label="Valider le paiement du chauffeur" severity="primary" size="small" />
+                </div>
+              </ng-container>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div>
+<div class="w-full" *ngIf="!loading && sendData">
+  <div class="card-w-title mb-4">
+    <p-breadcrumb [model]="breadcrumbItems" [home]="{icon: 'pi pi-home', command: navigateToDashboard}"></p-breadcrumb>
+  </div>
+
+  <div class="container mt-4" *ngIf="showInitialCards">
+
+    <div class="flex justify-content-between mb-3">
+      <div>
+        <h5 class="capitalize">Choisir le type d'envoi</h5>
+      </div>
+      <div>
+        <p-button label="Retour" severity="secondary" size="small" (click)="toggleSendMode()" />
+      </div>
+    </div>
+    <div class="grid">
+
+      <div class="col-12 lg:col-6 xl:col-6" *ngFor="let card of cards" (click)="selectCard(card.type, true)">
+        <div class="card mb-0 clickable-card">
+          <div class="flex justify-content-between mb-2">
+            <div>
+              <span class="block text-500 font-medium mb-2">{{ card.title }}</span>
+              <div class="text-900 font-medium text-xl">{{ card.subtitle }}</div>
+            </div>
+            <div [class]="card.badgeClass" [ngStyle]="{width: '2.5rem', height: '2.5rem'}" [ngClass]="card.badgeClass">
+              <i [class]="card.icon"></i>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+
+  </div>
+
+  <div class="container mt-4" *ngIf="selectedCardType">
+
+    <div class="flex justify-content-between mb-3">
+      <div>
+        <h5 class="capitalize">Choisir le type de bon</h5>
+      </div>
+      <div>
+        <p-button label="Retour" severity="secondary" size="small" (click)="resetView()" />
+      </div>
+    </div>
+    <div class="grid">
+
+      <div class="col-12 lg:col-4 xl:col-4" *ngFor="let card of cardsFille" (click)="selectCard(card.type)">
+        <div class="card mb-0 clickable-card" [ngClass]="{'selected-card': selectedCardType === card.type}">
+          <div class="flex justify-content-between mb-2">
+            <div>
+              <span class="block text-500 font-medium mb-2">{{ card.title }}</span>
+              <div class="text-900 font-medium text-xl">{{ card.subtitle }}</div>
+            </div>
+            <div [class]="card.badgeClass" [ngStyle]="{width: '2.5rem', height: '2.5rem'}" [ngClass]="card.badgeClass">
+              {{ card.icon }}
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+
+
+    <div *ngIf="selectedMainCardType === 'pdf'">
+      <div class="flex justify-content-center my-4">
+        <div class="col-12 sm:col-6 xl:col-6" *ngIf="selectedCardType === 'commande'">
+          <p-button size="small" (click)="generatePDF('commande')"><i class='pi pi-download'></i><span>Télécharger le
+              bon de commande</span></p-button>
+        </div>
+        <div class="col-12 sm:col-6 xl:col-6" *ngIf="selectedCardType === 'disponibilite'">
+          <p-button size="small" severity="warning" *ngIf="reservation && reservation.coutDeVente === null"
+            [disabled]="true">Bon
+            indisponible
+            Attribuer un prix de vente a la course et reessayer
+          </p-button>
+          <p-button size="small" severity="warning" *ngIf="reservation && reservation.coutDeVente !== null"
+            (click)="generatePDF('disponibilite')"><i class='pi pi-download'></i><span>Télécharger le
+              bon de disponibilité</span></p-button>
+        </div>
+        <div class="col-12 sm:col-6 xl:col-6" *ngIf="selectedCardType === 'annulation'">
+          <p-button p-button size="small" severity="danger" (click)="generatePDF('annulation')"><i
+              class='pi pi-download'></i><span>Télécharger le bon d'annnulation</span></p-button>
+        </div>
+      </div>
+    </div>
+    <div *ngIf="selectedMainCardType === 'whatsapp'">
+
+      <div class="grid flex justify-content-center my-4">
+
+        <div class="col-12 lg:col-4 xl:col-4" *ngFor="let subCard of getSubCards(selectedCardType)">
+          <!-- Client Card -->
+          <div *ngIf="subCard.type === 'client' && shouldDisplayClientCard()">
+            <div class="card mb-0 clickable-card" [ngClass]="{'selected-card': selectedCardType === subCard.type}"
+              (click)="openConfirmationModal2(selectedCardType, 'client')">
+              <div class="flex justify-content-between mb-2">
+                <div>
+                  <span class="block text-500 font-medium mb-2">{{ subCard.title }}</span>
+                  <div class="text-900 font-medium text-xl">{{ subCard.subtitle }}</div>
+                </div>
+                <div [class]="subCard.badgeClass" [ngStyle]="{width: '2.5rem', height: '2.5rem'}">
+                  {{ subCard.icon }}
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Chauffeur Card -->
+          <div *ngIf="subCard.type === 'chauffeur'">
+            <div *ngIf="reservation.coutDeVente === null; else chauffeurWithCout">
+              <div class="card mb-0 clickable-card" [ngClass]="{'selected-card': selectedCardType === subCard.type}"
+                (click)="dataModal('contentAffectation', selectedCardType, 'chauffeur')">
+                <div class="flex justify-content-between mb-2">
+                  <div>
+                    <span class="block text-500 font-medium mb-2">{{ subCard.title }}</span>
+                    <div class="text-900 font-medium text-xl">{{ subCard.subtitle }}</div>
+                  </div>
+                  <div [class]="subCard.badgeClass" [ngStyle]="{width: '2.5rem', height: '2.5rem'}">
+                    {{ subCard.icon }}
+                  </div>
+                </div>
+              </div>
+            </div>
+            <ng-template #chauffeurWithCout>
+              <div class="card mb-0 clickable-card" [ngClass]="{'selected-card': selectedCardType === subCard.type}"
+                (click)="dataModal('whasapForm', selectedCardType, 'chauffeur')">
+                <div class="flex justify-content-between mb-2">
+                  <div>
+                    <span class="block text-500 font-medium mb-2">{{ subCard.title }}</span>
+                    <div class="text-900 font-medium text-xl">{{ subCard.subtitle }}</div>
+                  </div>
+                  <div [class]="subCard.badgeClass" [ngStyle]="{width: '2.5rem', height: '2.5rem'}">
+                    {{ subCard.icon }}
+                  </div>
+                </div>
+              </div>
+            </ng-template>
+          </div>
+
+          <!-- Autre Card -->
+          <div *ngIf="subCard.type === 'autre'">
+            <div class="card mb-0 clickable-card" [ngClass]="{'selected-card': selectedCardType === subCard.type}"
+              (click)="dataModal('whasapForm', selectedCardType, 'autre')">
+              <div class="flex justify-content-between mb-2">
+                <div>
+                  <span class="block text-500 font-medium mb-2">{{ subCard.title }}</span>
+                  <div class="text-900 font-medium text-xl">{{ subCard.subtitle }}</div>
+                </div>
+                <div [class]="subCard.badgeClass" [ngStyle]="{width: '2.5rem', height: '2.5rem'}">
+                  {{ subCard.icon }}
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+      </div>
+
+    </div>
+    <!--     <div *ngIf="selectedMainCardType === 'mail'">
+      <div class="row mb-4 g-3 justify-content-center my-4">
+        <div class="col-sm-6 col-xl-3" *ngFor="let subCard of getSubCards(selectedCardType)">
+          <div *ngIf="subCard.type === 'client'">
+            <div class="card" *ngIf="shouldDisplayClientCard()">
+              <div class="card-body" (click)="openConfirmModal(content3, selectedCardType,'client')">
+                <div class="d-flex align-items-center justify-content-between">
+                  <div class="content-left">
+                    <h3 class="mb-0">{{ subCard.title }}</h3>
+                    <small>{{ subCard.subtitle }}</small>
+                  </div>
+                  <span [ngClass]="subCard.badgeClass">
+                    {{ subCard.icon }}
+                  </span>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="card" *ngIf="subCard.type === 'chauffeur'">
+            <div *ngIf="reservation.coutDeVente === null ;else other">
+              <div class="card-body" (click)="dataModal(contentAffectation, selectedCardType, 'chauffeur')">
+                <div class="d-flex align-items-center justify-content-between">
+                  <div class="content-left">
+                    <h3 class="mb-0">{{ subCard.title }}</h3>
+                    <small>{{ subCard.subtitle }}</small>
+                  </div>
+                  <span [ngClass]="subCard.badgeClass">
+                    {{ subCard.icon }}
+                  </span>
+                </div>
+              </div>
+            </div>
+            <ng-template #other>
+              <div class="card-body" (click)="dataModal(content5, selectedCardType, 'chauffeur')">
+                <div class="d-flex align-items-center justify-content-between">
+                  <div class="content-left">
+                    <h3 class="mb-0">{{ subCard.title }}</h3>
+                    <small>{{ subCard.subtitle }}</small>
+                  </div>
+                  <span [ngClass]="subCard.badgeClass">
+                    {{ subCard.icon }}
+                  </span>
+                </div>
+              </div>
+            </ng-template>
+
+          </div>
+          <div class="card" *ngIf="subCard.type === 'autre'">
+            <div class="card-body" (click)="dataModal(content6, selectedCardType, 'autre')">
+              <div class="d-flex align-items-center justify-content-between">
+                <div class="content-left">
+                  <h3 class="mb-0">{{ subCard.title }}</h3>
+                  <small>{{ subCard.subtitle }}</small>
+                </div>
+                <span [ngClass]="subCard.badgeClass">
+                  {{ subCard.icon }}
+                </span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div> -->
+  </div>
+</div>
+
+<div class="loader-container" *ngIf="loading">
+  <p-progressSpinner class="spinner-size spinner-style" />
+</div>
+
+<p-tieredMenu #serviceClientMenu [model]="serviceClientMenuItems" [popup]="true"></p-tieredMenu>
+<p-tieredMenu #contactMenu [model]="contactMenuItems" [popup]="true"></p-tieredMenu>
+<p-tieredMenu #cancelMenu [model]="cancelMenuItems" [popup]="true"></p-tieredMenu>
+
+<p-dialog header="changer le statut de la course" [modal]="true" [(visible)]="isChangerStatut"
+  [style]="{ width: '40rem' }" [breakpoints]="{ '1199px': '75vw', '575px': '90vw' }">
+  <form [formGroup]="statutForm">
+
+    <div class="flex flex-wrap gap-3 p-fluid mb-4">
+      <div class="flex-auto">
+        <p-dropdown [options]="statuts" formControlName="nouveauStatut" placeholder="Sélectionnez" appendTo="body">
+        </p-dropdown>
+      </div>
+    </div>
+  </form>
+  <!-- Boutons Annuler et Dupliquer -->
+  <div class="flex justify-content-end gap-2">
+    <p-button label="Annuler" size="small" severity="secondary" (click)="isChangerStatut = false" />
+    <p-button label="Sauvegarder" size="small"
+      (click)="openCodeVerificationModal('verifierCode', 'changer_statut') ;isChangerStatut = false " />
+  </div>
+</p-dialog>
+
+<p-dialog header="Confirmer" [(visible)]="display" [modal]="true" showEffect="fade" [style]="{width: '30vw'}"
+  [breakpoints]="{'960px': '75vw'}">
+  <div class="line-height-3 m-0">
+
+    <p>Veuillez saisir le code de verification avant de pouvoir effectuer l'action </p>
+
+    <div class="flex justify-content-center">
+      <p-inputOtp [length]="6" [(ngModel)]="codeVerification" />
+    </div>
+    <!-- Affichez un message d'erreur si nécessaire -->
+    <p *ngIf="errorMessage" class="text-red-500">{{ errorMessage }}</p>
+  </div>
+
+  <ng-template pTemplate="footer">
+
+    <button pButton icon="pi pi-check" (click)="verifyCode(actionEnCours); display = false " label="Ok"
+      size="small"></button>
+  </ng-template>
+</p-dialog>
+
+<p-dialog header="Saisir le Numero de Telephone" [(visible)]="isWhasapForm" [modal]="true" showEffect="fade"
+  [style]="{width: '30vw'}" [breakpoints]="{'960px': '75vw'}">
+  <form [formGroup]="telForm">
+
+    <div class="flex flex-wrap gap-3 p-fluid mb-4">
+      <div class="flex-auto">
+        <input pInputText type="text" formControlName="telephone" placeholder="Saisir le numero de telephone">
+        <!-- Affichage du message d'erreur "champ requis" -->
+        <div *ngIf="telForm.get('telephone')?.hasError('required') && telForm.get('telephone')?.touched">
+          <div class="text-red-500">Le numero de téléphone est requis.</div>
+        </div>
+        <!-- Affichage du message d'erreur "longueur minimale" -->
+        <div *ngIf="telForm.get('telephone')?.hasError('minlength') && telForm.get('telephone')?.touched">
+          <div class="text-red-500">Le numero de téléphone doit avoir au moins 0 8
+            caractères.</div>
+        </div>
+      </div>
+    </div>
+  </form>
+  <ng-template pTemplate="footer">
+    <p-button label="Annuler" size="small" severity="secondary" (click)="isWhasapForm = false" />
+    <button pButton icon="pi pi-check"
+      (click)="openConfirmationModal2(selectedType,selectedSubType); isWhasapForm = false" label="Ok"
+      size="small"></button>
+  </ng-template>
+</p-dialog>
+
+<p-dialog header="Confirmer l'envoi" [(visible)]="isValidation" [modal]="true" showEffect="fade"
+  [style]="{ width: '35rem' }" [breakpoints]="{ '1199px': '35vw', '575px': '90vw' }">
+  <div class="flex flex-wrap gap-3 p-fluid mb-4">
+    <div class="flex-auto">
+      <span *ngIf="selectedSubType === 'chauffeur' || selectedSubType === 'autre'; else otherMessage">
+        <span *ngIf="telForm.get('telephone')?.value">Valider l'envoi du message au numéro : {{
+          telForm.get('telephone')?.value }}</span>
+      </span>
+      <ng-template #otherMessage>
+        <span *ngIf="clientDetails">Valider l'envoi du message au numéro : {{ clientDetails.telephone }}</span>
+      </ng-template>
+
+    </div>
+
+  </div>
+  <ng-template pTemplate="footer">
+    <p-button label="Non" size="small" severity="secondary" (click)="confirm('ok');isValidation = false" />
+    <button pButton icon="pi pi-check" (click)="confirm('valider'); isValidation = false" label="Oui"
+      size="small"></button>
+  </ng-template>
+</p-dialog>
+
+<p-dialog header="Confirmation" [modal]="true" [(visible)]="visible" [style]="{ width: '30rem' }"
+  [breakpoints]="{ '1199px': '30vw', '575px': '90vw' }">
+  <div class="flex align-items-center gap-3 mb-3 my-2">
+    <span>
+      <i class="pi pi-exclamation-triangle mr-2 text-orange-400"></i>
+      Êtes-vous sûr de vouloir confirmer le paiement du {{ typeReglement === 'chauffeur' ? 'chauffeur' : 'partenaire' }}
+      pour cette course ?
+    </span>
+  </div>
+  <p-footer class="flex justify-content-end gap-2">
+    <p-button label="Non" severity="secondary" (onClick)="visible = false" size="small" />
+    <p-button label="Oui" (onClick)="markReservationAsRegler(); visible = false" size="small" />
+  </p-footer>
+</p-dialog>
+
+
+<p-dialog header="Confirmation" [modal]="true" [(visible)]="confirmationVisible" [style]="{ width: '30rem' }"
+  [breakpoints]="{ '1199px': '30vw', '575px': '90vw' }">
+  <div class="flex align-items-center gap-3 mb-3 my-2">
+    <span>
+      <i class="pi pi-exclamation-triangle mr-2 text-orange-400"></i>
+      {{ confirmationMessage }}
+    </span>
+  </div>
+  <p-footer class="flex justify-content-end gap-2 ">
+    <p-button label="Non" severity="secondary" (onClick)="confirmationVisible = false" size="small" />
+    <p-button label="Oui" (onClick)="confirmAction()" size="small" />
+  </p-footer>
+</p-dialog>
+
+
+<p-dialog header="Confirmation" [(visible)]="confirmationUrgentVisible" [modal]="true" [style]="{ width: '30rem' }"
+  [breakpoints]="{ '1199px': '30vw', '575px': '90vw' }">
+  <div class="flex align-items-center gap-3 mb-3 my-2">
+    <i class="pi pi-exclamation-triangle mr-2 text-orange-400"></i>
+    <span>Voulez-vous vraiment envoyer une demande d'annulation d'urgence ?</span>
+  </div>
+  <p-footer class="flex justify-content-end gap-2 ">
+    <p-button label="Non" severity="secondary" (onClick)="confirmationUrgentVisible = false" size="small" />
+    <p-button label="Oui" (onClick)="sendUrgentCancellation()" size="small" />
+  </p-footer>
+</p-dialog>
+
+
+<p-dialog header="Confirmation" [(visible)]="annulationVisible" [modal]="true" [style]="{ width: '30rem' }"
+  [breakpoints]="{ '1199px': '30vw', '575px': '90vw' }">
+  <div class="flex align-items-center gap-3 mb-3 my-2">
+    <i class="pi pi-exclamation-triangle mr-2 text-orange-400"></i>
+    <span>Voulez-vous vraiment envoyer une demande d'annulation ?</span>
+  </div>
+  <p-footer class="flex justify-content-end gap-2 ">
+    <p-button label="Non" severity="secondary" (onClick)="annulationVisible = false" size="small" />
+    <p-button label="Oui" (onClick)="demanderAnnulationClient()" size="small" />
+  </p-footer>
+</p-dialog>
+
+<!-- Dialog for Requête d'annulation -->
+<p-dialog header="Requête d'annulation" [(visible)]="requeteAnnulationVisible" [modal]="true"
+  [style]="{ width: '30rem' }" [breakpoints]="{ '1199px': '30vw', '575px': '90vw' }">
+  <div class="flex flex-column gap-3">
+    <span>Veuillez expliquer la raison de la requête d'annulation :</span>
+    <textarea [(ngModel)]="messageExplicatif" rows="5" class="w-full"></textarea>
+  </div>
+  <p-footer class="flex justify-content-end gap-2 ">
+    <p-button label="Annuler" severity="secondary" (onClick)="requeteAnnulationVisible = false" size="small" />
+    <p-button label="Envoyer" (onClick)="confirmRequeteAnnulation()" size="small" />
+  </p-footer>
+</p-dialog>
+
+<!-- Dialog for confirmation after Requête d'annulation -->
+<p-dialog header="Confirmation" [(visible)]="confirmationRequeteVisible" [modal]="true" [style]="{ width: '30rem' }"
+  [breakpoints]="{ '1199px': '30vw', '575px': '90vw' }">
+  <div class="flex align-items-center gap-3 mb-3 my-2">
+    <i class="pi pi-exclamation-triangle mr-2 text-orange-400"></i>
+    <span>Voulez-vous vraiment envoyer la requête d'annulation ?</span>
+  </div>
+  <p-footer class="flex justify-content-end gap-2 ">
+    <p-button label="Non" severity="secondary" (onClick)="confirmationRequeteVisible = false" size="small" />
+    <p-button label="Oui" (onClick)="sendRequeteAnnulation()" size="small" />
+  </p-footer>
+</p-dialog>
+
+<p-dialog header="Confirmation de No-Show" [(visible)]="confirmationNoShowVisible" [modal]="true"
+  [style]="{ width: '30rem' }" [breakpoints]="{ '1199px': '30vw', '575px': '90vw' }">
+  <div class="flex align-items-center gap-3 mb-3">
+    <i class="pi pi-exclamation-triangle text-orange-400"></i>
+    <span>Êtes-vous sûr de vouloir signaler que le passager ne s'est pas présenté pour cette réservation ?</span>
+  </div>
+  <p-footer>
+    <p-button label="Non" severity="secondary" (onClick)="confirmationNoShowVisible = false" size="small" />
+    <p-button label="Oui" (onClick)="sendNoShowNotification()" size="small" />
+  </p-footer>
+</p-dialog>
+
+
+<p-dialog header="Confirmation de règlement" [(visible)]="confirmationReglementVisible" [modal]="true"
+  [style]="{ width: '30rem' }" [breakpoints]="{ '1199px': '30vw', '575px': '90vw' }">
+  <div class="flex align-items-center gap-3 mb-3">
+    <i class="pi pi-exclamation-triangle text-orange-400"></i>
+    <span>Voulez-vous vraiment demander le règlement pour la prestation effectué sur cette course terminée ?</span>
+  </div>
+  <p-footer>
+    <p-button label="Non" severity="secondary" (onClick)="confirmationReglementVisible = false" size="small" />
+    <p-button label="Oui" (onClick)="sendDemandeReglement()" size="small" />
+  </p-footer>
+</p-dialog>
+
+
+<p-dialog header="commission - compensation" [(visible)]="isCom" [modal]="true" [style]="{ width: '50rem' }"
+  [breakpoints]="{ '1199px': '5àvw', '575px': '90vw' }">
+  <div class="card-body demo-vertical-spacing demo-only-element">
+    <div class="capitalize mb-4">
+      <span>
+        Coût Actuel De La Course : <strong>{{ cout | currency:'EUR' }}</strong>
+      </span>
+    </div>
+    <div class="flex flex-wrap gap-3 p-fluid mb-4">
+      <p-button label="Appliquer la commission" size="small" [severity]="!compensationEnabled ? 'primary' : 'secondary'"
+        (onClick)="appliquerCommission()" class="flex-grow-1 mx-2"></p-button>
+
+      <p-button label="Compenser la course" size="small" [severity]="compensationEnabled ? 'primary' : 'secondary'"
+        (onClick)="compenserCourse()" class="flex-grow-1"></p-button>
+    </div>
+
+    <!-- Champs pour la commission et la compensation -->
+    <form [formGroup]="calForm">
+      <!-- Champ d'entrée pour la commission -->
+      <div *ngIf="!compensationEnabled">
+        <label for="commission" class="form-label text-start my-2">Taux de commission</label>
+        <p-inputGroup class="mb-3" *ngIf="!isCommissionByAmount">
+          <p-inputNumber id="commission" formControlName="commission" placeholder="Commission de la course (%)"
+            [showButtons]="false" mode="decimal" suffix="%"></p-inputNumber>
+          <p-button label="Saisir un montant" icon="pi pi-pencil" (onClick)="toggleCommissionInput()" class="mx-2"
+            size="small" severity="primary"></p-button>
+        </p-inputGroup>
+
+        <p-inputGroup class="mb-3" *ngIf="isCommissionByAmount">
+          <p-inputNumber id="commissionAmount" formControlName="commissionAmount" placeholder="Montant de la commission"
+            [showButtons]="false" mode="currency" currency="EUR"></p-inputNumber>
+          <p-button label="Saisir un pourcentage" icon="pi pi-pencil" (onClick)="toggleCommissionInput()" class="mx-2"
+            size="small" severity="primary"></p-button>
+        </p-inputGroup>
+
+        <span class="text-primary" *ngIf="!isCommissionByAmount">
+          Taux de commission (%) : {{ calForm.get('commission')?.value || '10' }}%
+        </span>
+        <span class="text-primary" *ngIf="isCommissionByAmount">
+          Montant de la commission (€) : {{ calForm.get('commissionAmount')?.value || '0' |
+          currency:'EUR' }}
+        </span>
+      </div>
+
+      <!-- Champ d'entrée pour la compensation de la course -->
+      <div *ngIf="compensationEnabled">
+        <div class="flex flex-wrap gap-3 p-fluid mb-4">
+          <div class="flex-auto">
+            <label for="compensation">Coût de Compensation</label>
+            <p-inputNumber inputId="compensation" [minFractionDigits]="2" formControlName="compensation"
+              placeholder="Compensation de la course" class="w-full" mode="currency" currency="EUR">
+            </p-inputNumber>
+            <small id="compensation" class="text-primary">
+              Coût de compensation (€) : {{ calForm.get('compensation')?.value || '0' |
+              currency:'EUR' }}
+            </small>
+          </div>
+        </div>
+      </div>
+
+      <!-- Affichage du coût de vente calculé -->
+      <div class="my-4">
+        Coût de vente : <strong>{{ calForm.get('coutDeVente')?.value | currency:'EUR' }}</strong>
+      </div>
+    </form>
+  </div>
+  <p-footer>
+    <p-button label="Quitter" severity="secondary" (onClick)="isCom = false" size="small" />
+    <p-button label="Envoyer la requête" (onClick)="calculate()" size="small" />
+  </p-footer>
+</p-dialog>

@@ -1,0 +1,200 @@
+<div class="w-full" *ngIf="infoProfile && !loading">
+  <div class="card-w-title mb-4">
+    <p-breadcrumb [model]="breadcrumbItems" [home]="{icon: 'pi pi-home'}"></p-breadcrumb>
+  </div>
+
+  <div class="my-4 card mb-0 clickable-card-t p-3" *ngIf="infoProfile?.client_info">
+    <div class="flex flex-column md:flex-row align-content-around align-items-center">
+      <img [src]="getClientImage(infoProfile?.client_info?.type_client)" alt="Profile Image"
+        class="profile-image mb-3 md:mb-0 md:mr-3" />
+
+      <div class="flex-auto mx-3 text-start md:text-left">
+        <h4
+          class="flex align-items-center gap-2 flex-wrap mt-3 justify-content-center md:justify-content-start text-2xl text-600 text-black-alpha-90">
+          {{ infoProfile?.client_info?.nom }}
+        </h4>
+
+        <div class="flex align-items-center gap-2 flex-wrap mt-3 justify-content-center md:justify-content-start">
+          <div class="mb-2 sm:mr-3 sm:mb-1">
+            <i class="pi pi-map-marker mr-2"></i>
+            <span>{{ infoProfile?.client_info?.adresse }}</span>
+          </div>
+          <div class="mb-2 sm:mr-3 sm:mb-1">
+            <i class="pi pi-envelope mr-2"></i>
+            <span>{{ infoProfile?.client_info?.email }}</span>
+          </div>
+          <div>
+            <i class="pi pi-phone mr-2 mb-1"></i>
+            <span>{{ infoProfile?.client_info?.telephone }}</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="grid">
+    <!-- Profil du client Section -->
+    <div class="col-12 lg:col-5 xl:col-5">
+      <div class="card mb-0 p-3 surface-border border-round shadow-2 h-full">
+        <span class="block text-600 font-bold text-lg mb-3">Profil du client</span>
+
+        <!-- Profile Details -->
+        <div class="p-3 border-round border-1 border-300">
+          <div class="flex flex-column lg:flex-row align-items-start justify-content-between mb-2">
+            <div class="text-900 mb-2 lg:mb-0"><strong>Nom:</strong></div>
+            <div class="text-blue-500 font-bold">{{ infoProfile?.client_info?.nom || 'N/A' }}</div>
+          </div>
+          <div class="flex flex-column lg:flex-row align-items-start justify-content-between mb-2">
+            <div class="text-900 mb-2 lg:mb-0"><strong>Email:</strong></div>
+            <div class="text-blue-500 font-bold">{{ infoProfile?.client_info?.email || 'Non fourni' }}</div>
+          </div>
+          <div class="flex flex-column lg:flex-row align-items-start justify-content-between mb-2">
+            <div class="text-900 mb-2 lg:mb-0"><strong>Téléphone:</strong></div>
+            <div class="text-blue-500 font-bold">{{ infoProfile?.client_info?.telephone || 'Non fourni' }}</div>
+          </div>
+          <div class="flex flex-column lg:flex-row align-items-start justify-content-between mb-2">
+            <div class="text-900 mb-2 lg:mb-0"><strong>Adresse:</strong></div>
+            <div class="text-blue-500 font-bold">{{ infoProfile?.client_info?.adresse || 'Non fourni'}}</div>
+          </div>
+          <div class="flex flex-column lg:flex-row align-items-start justify-content-between mb-2">
+            <div class="text-900 mb-2 lg:mb-0"><strong>Type de client:</strong></div>
+            <div class="text-blue-500 font-bold">
+              {{ getFormattedClientType(infoProfile?.client_info?.type_client) || 'Non spécifiées' }}
+            </div>
+          </div>
+
+          <!-- Entreprise affiliée -->
+          <div *ngIf="infoProfile?.client_info?.type_client === 'client_liee_agence'"
+            class="flex flex-column lg:flex-row align-items-start justify-content-between mb-2">
+            <div class="text-900 mb-2 lg:mb-0"><strong>Agence affiliée:</strong></div>
+            <div class="text-blue-500 font-bold">{{ infoProfile?.societe_agence_info?.nom }} </div>
+          </div>
+
+          <div *ngIf="infoProfile?.client_info?.type_client === 'client_liee_societe'"
+            class="flex flex-column lg:flex-row align-items-start justify-content-between mb-2">
+            <div class="text-900 mb-2 lg:mb-0"><strong>Société affiliée:</strong></div>
+            <div class="text-blue-500 font-bold">{{ infoProfile?.societe_agence_info?.nom }} </div>
+          </div>
+        </div>
+
+        <!-- Button to Update Profile -->
+        <div class="grid align-content-center mt-2 p-3">
+          <div class="flex-auto mb-2 mr-2">
+            <button pButton size="small" class="w-full font-bold text-center " label="Mettre à jour les informations"
+              routerLink="/app/client/update/{{infoProfile?.client_info?.id}}">
+            </button>
+          </div>
+          <div *ngIf="shouldShowButton()" class="flex-auto mb-2">
+            <button pButton size="small" class="w-full font-bold text-center" severity="warning"
+              label="{{ action === 'associer' ? 'Sassocier à une Agence/Société' : 'Se dissocier de Agence/Société'}}" (click)="openCleDialog()">
+            </button>
+
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- Statistiques Section -->
+    <div class="col-12 lg:col-7 xl:col-7">
+      <div class="card mb-0 p-3 surface-border border-round shadow-2 h-full">
+        <span class="block text-600 font-bold text-lg mb-3">Statistiques</span>
+
+        <!-- Statistics Details -->
+        <div class="p-3 border-round border-1 border-300">
+          <div
+            *ngIf="infoProfile?.client_info?.type_client === 'client_agence' || infoProfile?.client_info?.type_client === 'client_societe'">
+            <div class="flex flex-column lg:flex-row align-items-start justify-content-between mb-2">
+              <div class="text-900 mb-2 lg:mb-0"><strong>Nombre total des clients liés:</strong></div>
+              <div class="text-blue-500 font-bold">{{ infoProfile?.liee_clients_count || '0' }}</div>
+            </div>
+            <div class="flex flex-column lg:flex-row align-items-start justify-content-between mb-2">
+              <div class="text-900 mb-2 lg:mb-0"><strong>Total des reservations des clients liés:</strong></div>
+              <div class="text-blue-500 font-bold">{{ infoProfile?.liee_reservations_count || '0' }}</div>
+            </div>
+            <div class="flex flex-column lg:flex-row align-items-start justify-content-between mb-2">
+              <div class="text-900 mb-2 lg:mb-0"><strong>Coût total des réservations des clients liés:</strong></div>
+              <div class="text-blue-500 font-bold">{{ infoProfile?.liee_cout_reservations | number:'1.2-2':'fr' }} €
+              </div>
+            </div>
+          </div>
+
+          <div class="flex flex-column lg:flex-row align-items-start justify-content-between mb-2">
+            <div class="text-900 mb-2 lg:mb-0"><strong>Nombre total de réservations:</strong></div>
+            <div class="text-blue-500 font-bold">{{ infoProfile?.total_reservations_count || '0' }}</div>
+          </div>
+          <div class="flex flex-column lg:flex-row align-items-start justify-content-between mb-2">
+            <div class="text-900 mb-2 lg:mb-0"><strong>Total du coût des réservations:</strong></div>
+            <div class="text-blue-500 font-bold">{{ infoProfile?.total_cout_reservations | number:'1.2-2':'fr' }} €
+            </div>
+          </div>
+
+          <div class="flex flex-column lg:flex-row align-items-start justify-content-between mb-2">
+            <div class="text-900 mb-2 lg:mb-0"><strong>Total des factures:</strong></div>
+            <div class="text-blue-500 font-bold">{{ infoProfile?.total_factures_count || '0' }}</div>
+          </div>
+          <div class="flex flex-column lg:flex-row align-items-start justify-content-between mb-2">
+            <div class="text-900 mb-2 lg:mb-0"><strong>Factures réglées:</strong></div>
+            <div class="text-blue-500 font-bold">{{ infoProfile?.factures_reglees.count || '0' }} <span
+                class="text-black-alpha-50">({{ infoProfile?.factures_reglees.total | number:'1.2-2':'fr' }} €)</span>
+            </div>
+          </div>
+          <div class="flex flex-column lg:flex-row align-items-start justify-content-between mb-2">
+            <div class="text-900 mb-2 lg:mb-0"><strong>Factures partiellement réglées:</strong></div>
+            <div class="text-blue-500 font-bold">{{ infoProfile?.factures_partiellement_reglees.count || '0' }} <span
+                class="text-black-alpha-50">({{ infoProfile?.factures_partiellement_reglees.total | number:'1.2-2':'fr'
+                }} €)</span> </div>
+          </div>
+          <div class="flex flex-column lg:flex-row align-items-start justify-content-between mb-2">
+            <div class="text-900 mb-2 lg:mb-0"><strong>Factures non réglées:</strong></div>
+            <div class="text-blue-500 font-bold">{{ infoProfile?.factures_non_reglees.count || '0' }} <span
+                class="text-black-alpha-50">({{ infoProfile?.factures_non_reglees.total | number:'1.2-2':'fr' }}
+                €)</span> </div>
+          </div>
+          <div class="flex flex-column lg:flex-row align-items-start justify-content-between mb-2">
+            <div class="text-900 mb-2 lg:mb-0"><strong>Total du coût des factures:</strong></div>
+            <div class="text-blue-500 font-bold">{{ infoProfile?.total_cout_factures | number:'1.2-2':'fr' }} €</div>
+          </div>
+
+
+        </div>
+
+      </div>
+    </div>
+
+  </div>
+
+</div>
+
+<p-dialog header="Confirmation" [(visible)]="confirmationVisible" [modal]="true" [style]="{width: '35vw'}"
+  [breakpoints]="{ '1199px': '35vw', '575px': '90vw' }">
+  <div class="flex align-items-center gap-3 mb-3">
+    <i class="pi pi-exclamation-triangle text-yellow-500"></i>
+    <span>{{ confirmationMessage }}</span>
+  </div>
+  <p-footer class="flex justify-content-end">
+    <p-button label="Non" icon="pi pi-times" size="small" severity="secondary" (click)="confirmationVisible = false"
+      class="p-button-text"></p-button>
+    <p-button label="Oui" icon="pi pi-check" size="small" (click)="executeAssociationOrDissociation()"
+      class="p-button-text"></p-button>
+  </p-footer>
+</p-dialog>
+
+<!-- Dialogue pour entrer la clé (agence ou société) -->
+<p-dialog header="Entrer la clé" [(visible)]="cleDialogVisible" [modal]="true" [style]="{width: '35vw'}"
+  [breakpoints]="{ '1199px': '35vw', '575px': '90vw' }">
+  <div class="flex flex-column gap-2">
+    <label for="cle">Clé d'association (Agence ou Société)</label>
+    <input id="cle" type="text" pInputText [(ngModel)]="cle">
+  </div>
+  <p-footer class="flex justify-content-end">
+    <p-button label="Annuler" icon="pi pi-times" size="small" severity="secondary" (click)="cleDialogVisible = false"
+      class="p-button-text"></p-button>
+    <p-button label="Valider" icon="pi pi-check" size="small" (click)="validateCle()" class="p-button-text"></p-button>
+  </p-footer>
+</p-dialog>
+
+
+<div class="loader-container" *ngIf="loading">
+  <p-progressSpinner class="spinner-size spinner-style" />
+</div>

@@ -1,0 +1,210 @@
+<div class="w-full" *ngIf="!loading">
+  <div>
+    <div class="card-w-title mb-2">
+      <p-breadcrumb [model]="breadcrumbItems"
+        [home]="{icon: 'pi pi-home', command: navigateToDashboard}"></p-breadcrumb>
+    </div>
+    <div class="card-w-title mb-2">
+      <div class="desktop-only" *ngIf="currentClientType === 'total_client'">
+        <p-toolbar>
+          <div class="p-toolbar-group-start"></div>
+          <div class="p-toolbar-group-end">
+            <span class="p-input-icon-left">
+              <p-dropdown [options]="filterItems" placeholder="Choisir le filtrage" [showClear]="true"
+                [(ngModel)]="selectedFilterKey">
+              </p-dropdown>
+              <input pInputText placeholder="Search" [(ngModel)]="filterValue" type="text" />
+            </span>
+            <p-button icon="pi pi-search" severity="primary" [outlined]="true" (click)="getClientsFiltre()">
+            </p-button>
+          </div>
+        </p-toolbar>
+      </div>
+      <div class="mobile-only" *ngIf="currentClientType === 'total_client'">
+        <div class="p-toolbar justify-content-center">
+          <div class="-m-2 mx-3 mb-1">
+            <div class="mobile-only">
+              <p-dropdown [options]="filterItems" placeholder="Choisir le filtrage" [showClear]="true"
+                [(ngModel)]="selectedFilterKey" [style]="{'width': '21em'}" class="mb-1">
+              </p-dropdown>
+              <span class="p-input-icon-left my-1">
+                <input pInputText placeholder="Search" [(ngModel)]="filterValue" type="text"
+                  [style]="{'width': '18em'}" />
+                <p-button icon="pi pi-search" severity="primary" [outlined]="true" (click)="getClientsFiltre()">
+                </p-button>
+              </span>
+
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <p-dataView [value]="clients" layout="grid">
+      <ng-template pTemplate="header">
+        <div class="flex justify-content-between">
+          <p-button type="button" routerLink="/app/clients/gestionClient" label="Ajouter un autre client" size="small"
+            class="font-bold" />
+
+          <p-button type="button" label="Retour" class="font-bold" size="small" severity="danger"
+            routerLink="/app/clients" />
+        </div>
+      </ng-template>
+
+      <ng-template let-client pTemplate="grid">
+        <div class="grid grid-nogutter">
+          <div class="col-12 sm:col-4 md:col-4 xl:col-4 p-2" *ngFor="let client of clients">
+            <div class="client-card p-4 border-1 surface-border surface-card border-round flex flex-column">
+              <div class="surface-50 flex justify-content-center border-round p-3">
+                <div class="relative mx-auto">
+                  <img class="border-round w-full" [src]="getClientImage(client.type_client)" [alt]="client.last_name"
+                    style="max-width: 200px;" />
+                </div>
+              </div>
+              <div class="pt-4 flex-grow">
+                <div class="flex flex-row justify-content-between align-items-start gap-2">
+                  <div>
+                    <p-tag *ngIf="client.first_name !== 'XXXXX'" [value]="client.first_name + ' ' + client.last_name"
+                      severity="secondary"></p-tag>
+                    <p-tag *ngIf="client.first_name === 'XXXXX'" [value]="client.last_name"
+                      severity="secondary"></p-tag>
+                  </div>
+                </div>
+                <div class="my-3 flex flex-wrap gap-2">
+                  <span class="flex-auto text-truncate"><strong>Téléphone:</strong> {{client.telephone}} |</span>
+                  <span class="flex-auto text-truncate"><strong>E-mail:</strong> {{client.email}} |</span>
+                  <span class="flex-auto text-truncate"><strong>Adresse:</strong> {{client.adresse || 'non
+                    renseigné'}}</span>
+                </div>
+
+                <div class="flex">
+                  <p-button label="Détails" icon="pi pi-info-circle" severity="info" size="small"
+                    class="flex-auto md:flex-initial white-space-nowrap" (click)="showDetails(client)" />
+                </div>
+              </div>
+            </div>
+          </div>
+
+        </div>
+        <div *ngIf="totalRecords > 0" class="card flex justify-content-center">
+          <p-paginator (onPageChange)="onPageChange($event)" [first]="first" [rows]="rows"
+            [totalRecords]="totalRecords">
+          </p-paginator>
+        </div>
+      </ng-template>
+
+      <ng-template pTemplate="empty">
+        <div class="flex flex-column justify-content-center align-items-center" style="height: 100px;">
+          <h6 class="block pt-3">Actuellement, Vous n'avez aucun client enregistré dans le compte de votre entreprise.
+            Cliquer sur le bouton ci-dessous pour ajouter un client.</h6>
+          <p-button type="button" routerLink="/app/clients/gestionClient" label="Ajouter un client" size="small"
+            class="font-bold" />
+        </div>
+      </ng-template>
+
+    </p-dataView>
+  </div>
+</div>
+<div class="loader-container" *ngIf="loading">
+  <p-progressSpinner class="spinner-size spinner-style" />
+</div>
+
+<p-dialog header="Fiche De Détails" [(visible)]="detailsDialogVisible" [modal]="true" [style]="{width: '55vw'}"
+  [closable]="true" [breakpoints]="{ '1199px': '55vw', '575px': '90vw' }">
+
+  <div *ngIf="selectedClient">
+    <div class="grid align-items-stretch">
+      <!-- Column 1: Image based on type_client -->
+      <div class="col-12 lg:col-4 xl:col-4 flex align-items-center justify-content-center" style="height: 100%;">
+        <img [src]="getClientImage(selectedClient.type_client)" alt="Image du Client" class="w-full h-auto border-round"
+          style="object-fit: contain; max-width: 100%; height: 100%;" />
+      </div>
+      <!-- Column 2: Client details -->
+      <div class="col-12 lg:col-8 xl:col-8" style="height: 100%;">
+        <ul class="list-none p-0">
+          <li class="mb-2">
+            <span class="font-bold mr-2">Nom complet:</span>
+            <span>
+              {{ selectedClient.first_name !== 'XXXXX' ? (selectedClient.first_name + ' ' + selectedClient.last_name) :
+              selectedClient.last_name }}
+            </span>
+          </li>
+          <li class="mb-2">
+            <span class="font-bold mr-2">Adresse E-mail:</span>
+            <span>{{ selectedClient.email || 'Non disponible' }}</span>
+          </li>
+          <li class="mb-2">
+            <span class="font-bold mr-2">Téléphone:</span>
+            <span>{{ selectedClient.telephone || 'Non disponible' }}</span>
+          </li>
+          <li class="mb-2">
+            <span class="font-bold mr-2">Adresse:</span>
+            <span>{{ selectedClient.adresse || 'Non disponible' }}</span>
+          </li>
+
+          <li class="mb-2">
+            <span class="font-bold mr-2">Date d'inscription:</span>
+            <span>{{ (selectedClient.date_joined ? (selectedClient.date_joined | date:'d MMM yyyy à HH:mm') : 'Non
+              disponible') }}</span>
+          </li>
+          <li class="mb-2"
+            *ngIf="(selectedClient.societe && selectedClient.type_client === 'client_societe') || (selectedClient.agence && selectedClient.type_client === 'client_agence')">
+            <span class="font-bold mr-2">Nombre de clients liés:</span>
+            <span>{{ selectedClient.clients_lies_count }}</span>
+          </li>
+          <li class="mb-2">
+            <span class="font-bold mr-2">Nombre de réservations:</span>
+            <span>{{ selectedClient.reservation_count }}</span>
+          </li>
+          <li class="mb-2">
+            <span class="font-bold mr-2">Nombre de factures:</span>
+            <span>{{ selectedClient.facture_count }}</span>
+          </li>
+          <li class="mb-2"
+            *ngIf="selectedClient.agence && (selectedClient.type_client === 'client_agence' || selectedClient.type_client === 'client_liee_agence')">
+            <span class="font-bold mr-2">Agence:</span>
+            <span class="mr-2">{{ selectedClient.agence.nom || 'Non disponible' }}</span>
+            <span class="text-blue-500 ">({{ selectedClient.agence.email || 'Non disponible' }}/</span>
+            <span class="text-blue-500">{{ selectedClient.agence.telephone || 'Non disponible' }})</span>
+          </li>
+          <li class="mb-2"
+            *ngIf="selectedClient.societe && (selectedClient.type_client === 'client_societe' || selectedClient.type_client === 'client_liee_societe')">
+            <span class="font-bold mr-2">Société:</span>
+            <span class="mr-2">{{ selectedClient.societe.nom || 'Non disponible' }}</span>
+            <span class="text-blue-500">({{ selectedClient.societe.email || 'Non disponible' }}/</span>
+            <span class="text-blue-500">{{ selectedClient.societe.telephone || 'Non disponible' }})</span>
+          </li>
+          <li class="mb-2"
+            *ngIf="selectedClient.association_key && (selectedClient.type_client === 'client_agence' || selectedClient.type_client === 'client_liee_agence' || selectedClient.type_client === 'client_liee_societe')">
+            <span class="font-bold mr-2">Clé d'association:</span>
+            <span>{{ selectedClient.association_key || 'Non disponible' }}</span>
+          </li>
+          <li class="mb-2">
+            <span class="font-bold mr-2">Type de client:</span>
+            <span>{{ formatClientType(selectedClient.type_client) || 'Non disponible' }}</span>
+          </li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <p-footer>
+    <p-button label="Fermer" size="small" severity="secondary" (click)="detailsDialogVisible = false" class="mr-2" />
+    <p-button *ngIf="selectedClient" label="Supprimer" size="small" severity="danger"
+      (click)="showDialog(); detailsDialogVisible = false" class="mr-2" />
+    <p-button *ngIf="selectedClient" label="Mettre à Jour" size="small" (click)="detailsDialogVisible = false"
+      routerLink="/app/clients/gestionClient/{{selectedClient.id}}" />
+  </p-footer>
+</p-dialog>
+
+<p-dialog header="Confirmation" [modal]="true" [(visible)]="visible" [style]="{ width: '25rem' }">
+  <div class="flex align-items-center gap-3 mb-3 my-2">
+    <span>
+      <i class="pi pi-exclamation-triangle mr-2 text-orange-400"></i>
+      Êtes-vous sûr de vouloir supprimer ce client ?
+    </span>
+  </div>
+  <p-footer class="flex justify-content-end gap-2 ">
+    <p-button label="Non" severity="secondary" (onClick)="visible = false" size="small" />
+    <p-button label="Oui" (onClick)="delete(selectedClient); visible = false" size="small" />
+  </p-footer>
+</p-dialog>

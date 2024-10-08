@@ -1,0 +1,102 @@
+<div class="w-full">
+  <div class="card-w-title mb-2">
+    <p-breadcrumb [model]="breadcrumbItems" [home]="{icon: 'pi pi-home', command: navigateToDashboard}"></p-breadcrumb>
+  </div>
+
+  <div class="card">
+    <h5>Statistiques de vos clients</h5>
+    <div class="grid">
+      <!-- Clients Simples -->
+      <div class="col-12 lg:col-6 xl:col-6">
+        <div class="card mb-0 clickable-card" (click)="navigateWithQuery('client_simple')">
+          <div class="flex justify-content-between mb-2">
+            <div>
+              <span class="block text-500 font-medium mb-2">Clients Simples</span>
+              <div class="text-900 font-medium text-xl">{{ clientCounts['client_simple'] || 0 }}</div>
+            </div>
+            <div class="flex align-items-center justify-content-center bg-blue-100 border-round"
+              [ngStyle]="{width: '2.5rem', height: '2.5rem'}">
+              <i class="pi pi-user text-blue-500 text-xl"></i>
+            </div>
+          </div>
+        </div>
+      </div>
+      <!-- Clients Société -->
+      <div class="col-12 lg:col-6 xl:col-6">
+        <div class="card mb-0 clickable-card" (click)="navigateWithQuery('client_societe')">
+          <div class="flex justify-content-between mb-2">
+            <div>
+              <span class="block text-500 font-medium mb-2">Sociétés</span>
+              <div class="text-900 font-medium text-xl">{{ clientCounts['client_societe'] || 0 }}</div>
+            </div>
+            <div class="flex align-items-center justify-content-center bg-green-100 border-round"
+              [ngStyle]="{width: '2.5rem', height: '2.5rem'}">
+              <i class="pi pi-building text-green-500 text-xl"></i>
+            </div>
+          </div>
+        </div>
+      </div>
+      <!-- Clients Agence -->
+      <div class="col-12 lg:col-6 xl:col-6">
+        <div class="card mb-0 clickable-card" (click)="navigateWithQuery('client_agence')">
+          <div class="flex justify-content-between mb-2">
+            <div>
+              <span class="block text-500 font-medium mb-2">Agences</span>
+              <div class="text-900 font-medium text-xl">{{ clientCounts['client_agence'] || 0 }}</div>
+            </div>
+            <div class="flex align-items-center justify-content-center bg-orange-100 border-round"
+              [ngStyle]="{width: '2.5rem', height: '2.5rem'}">
+              <i class="pi pi-briefcase text-orange-500 text-xl"></i>
+            </div>
+          </div>
+        </div>
+      </div>
+      <!-- Clients Liés à une Société -->
+      <div class="col-12 lg:col-6 xl:col-6">
+        <div class="card mb-0 clickable-card" (click)="navigateWithQuery('client_liee_societe')">
+          <div class="flex justify-content-between mb-2">
+            <div>
+              <span class="block text-500 font-medium mb-2">Clients Liés à une Société</span>
+              <div class="text-900 font-medium text-xl">{{ clientCounts['client_liee_societe'] || 0 }}</div>
+            </div>
+            <div class="flex align-items-center justify-content-center bg-yellow-100 border-round"
+              [ngStyle]="{width: '2.5rem', height: '2.5rem'}">
+              <i class="pi pi-sitemap text-yellow-500 text-xl"></i>
+            </div>
+          </div>
+        </div>
+      </div>
+      <!-- Clients Liés à une Agence -->
+      <div class="col-12 lg:col-6 xl:col-6">
+        <div class="card mb-0 clickable-card" (click)="navigateWithQuery('client_liee_agence')">
+          <div class="flex justify-content-between mb-2">
+            <div>
+              <span class="block text-500 font-medium mb-2">Clients Liés à une Agence</span>
+              <div class="text-900 font-medium text-xl">{{ clientCounts['client_liee_agence'] || 0 }}</div>
+            </div>
+            <div class="flex align-items-center justify-content-center bg-bluegray-100 border-round"
+              [ngStyle]="{width: '2.5rem', height: '2.5rem'}">
+              <i class="pi pi-users text-bluegray-500 text-xl"></i>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="col-12 lg:col-6 xl:col-6">
+        <div class="card mb-0 clickable-card" (click)="navigateWithQuery('total_client')">
+          <div class="flex justify-content-between mb-2">
+            <div>
+              <span class="block text-500 font-medium mb-2">Total des Clients</span>
+              <div class="text-900 font-medium text-xl">{{ totalCount || 0 }}</div>
+            </div>
+            <div class="flex align-items-center justify-content-center bg-purple-100 border-round"
+              [ngStyle]="{width: '2.5rem', height: '2.5rem'}">
+              <i class="pi pi-user-plus text-purple-500 text-xl"></i>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div>
