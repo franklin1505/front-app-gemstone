@@ -46,9 +46,7 @@ export class AcceptationReservationComponent implements OnInit {
         email: ["", [Validators.email]],
         chauffeurExterneNom: [""],
         chauffeurExterneNumero: [""],
-        coutDeVente: [null],
-        commission: [null],
-        compensation: [null],
+       
       },
       { validators: this.validateUtilisateurOrEmail }
     );
@@ -160,17 +158,11 @@ export class AcceptationReservationComponent implements OnInit {
       // Si c'est un partenaire interne avec un utilisateur_id
       this.form.patchValue({
         utilisateur_id: affectationData.utilisateur_id,
-        coutDeVente: affectationData.coutDeVente,
-        commission: affectationData.commission,
-        compensation: affectationData.compensation,
       });
     } else if (type === 'chauffeur interne' && affectationData.utilisateur_id) {
       // Si c'est un chauffeur interne avec un utilisateur_id
       this.form.patchValue({
         utilisateur_id: affectationData.utilisateur_id,
-        coutDeVente: affectationData.coutDeVente,
-        commission: affectationData.commission,
-        compensation: affectationData.compensation,
       });
     } else if (type === 'chauffeur externe' && affectationData.email) {
       // Si c'est un chauffeur externe avec un email
@@ -178,9 +170,7 @@ export class AcceptationReservationComponent implements OnInit {
         email: affectationData.email,
         chauffeurExterneNom: affectationData.dataChauffeurExterne.nom,
         chauffeurExterneNumero: affectationData.dataChauffeurExterne.numero,
-        coutDeVente: affectationData.coutDeVente,
-        commission: affectationData.commission,
-        compensation: affectationData.compensation,
+
       });
     } else {
       console.error('Données affectationData invalides');
@@ -198,10 +188,7 @@ export class AcceptationReservationComponent implements OnInit {
         email,
         chauffeurExterneNom,
         chauffeurExterneNumero,
-        utilisateur_id,
-        coutDeVente,
-        commission,
-        compensation
+        utilisateur_id
       } = this.form.value;
 
       // Vérifiez que soit l'email soit l'utilisateur_id est fourni
@@ -218,10 +205,7 @@ export class AcceptationReservationComponent implements OnInit {
 
       const data = {
         ...this.form.value,
-        dataChauffeurExterne,
-        coutDeVente,
-        commission,
-        compensation
+        dataChauffeurExterne
       };
 
       this.loading = true;

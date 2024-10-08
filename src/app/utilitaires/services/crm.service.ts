@@ -146,7 +146,7 @@ export class CrmService {
 
   accepterReservation(
     reservationId: number,
-    data: { utilisateur_id?: number; email?: string; coutDeVente?: number; commission?: number; compensation?: number }
+    data: { utilisateur_id?: number; email?: string;}
   ): Observable<any> {
     const url = `${this.url}accepter-course/${reservationId}/`;
     return this.http.post(url, data);
