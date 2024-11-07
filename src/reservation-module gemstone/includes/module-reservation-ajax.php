@@ -134,34 +134,39 @@ add_action('wp_ajax_nopriv_mr_fetch_clients', 'mr_fetch_clients');
 // Authentification des clients via AJAX
 function mr_authenticate_client()
 {
-    check_ajax_referer('mr_nonce', 'nonce');
+  check_ajax_referer('mr_nonce', 'nonce');
 
-    $auth_data = array(
-        'email_ou_telephone' => sanitize_text_field($_POST['email_ou_telephone']),
-        'passCode' => sanitize_text_field($_POST['passCode'])
-    );
+  $auth_data = array(
+    'email_ou_telephone' => sanitize_text_field($_POST['email_ou_telephone']),
+    'passCode' => $_POST['passCode'] // Suppression de sanitize_text_field
+  );
 
-    $result = mr_send_post_request('auth/login/', $auth_data);
+  $result = mr_send_post_request('auth/login/', $auth_data);
 
-    // Log de la réponse pour le débogage
-    error_log(print_r($result, true));
+  error_log("Réponse brute de l'API Django : " . $result);
 
-    // Vérifiez si la réponse de l'API inclut 'success'
-    if (isset($result['success'])) {
-        if ($result['success'] === true) {
-            // Authentification réussie, renvoyer les données nécessaires
-            wp_send_json_success($result['data']);
-        } else {
-            // Authentification échouée, renvoyer le message d'erreur
-            $error_message = isset($result['message']) ? $result['message'] : 'Échec de l\'authentification.';
-            wp_send_json_error(array('message' => $error_message));
-        }
-    } else {
-        // Réponse inattendue de l'API
-        wp_send_json_error(array('message' => 'Réponse inattendue de l\'API.'));
-    }
+  if (json_last_error() !== JSON_ERROR_NONE) {
+    wp_send_json_error(array(
+      'message' => 'Réponse de l\'API invalide.',
+      'errors' => 'Erreur de décodage JSON.'
+    ));
+  }
+
+  if (!isset($result['success'])) {
+    wp_send_json_error(array(
+      'reponse de $result' => $result,
+      'test' => 'test'
+    ));
+  }
+
+  if ($result['success']) {
+    wp_send_json_success($result);
+  } else {
+    wp_send_json_error($result);
+  }
+
+  wp_die();
 }
-
 add_action('wp_ajax_mr_authenticate_client', 'mr_authenticate_client');
 add_action('wp_ajax_nopriv_mr_authenticate_client', 'mr_authenticate_client');
 

@@ -733,25 +733,30 @@
         formData,
         (response) => {
           $("#mr-loader").hide();
-          if (response.success) {
+          console.log("Réponse AJAX complète :", response);
+
+          if (response.data.success) {
+            console.log("Authentification réussie :", response.data);
+
             this.recupererInformationsUtilisateur(
               $("#email_ou_telephone").val(),
               (clientFound) => {
                 if (clientFound) {
                   this.prepareReservationDetails();
                 } else {
-                  alert("Aucun client trouvé avec cet email.");
+                  alert("Aucun client trouvé avec cet email ou numéro de téléphone.");
                 }
               }
             );
           } else {
-            // Affiche le message d'erreur renvoyé par l'API
-            alert(response.message || "Erreur d'authentification.");
+            console.error("Erreur d'authentification :", response.data.message);
+            alert("Erreur : " + response.data.message);
           }
         },
         "json"
-      ).fail(() => {
+      ).fail((jqXHR, textStatus, errorThrown) => {
         $("#mr-loader").hide();
+        console.error("Erreur de communication :", textStatus, errorThrown);
         alert("Erreur de communication avec le serveur.");
       });
     },
