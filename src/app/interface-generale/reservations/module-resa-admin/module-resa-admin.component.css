@@ -1,3 +1,11 @@
 .non-clickable-headers .p-step-header {
   pointer-events: none; /* Désactive les clics */
 }
+
+@media (max-width: 768px) { /* Adjust max-width to target desired screen size */
+  .stepper-header {
+    max-width: 100%;       /* Constrain the header within the container */
+    white-space: normal;   /* Allow wrapping of text */
+    overflow-wrap: break-word; /* Break long words as needed */
+  }
+}

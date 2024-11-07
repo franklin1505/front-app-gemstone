@@ -1,0 +1,1846 @@
+:root {
+  --primary-color: #5E17EB; /* Violet */
+  --secondary-color: #ffffff; /* Blanc */
+  --text-color: #ffffff; /* Blanc pour un bon contraste sur fond noir */
+  --background-color: #000000; /* Noir */
+  --border-color: #555555; /* Gris moyen pour les bordures */
+  --hover-color-primary: #7a3ff0; /* Violet plus clair pour le survol */
+  --hover-color-secondary: #bbbbbb; /* Gris clair pour le survol secondaire */
+  --font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+/* Polices et Typographie */
+body {
+  font-family: var(--font-family);
+  color: var(--text-color);
+  background-color: var(--background-color);
+}
+
+h4, h5 {
+  font-family: var(--font-family);
+  color: var(--text-color);
+}
+
+.custom-color{
+  color: var(--primary-color);
+}
+.custom-text-color{
+  color: var(--text-color);
+}
+
+strong {
+  color: var(--text-color);
+}
+
+.custom-uppercase {
+  text-transform: uppercase;
+}
+
+.warning-color {
+  color: var(--primary-color);
+}
+
+/* Header Styles */
+.card-header {
+  padding: 1rem;
+  background-color: var(--background-color);
+  border-bottom: 1px solid var(--border-color);
+  border-radius: 0.25rem 0.25rem 0 0;
+}
+
+.step-number-circle {
+  background-color: var(--primary-color);
+  color: var(--background-color);
+  padding: 15px;
+  border-radius: 50%;
+  font-size: 18px;
+  font-weight: bold;
+  display: inline-flex;
+  justify-content: center;
+  align-items: center;
+  width: 50px;
+  height: 50px;
+  text-align: center;
+  margin-right: 10px;
+}
+
+@media (max-width: 768px) {
+  .step-number-circle {
+    width: 40px;
+    height: 40px;
+    font-size: 16px;
+  }
+}
+
+/* Card Styles */
+.card {
+  border-radius: 0.5rem;
+  border: 1px solid var(--border-color);
+  box-shadow: 0 4px 6px rgba(255, 255, 255, 0.1);
+  background-color: var(--background-color);
+}
+
+.card-body {
+  padding: 1.5rem;
+}
+
+.custom-card-detail {
+  border: 1px solid var(--border-color);
+  border-radius: 0.25rem;
+  box-shadow: 0 4px 12px rgba(255, 255, 255, 0.1);
+  background-color: var(--background-color);
+  padding: 1rem;
+  width: 100%;
+  max-width: 83.333333%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin: 0 auto;
+}
+
+@media (min-width: 768px) {
+  .custom-card-detail {
+    width: 83.333333%;
+  }
+}
+
+@media (max-width: 767.98px) {
+  .custom-card-detail {
+    max-width: 100%;
+  }
+}
+
+/* Summary Info Styles */
+.summary-info {
+  border: 1px solid var(--border-color);
+  border-radius: 8px;
+  padding: 20px;
+  background-color: var(--background-color);
+  box-shadow: 0 2px 8px rgba(255, 255, 255, 0.05);
+}
+
+.summary-info .row {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+}
+
+.summary-item {
+  display: flex;
+  align-items: center;
+  padding: 10px;
+  flex: 1 1 45%;
+  margin-bottom: 10px;
+}
+
+.summary-item i {
+  font-size: 1.8em;
+  color: var(--primary-color);
+  margin-right: 10px;
+}
+
+.summary-item span {
+  font-weight: bold;
+  font-size: 1.1rem;
+  color: var(--text-color);
+}
+
+@media (min-width: 768px) {
+  .summary-item {
+    flex: 1 1 22%;
+    margin-bottom: 0;
+  }
+}
+
+/* Additional Details Styles */
+.additional-details-section {
+  border-top: 1px solid var(--border-color);
+  padding-top: 20px;
+  margin-left: 10px;
+  background-color: var(--background-color);
+}
+
+.additional-details-section h5 {
+  font-weight: bold;
+  color: var(--text-color);
+  margin-bottom: 15px;
+}
+
+.detail-item {
+  display: flex;
+  align-items: flex-start;
+  margin-bottom: 15px;
+}
+
+.detail-item i {
+  font-size: 1.5em;
+  color: var(--primary-color);
+  margin-right: 12px;
+  min-width: 1.5em;
+}
+
+.detail-item div {
+  flex: 1;
+}
+
+#additional-details ul,
+#details-content ul {
+  padding-left: 1.5rem;
+  margin: 0.5rem 0;
+}
+
+@media (max-width: 768px) {
+  .additional-details-section {
+    margin-left: 0;
+    padding-top: 10px;
+  }
+
+  .detail-item {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .detail-item i {
+    margin-bottom: 5px;
+    margin-right: 0;
+  }
+}
+
+/* Hidden Details Styles */
+#details-content {
+  border: 1px solid var(--border-color);
+  border-radius: 8px;
+  padding: 20px;
+  background-color: var(--background-color);
+  margin-top: 15px;
+  display: none;
+  box-shadow: 0 2px 8px rgba(255, 255, 255, 0.05);
+}
+
+.detail-item ul {
+  list-style: disc inside;
+  padding-left: 20px;
+}
+
+.detail-item strong {
+  color: var(--text-color);
+}
+
+/* Toggle Button Styles */
+.btn-toggle-details {
+  display: flex;
+  align-items: center;
+  font-size: 1rem;
+  color: var(--primary-color);
+  cursor: pointer;
+  background-color: transparent;
+  border: none;
+  padding: 10px 0;
+  font-weight: 500;
+  transition: color 0.3s ease;
+}
+
+.btn-toggle-details i {
+  margin-left: 8px;
+  transition: transform 0.3s ease;
+}
+
+.btn-toggle-details:hover {
+  color: var(--hover-color-primary);
+}
+
+.btn-toggle-details.active {
+  color: var(--hover-color-primary);
+}
+
+.btn-toggle-details.active i {
+  transform: rotate(180deg);
+}
+
+/* Navigation Buttons Styles */
+.btn-custom-primary,
+.btn-custom-secondary {
+  padding: 10px 20px;
+  border-radius: 5px;
+  font-size: 0.95rem;
+  transition: background-color 0.3s, transform 0.2s;
+}
+
+.btn-custom-primary {
+  background-color: var(--primary-color);
+  color: var(--text-color);
+  border: none;
+}
+
+.btn-custom-primary:hover {
+  background-color: var(--hover-color-primary);
+}
+
+.btn-custom-secondary {
+  background-color: var(--secondary-color);
+  color: var(--background-color);
+  border: none;
+}
+
+.btn-custom-secondary:hover {
+  background-color: var(--hover-color-secondary);
+}
+
+.btn-custom-add-passenger {
+  background-color: var(--primary-color);
+  color: var(--text-color);
+  padding: 12px;
+  font-size: 1rem;
+  border-radius: 5px;
+  border: none;
+  width: 100%;
+  margin-bottom: 1rem;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+.btn-custom-add-passenger:hover {
+  background-color: var(--hover-color-primary);
+}
+
+/* Remove Passenger Button Styles */
+.remove-passenger-btn {
+  background-color: #dc3545; /* Couleur danger de Bootstrap */
+  color: #fff;
+  border: none;
+  padding: 0.5rem 1rem;
+  border-radius: 0.375rem;
+  font-size: 0.9rem;
+  transition: background-color 0.3s ease;
+}
+
+.remove-passenger-btn:hover {
+  background-color: #c82333; /* Un peu plus sombre */
+}
+
+/* Vehicle Card Styles */
+.vehicle-card {
+  display: flex;
+  flex-direction: row;
+  border: 1px solid var(--border-color);
+  border-radius: 8px;
+  overflow: hidden;
+  margin-bottom: 20px;
+  background-color: var(--background-color);
+  transition: box-shadow 0.3s ease;
+  position: relative;
+}
+
+.vehicle-card:hover {
+  box-shadow: 0 4px 8px rgba(255, 255, 255, 0.15);
+}
+
+.vehicle-card.selected {
+  border: 2px solid var(--primary-color);
+}
+
+.vehicle-image-wrapper {
+  width: 40%;
+  overflow: hidden;
+}
+
+.vehicle-image {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.vehicle-details {
+  padding: 15px;
+  width: 60%;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+
+.vehicle-title {
+  font-size: 1.25rem;
+  font-weight: 600;
+  margin-bottom: 10px;
+  color: var(--text-color);
+}
+
+.vehicle-capacity {
+  font-size: 0.9rem;
+  color: #cccccc; /* Gris clair */
+  margin-bottom: 15px;
+}
+
+.vehicle-price-tag {
+  position: absolute;
+  top: 15px;
+  right: 15px;
+  background-color: var(--primary-color);
+  color: var(--text-color);
+  padding: 5px 10px;
+  border-radius: 5px;
+  font-weight: bold;
+}
+
+.vehicle-details .choisir-vehicule {
+  align-self: flex-end;
+  margin-top: auto;
+  background-color: var(--secondary-color);
+  color: var(--background-color);
+  padding: 10px 20px;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+.vehicle-details .choisir-vehicule:hover {
+  background-color: var(--hover-color-secondary);
+}
+
+@media (max-width: 768px) {
+  .vehicle-card {
+    flex-direction: column;
+    align-items: center;
+  }
+
+  .vehicle-image-wrapper,
+  .vehicle-details {
+    width: 100%;
+  }
+
+  .vehicle-image-wrapper {
+    height: auto;
+  }
+
+  .vehicle-image {
+    height: auto;
+  }
+
+  .vehicle-title,
+  .vehicle-capacity {
+    text-align: center;
+  }
+
+  .vehicle-price-tag {
+    position: static;
+    margin-top: 10px;
+    align-self: center;
+  }
+
+  .vehicle-details .choisir-vehicule {
+    width: 100%;
+    align-self: center;
+    margin-top: 15px;
+  }
+
+  .vehicle-details {
+    padding: 10px;
+  }
+
+  .vehicle-title {
+    font-size: 1.1rem;
+    text-align: center;
+  }
+
+  .vehicle-capacity {
+    text-align: center;
+  }
+
+  .vehicle-price-tag {
+    margin-bottom: 10px;
+  }
+
+  .vehicle-card {
+    margin-bottom: 30px;
+  }
+}
+
+/* Supplements Styles */
+.supplement-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 10px;
+  margin-bottom: 10px;
+  background-color: #1a1a1a; /* Gris très foncé */
+  border-radius: 5px;
+}
+
+.supplement-text {
+  font-size: 1rem;
+  font-weight: 500;
+  margin: 0;
+  color: var(--text-color);
+}
+
+.supplement-controls {
+  display: flex;
+  align-items: center;
+}
+
+.btn-supplement-minus,
+.btn-supplement-plus {
+  background-color: var(--primary-color);
+  color: var(--text-color);
+  border: none;
+  width: 35px;
+  height: 35px;
+  font-size: 18px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+.btn-supplement-minus:hover,
+.btn-supplement-plus:hover {
+  background-color: var(--hover-color-primary);
+}
+
+.btn-supplement-minus:disabled,
+.btn-supplement-plus:disabled {
+  background-color: #555555;
+  cursor: not-allowed;
+}
+
+.supplement-input {
+  width: 50px;
+  text-align: center;
+  border: none;
+  background-color: transparent;
+  font-size: 1rem;
+  margin: 0 5px;
+  color: var(--text-color);
+}
+
+.no-supplements,
+.no-vehicules {
+  text-align: center;
+  color: #bbbbbb;
+  font-style: italic;
+}
+
+/* General Button Styles */
+.btn-custom-toggle {
+  background-color: var(--primary-color);
+  color: var(--text-color);
+  padding: 12px 20px;
+  border-radius: 5px;
+  border: none;
+  font-size: 16px;
+  margin-bottom: 20px;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+.btn-custom-toggle:hover {
+  background-color: var(--hover-color-primary);
+}
+
+/* Form Controls */
+.form-control {
+  border-radius: 5px;
+  border: 1px solid var(--border-color);
+  padding: 12px 15px;
+  font-size: 16px;
+  background-color: #1a1a1a; /* Gris très foncé */
+  color: var(--text-color);
+  transition: border-color 0.3s, box-shadow 0.3s;
+}
+
+.form-control:focus {
+  border-color: var(--primary-color);
+  box-shadow: 0 0 8px rgba(94, 23, 235, 0.5); /* Utiliser la couleur primaire */
+  outline: none;
+}
+
+.form-label {
+  font-weight: 600;
+  margin-bottom: 0.5rem;
+  color: var(--text-color);
+}
+
+/* Placeholder Styles */
+.form-control::placeholder {
+  color: #ffffff; /* Blanc */
+  opacity: 1; /* Pour assurer la couleur */
+}
+
+/* Disabled Fields */
+.form-control:disabled,
+select:disabled,
+textarea:disabled,
+input:disabled {
+  opacity: 0.7; /* Ajuster selon le besoin */
+  color: #cccccc; /* Optionnel : changer la couleur du texte */
+  background-color: #333333; /* Optionnel : changer le fond des champs désactivés */
+}
+
+/* Specific Select Styling */
+#type_client {
+  background-color: #000000; /* Noir */
+  color: var(--text-color);
+}
+
+#type_client option {
+  background-color: #000000; /* Noir */
+  color: var(--text-color);
+}
+
+/* Ensure input text color remains as desired */
+input,
+textarea {
+  color: var(--text-color);
+  background-color: #1a1a1a; /* Gris très foncé */
+}
+
+select {
+  color: var(--text-color);
+  background-color: #1a1a1a; /* Gris très foncé */
+}
+
+/* Description Text */
+.description-text {
+  color: var(--text-color);
+  font-style: italic;
+  font-weight: bold;
+}
+
+/* Estimation Result Styles */
+#mr-estimation-result {
+  background-color: #1a1a1a;
+  font-size: 16px;
+}
+
+#mr-estimation-result p {
+  font-size: 16px;
+  margin-bottom: 0;
+  color: var(--text-color);
+}
+
+#mr-estimation-result strong {
+  color: var(--text-color);
+}
+
+#mr-estimation-result span {
+  color: var(--primary-color);
+  font-weight: bold;
+}
+
+/* Datepicker Styles */
+.ui-datepicker {
+  background-color: var(--background-color);
+  border: 1px solid var(--border-color);
+  font-family: var(--font-family);
+  font-size: 16px;
+  color: var(--text-color);
+}
+
+.ui-datepicker-header {
+  background-color: var(--primary-color);
+  color: var(--text-color);
+  border: none;
+}
+
+.ui-datepicker-title {
+  color: var(--text-color);
+  font-weight: bold;
+}
+
+.ui-state-default {
+  background-color: #333333; /* Gris foncé */
+  border: none;
+  color: var(--text-color);
+}
+
+.ui-state-active {
+  background-color: #7a3ff0 !important; /* Changement de la couleur active */
+  color: var(--background-color) !important;
+}
+
+.ui-widget-content .ui-state-hover {
+  background-color: #444444;
+}
+
+/* Date and Time Picker Styles */
+#datePriseEnChargeDate {
+  appearance: none;
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  background-repeat: no-repeat;
+  background-position: right 10px center;
+  background-size: 20px;
+  padding-right: 40px;
+  background-image: url('data:image/svg+xml;charset=UTF8,<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20"><rect x="2" y="4" width="16" height="14" fill="%237a3ff0" stroke="%23555555" stroke-width="2"/><line x1="6" y1="0" x2="6" y2="8" stroke="%23555555" stroke-width="2"/><line x1="14" y1="0" x2="14" y2="8" stroke="%23555555" stroke-width="2"/></svg>');
+  background-color: #1a1a1a; /* Gris très foncé */
+  color: var(--text-color);
+}
+
+#datePriseEnChargeTime {
+  width: 100%;
+  max-height: 200px;
+  overflow-y: auto;
+  background-color: #1a1a1a; /* Gris très foncé */
+  border: 1px solid var(--border-color);
+  border-radius: 5px;
+  padding: 12px 15px;
+  font-size: 16px;
+  color: #ffffff;
+  appearance: none;
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  background-image: url('data:image/svg+xml;charset=UTF8,<svg xmlns="http://www.w3.org/2000/svg" width="14" height="14"><polygon points="7,10 3,5 11,5" fill="%237a3ff0"/></svg>'); /* Changer la couleur du triangle */
+  background-repeat: no-repeat;
+  background-position: right 15px center;
+  background-size: 16px;
+}
+
+#datePriseEnChargeTime:focus {
+  border-color: var(--primary-color);
+  box-shadow: 0 0 8px rgba(94, 23, 235, 0.5);
+  outline: none;
+}
+
+#datePriseEnChargeTime::-webkit-scrollbar {
+  width: 8px;
+}
+
+#datePriseEnChargeTime::-webkit-scrollbar-track {
+  background: #333333;
+}
+
+#datePriseEnChargeTime::-webkit-scrollbar-thumb {
+  background: #888888;
+}
+
+#datePriseEnChargeTime::-webkit-scrollbar-thumb:hover {
+  background: #555555;
+}
+
+#datePriseEnChargeTime optgroup {
+  font-weight: bold;
+  color: #ffffff;
+  font-size: 1rem;
+}
+
+#datePriseEnChargeTime option {
+  padding: 5px 10px;
+  color: #ffffff;
+}
+
+@supports (-ms-ime-align: auto) {
+  #datePriseEnChargeTime,
+  #datePriseEnChargeDate {
+    background-image: none;
+  }
+}
+
+/* Loader Styles */
+.mr-loader-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.5);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 9999;
+}
+
+.spinner-border {
+  width: 4rem;
+  height: 4rem;
+  color: var(--primary-color);
+}
+
+/* Passenger Entry Styles */
+.passenger-entry {
+  margin-bottom: 1rem;
+  padding: 1rem;
+  border: 1px solid var(--border-color);
+  border-radius: 0.375rem;
+  background-color: #1a1a1a; /* Gris très foncé */
+}
+
+/* Password Toggle Button */
+#passCode {
+  padding-right: 2.5rem;
+  color: var(--text-color);
+}
+
+.btn-toggle-password {
+  position: absolute;
+  top: 50%;
+  right: 0.75rem;
+  transform: translateY(-50%);
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  color: #bbbbbb;
+  padding: 0;
+  z-index: 2;
+}
+
+.btn-toggle-password:focus {
+  outline: none;
+}
+
+.btn-toggle-password i {
+  font-size: 1.2em;
+}
+
+/* Required Star */
+.required-star {
+  color: var(--primary-color);
+  margin-left: 5px;
+  font-weight: bold;
+}
+
+/* Styles pour le Conteneur de la Carte */
+#map-container-step5 {
+  width: 100%;
+  height: 350px;
+  border-radius: 10px;
+  box-shadow: 0 4px 12px rgba(255, 255, 255, 0.1);
+  overflow: hidden;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+#map-container-step5:hover {
+  transform: scale(1.02);
+  box-shadow: 0 6px 16px rgba(255, 255, 255, 0.15);
+}
+
+@media (max-width: 768px) {
+  #map-container-step5 {
+    height: 250px;
+  }
+}
+
+/* Section Informations Résumées avec Bootstrap */
+.summary-info {
+  padding: 1rem 1.5rem;
+  background: linear-gradient(135deg, #1a1a1a, #000000);
+}
+
+.summary-info .summary-item {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0.5rem;
+  text-align: center;
+}
+
+.summary-info .summary-item i {
+  color: var(--primary-color);
+  font-size: 1.3rem;
+  margin-right: 0.5rem;
+}
+
+.summary-info .summary-item span {
+  font-weight: 500;
+  font-size: 1rem;
+  color: #ffffff;
+}
+
+/* Additional Details Section */
+.additional-details-section {
+  background: #000000;
+  border-radius: 12px;
+  padding: 1.5rem;
+  box-shadow: 0 4px 12px rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(85, 85, 85, 0.8);
+  transition: box-shadow 0.3s ease;
+}
+
+.additional-details-section:hover {
+  box-shadow: 0 6px 14px rgba(255, 255, 255, 0.1);
+}
+
+.additional-details-section h5 {
+  font-size: 1.3rem;
+  font-weight: 600;
+  color: #ffffff;
+  margin-bottom: 1rem;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+/* Détails Wrapper */
+.details-wrapper {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  background: #1a1a1a;
+  border-radius: 8px;
+  padding: 1rem;
+}
+
+/* Détails Row */
+.detail-row {
+  display: flex;
+  justify-content: space-between;
+  padding: 0.75rem 1rem;
+  font-size: 1rem;
+  background-color: #000000;
+  border-radius: 8px;
+  box-shadow: 0 2px 6px rgba(255, 255, 255, 0.05);
+  transition: background-color 0.3s ease, box-shadow 0.3s ease;
+  min-width: 45%; /* Assure deux colonnes */
+}
+
+.detail-row:hover {
+  background-color: #1a1a1a;
+  box-shadow: 0 4px 8px rgba(255, 255, 255, 0.07);
+}
+
+.detail-row strong {
+  font-weight: 600;
+  color: #ffffff;
+}
+
+.detail-row span {
+  color: #bbbbbb;
+  text-align: right;
+}
+
+/* Bouton de bascule */
+.btn-toggle-details {
+  font-size: 0.9rem;
+  color: #ffffff;
+  text-decoration: none;
+  background-color: transparent;
+  border: none;
+  font-weight: 500;
+}
+
+.btn-toggle-details i {
+  transition: transform 0.2s ease;
+}
+
+.btn-toggle-details[aria-expanded="true"] i {
+  transform: rotate(180deg);
+}
+
+/* Contenu des Détails Cachés */
+#details-content {
+  display: none;
+  padding: 0.5rem 1rem;
+  border-radius: 8px;
+  background-color: #1a1a1a;
+  border: 1px solid #555555;
+}
+
+#details-content .detail-item {
+  margin-bottom: 0.5rem;
+  font-size: 0.90rem;
+  color: #bbbbbb;
+}
+
+#details-content strong {
+  display: block;
+  font-weight: bold;
+  color: #ffffff;
+  margin-bottom: 5px;
+}
+
+#details-content ul {
+  list-style: none; /* Supprime les puces par défaut */
+  padding-left: 0;
+  margin: 0;
+}
+
+#details-content ul li {
+  color: #ffffff;
+  margin: 0.2rem 0; /* Contrôle l'espace entre chaque ligne */
+  padding-left: 1rem; /* Pour ajouter un léger décalage à gauche */
+  position: relative;
+}
+
+#details-content ul li::before {
+  content: "•"; /* Utilise un marqueur de liste personnalisé */
+  position: absolute;
+  left: 0;
+  color: #666666;
+  font-weight: bold;
+}
+
+.custon-font-weight {
+  font-weight: bold;
+  color: var(--text-color);
+}
+
+/* Placeholder Styles */
+.form-control::placeholder {
+  color: #ffffff; /* Blanc */
+  opacity: 1; /* Pour assurer la couleur */
+}
+
+/* Disabled Fields */
+.form-control:disabled,
+select:disabled,
+textarea:disabled,
+input:disabled {
+  opacity: 0.7; /* Ajuster selon le besoin */
+  color: #cccccc; /* Optionnel : changer la couleur du texte */
+  background-color: #333333; /* Optionnel : changer le fond des champs désactivés */
+}
+
+/* Specific Select Styling */
+#type_client {
+  background-color: #000000; /* Noir */
+  color: var(--text-color);
+}
+
+#type_client option {
+  background-color: #000000; /* Noir */
+  color: var(--text-color);
+}
+
+/* Ensure input text color remains as desired */
+input,
+textarea {
+  color: var(--text-color);
+  background-color: #1a1a1a; /* Gris très foncé */
+}
+
+select {
+  color: var(--text-color);
+  background-color: #1a1a1a; /* Gris très foncé */
+}
+
+/* Description Text */
+.description-text {
+  color: var(--text-color);
+  font-style: italic;
+  font-weight: bold;
+}
+
+/* Estimation Result Styles */
+#mr-estimation-result {
+  background-color: #1a1a1a;
+  font-size: 16px;
+}
+
+#mr-estimation-result p {
+  font-size: 16px;
+  margin-bottom: 0;
+  color: var(--text-color);
+}
+
+#mr-estimation-result strong {
+  color: var(--text-color);
+}
+
+#mr-estimation-result span {
+  color: var(--primary-color);
+  font-weight: bold;
+}
+
+/* Datepicker Styles */
+.ui-datepicker {
+  background-color: var(--background-color);
+  border: 1px solid var(--border-color);
+  font-family: var(--font-family);
+  font-size: 16px;
+  color: var(--text-color);
+}
+
+.ui-datepicker-header {
+  background-color: var(--primary-color);
+  color: var(--text-color);
+  border: none;
+}
+
+.ui-datepicker-title {
+  color: var(--text-color);
+  font-weight: bold;
+}
+
+.ui-state-default {
+  background-color: #333333; /* Gris foncé */
+  border: none;
+  color: var(--text-color);
+}
+
+.ui-state-active {
+  background-color: #7a3ff0 !important; /* Changement de la couleur active */
+  color: var(--background-color) !important;
+}
+
+.ui-widget-content .ui-state-hover {
+  background-color: #444444;
+}
+
+/* Date and Time Picker Styles */
+#datePriseEnChargeDate {
+  appearance: none;
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  background-repeat: no-repeat;
+  background-position: right 10px center;
+  background-size: 20px;
+  padding-right: 40px;
+  background-image: url('data:image/svg+xml;charset=UTF8,<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20"><rect x="2" y="4" width="16" height="14" fill="%237a3ff0" stroke="%23555555" stroke-width="2"/><line x1="6" y1="0" x2="6" y2="8" stroke="%23555555" stroke-width="2"/><line x1="14" y1="0" x2="14" y2="8" stroke="%23555555" stroke-width="2"/></svg>');
+  background-color: #1a1a1a; /* Gris très foncé */
+  color: var(--text-color);
+}
+
+#datePriseEnChargeTime {
+  width: 100%;
+  max-height: 200px;
+  overflow-y: auto;
+  background-color: #1a1a1a; /* Gris très foncé */
+  border: 1px solid var(--border-color);
+  border-radius: 5px;
+  padding: 12px 15px;
+  font-size: 16px;
+  color: #ffffff;
+  appearance: none;
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  background-image: url('data:image/svg+xml;charset=UTF8,<svg xmlns="http://www.w3.org/2000/svg" width="14" height="14"><polygon points="7,10 3,5 11,5" fill="%237a3ff0"/></svg>'); /* Changer la couleur du triangle */
+  background-repeat: no-repeat;
+  background-position: right 15px center;
+  background-size: 16px;
+}
+
+#datePriseEnChargeTime:focus {
+  border-color: var(--primary-color);
+  box-shadow: 0 0 8px rgba(94, 23, 235, 0.5);
+  outline: none;
+}
+
+#datePriseEnChargeTime::-webkit-scrollbar {
+  width: 8px;
+}
+
+#datePriseEnChargeTime::-webkit-scrollbar-track {
+  background: #333333;
+}
+
+#datePriseEnChargeTime::-webkit-scrollbar-thumb {
+  background: #888888;
+}
+
+#datePriseEnChargeTime::-webkit-scrollbar-thumb:hover {
+  background: #555555;
+}
+
+#datePriseEnChargeTime optgroup {
+  font-weight: bold;
+  color: #ffffff;
+  font-size: 1rem;
+}
+
+#datePriseEnChargeTime option {
+  padding: 5px 10px;
+  color: #ffffff;
+}
+
+@supports (-ms-ime-align: auto) {
+  #datePriseEnChargeTime,
+  #datePriseEnChargeDate {
+    background-image: none;
+  }
+}
+
+/* Loader Styles */
+.mr-loader-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.5);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 9999;
+}
+
+.spinner-border {
+  width: 4rem;
+  height: 4rem;
+  color: var(--primary-color);
+}
+
+/* Passenger Entry Styles */
+.passenger-entry {
+  margin-bottom: 1rem;
+  padding: 1rem;
+  border: 1px solid var(--border-color);
+  border-radius: 0.375rem;
+  background-color: #1a1a1a; /* Gris très foncé */
+}
+
+/* Password Toggle Button */
+#passCode {
+  padding-right: 2.5rem;
+  color: var(--text-color);
+}
+
+.btn-toggle-password {
+  position: absolute;
+  top: 50%;
+  right: 0.75rem;
+  transform: translateY(-50%);
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  color: #bbbbbb;
+  padding: 0;
+  z-index: 2;
+}
+
+.btn-toggle-password:focus {
+  outline: none;
+}
+
+.btn-toggle-password i {
+  font-size: 1.2em;
+}
+
+/* Required Star */
+.required-star {
+  color: var(--primary-color);
+  margin-left: 5px;
+  font-weight: bold;
+}
+
+/* Styles pour le Conteneur de la Carte */
+#map-container-step5 {
+  width: 100%;
+  height: 350px;
+  border-radius: 10px;
+  box-shadow: 0 4px 12px rgba(255, 255, 255, 0.1);
+  overflow: hidden;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+#map-container-step5:hover {
+  transform: scale(1.02);
+  box-shadow: 0 6px 16px rgba(255, 255, 255, 0.15);
+}
+
+@media (max-width: 768px) {
+  #map-container-step5 {
+    height: 250px;
+  }
+}
+
+/* Section Informations Résumées avec Bootstrap */
+.summary-info {
+  padding: 1rem 1.5rem;
+  background: linear-gradient(135deg, #1a1a1a, #000000);
+}
+
+.summary-info .summary-item {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0.5rem;
+  text-align: center;
+}
+
+.summary-info .summary-item i {
+  color: var(--primary-color);
+  font-size: 1.3rem;
+  margin-right: 0.5rem;
+}
+
+.summary-info .summary-item span {
+  font-weight: 500;
+  font-size: 1rem;
+  color: #ffffff;
+}
+
+/* Additional Details Section */
+.additional-details-section {
+  background: #000000;
+  border-radius: 12px;
+  padding: 1.5rem;
+  box-shadow: 0 4px 12px rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(85, 85, 85, 0.8);
+  transition: box-shadow 0.3s ease;
+}
+
+.additional-details-section:hover {
+  box-shadow: 0 6px 14px rgba(255, 255, 255, 0.1);
+}
+
+.additional-details-section h5 {
+  font-size: 1.3rem;
+  font-weight: 600;
+  color: #ffffff;
+  margin-bottom: 1rem;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+/* Détails Wrapper */
+.details-wrapper {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  background: #1a1a1a;
+  border-radius: 8px;
+  padding: 1rem;
+}
+
+/* Détails Row */
+.detail-row {
+  display: flex;
+  justify-content: space-between;
+  padding: 0.75rem 1rem;
+  font-size: 1rem;
+  background-color: #000000;
+  border-radius: 8px;
+  box-shadow: 0 2px 6px rgba(255, 255, 255, 0.05);
+  transition: background-color 0.3s ease, box-shadow 0.3s ease;
+  min-width: 45%; /* Assure deux colonnes */
+}
+
+.detail-row:hover {
+  background-color: #1a1a1a;
+  box-shadow: 0 4px 8px rgba(255, 255, 255, 0.07);
+}
+
+.detail-row strong {
+  font-weight: 600;
+  color: #ffffff;
+}
+
+.detail-row span {
+  color: #bbbbbb;
+  text-align: right;
+}
+
+/* Bouton de bascule */
+.btn-toggle-details {
+  font-size: 0.9rem;
+  color: #ffffff;
+  text-decoration: none;
+  background-color: transparent;
+  border: none;
+  font-weight: 500;
+}
+
+.btn-toggle-details i {
+  transition: transform 0.2s ease;
+}
+
+.btn-toggle-details[aria-expanded="true"] i {
+  transform: rotate(180deg);
+}
+
+/* Contenu des Détails Cachés */
+#details-content {
+  display: none;
+  padding: 0.5rem 1rem;
+  border-radius: 8px;
+  background-color: #1a1a1a;
+  border: 1px solid #555555;
+}
+
+#details-content .detail-item {
+  margin-bottom: 0.5rem;
+  font-size: 0.90rem;
+  color: #bbbbbb;
+}
+
+#details-content strong {
+  display: block;
+  font-weight: bold;
+  color: #ffffff;
+  margin-bottom: 5px;
+}
+
+#details-content ul {
+  list-style: none; /* Supprime les puces par défaut */
+  padding-left: 0;
+  margin: 0;
+}
+
+#details-content ul li {
+  color: #ffffff;
+  margin: 0.2rem 0; /* Contrôle l'espace entre chaque ligne */
+  padding-left: 1rem; /* Pour ajouter un léger décalage à gauche */
+  position: relative;
+}
+
+#details-content ul li::before {
+  content: "•"; /* Utilise un marqueur de liste personnalisé */
+  position: absolute;
+  left: 0;
+  color: #666666;
+  font-weight: bold;
+}
+
+.custon-font-weight {
+  font-weight: bold;
+  color: var(--text-color);
+}
+
+/* Placeholder Styles */
+.form-control::placeholder {
+  color: #ffffff; /* Blanc */
+  opacity: 1; /* Pour assurer la couleur */
+}
+
+/* Disabled Fields */
+.form-control:disabled,
+select:disabled,
+textarea:disabled,
+input:disabled {
+  opacity: 0.7; /* Ajuster selon le besoin */
+  color: #cccccc; /* Optionnel : changer la couleur du texte */
+  background-color: #333333; /* Optionnel : changer le fond des champs désactivés */
+}
+
+/* Specific Select Styling */
+#type_client {
+  background-color: #000000; /* Noir */
+  color: var(--text-color);
+}
+
+#type_client option {
+  background-color: #000000; /* Noir */
+  color: var(--text-color);
+}
+
+/* Ensure input text color remains as desired */
+input,
+textarea {
+  color: var(--text-color);
+  background-color: #1a1a1a; /* Gris très foncé */
+}
+
+select {
+  color: var(--text-color);
+  background-color: #1a1a1a; /* Gris très foncé */
+}
+
+/* Description Text */
+.description-text {
+  color: var(--text-color);
+  font-style: italic;
+  font-weight: bold;
+}
+
+/* Estimation Result Styles */
+#mr-estimation-result {
+  background-color: #1a1a1a;
+  font-size: 16px;
+}
+
+#mr-estimation-result p {
+  font-size: 16px;
+  margin-bottom: 0;
+  color: var(--text-color);
+}
+
+#mr-estimation-result strong {
+  color: var(--text-color);
+}
+
+#mr-estimation-result span {
+  color: var(--primary-color);
+  font-weight: bold;
+}
+
+/* Datepicker Styles */
+.ui-datepicker {
+  background-color: var(--background-color);
+  border: 1px solid var(--border-color);
+  font-family: var(--font-family);
+  font-size: 16px;
+  color: var(--text-color);
+}
+
+.ui-datepicker-header {
+  background-color: var(--primary-color);
+  color: var(--text-color);
+  border: none;
+}
+
+.ui-datepicker-title {
+  color: var(--text-color);
+  font-weight: bold;
+}
+
+.ui-state-default {
+  background-color: #333333; /* Gris foncé */
+  border: none;
+  color: var(--text-color);
+}
+
+.ui-state-active {
+  background-color: #7a3ff0 !important; /* Changement de la couleur active */
+  color: var(--background-color) !important;
+}
+
+.ui-widget-content .ui-state-hover {
+  background-color: #444444;
+}
+
+/* Date and Time Picker Styles */
+#datePriseEnChargeDate {
+  appearance: none;
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  background-repeat: no-repeat;
+  background-position: right 10px center;
+  background-size: 20px;
+  padding-right: 40px;
+  background-image: url('data:image/svg+xml;charset=UTF8,<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20"><rect x="2" y="4" width="16" height="14" fill="%237a3ff0" stroke="%23555555" stroke-width="2"/><line x1="6" y1="0" x2="6" y2="8" stroke="%23555555" stroke-width="2"/><line x1="14" y1="0" x2="14" y2="8" stroke="%23555555" stroke-width="2"/></svg>');
+  background-color: #1a1a1a; /* Gris très foncé */
+  color: var(--text-color);
+}
+
+#datePriseEnChargeTime {
+  width: 100%;
+  max-height: 200px;
+  overflow-y: auto;
+  background-color: #1a1a1a; /* Gris très foncé */
+  border: 1px solid var(--border-color);
+  border-radius: 5px;
+  padding: 12px 15px;
+  font-size: 16px;
+  color: #ffffff;
+  appearance: none;
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  background-image: url('data:image/svg+xml;charset=UTF8,<svg xmlns="http://www.w3.org/2000/svg" width="14" height="14"><polygon points="7,10 3,5 11,5" fill="%237a3ff0"/></svg>'); /* Changer la couleur du triangle */
+  background-repeat: no-repeat;
+  background-position: right 15px center;
+  background-size: 16px;
+}
+
+#datePriseEnChargeTime:focus {
+  border-color: var(--primary-color);
+  box-shadow: 0 0 8px rgba(94, 23, 235, 0.5);
+  outline: none;
+}
+
+#datePriseEnChargeTime::-webkit-scrollbar {
+  width: 8px;
+}
+
+#datePriseEnChargeTime::-webkit-scrollbar-track {
+  background: #333333;
+}
+
+#datePriseEnChargeTime::-webkit-scrollbar-thumb {
+  background: #888888;
+}
+
+#datePriseEnChargeTime::-webkit-scrollbar-thumb:hover {
+  background: #555555;
+}
+
+#datePriseEnChargeTime optgroup {
+  font-weight: bold;
+  color: #ffffff;
+  font-size: 1rem;
+}
+
+#datePriseEnChargeTime option {
+  padding: 5px 10px;
+  color: #ffffff;
+}
+
+@supports (-ms-ime-align: auto) {
+  #datePriseEnChargeTime,
+  #datePriseEnChargeDate {
+    background-image: none;
+  }
+}
+
+/* Loader Styles */
+.mr-loader-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.5);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 9999;
+}
+
+.spinner-border {
+  width: 4rem;
+  height: 4rem;
+  color: var(--primary-color);
+}
+
+/* Passenger Entry Styles */
+.passenger-entry {
+  margin-bottom: 1rem;
+  padding: 1rem;
+  border: 1px solid var(--border-color);
+  border-radius: 0.375rem;
+  background-color: #1a1a1a; /* Gris très foncé */
+}
+
+/* Password Toggle Button */
+#passCode {
+  padding-right: 2.5rem;
+  color: var(--text-color);
+}
+
+.btn-toggle-password {
+  position: absolute;
+  top: 50%;
+  right: 0.75rem;
+  transform: translateY(-50%);
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  color: #bbbbbb;
+  padding: 0;
+  z-index: 2;
+}
+
+.btn-toggle-password:focus {
+  outline: none;
+}
+
+.btn-toggle-password i {
+  font-size: 1.2em;
+}
+
+/* Required Star */
+.required-star {
+  color: var(--primary-color);
+  margin-left: 5px;
+  font-weight: bold;
+}
+
+/* Styles pour le Conteneur de la Carte */
+#map-container-step5 {
+  width: 100%;
+  height: 350px;
+  border-radius: 10px;
+  box-shadow: 0 4px 12px rgba(255, 255, 255, 0.1);
+  overflow: hidden;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+#map-container-step5:hover {
+  transform: scale(1.02);
+  box-shadow: 0 6px 16px rgba(255, 255, 255, 0.15);
+}
+
+@media (max-width: 768px) {
+  #map-container-step5 {
+    height: 250px;
+  }
+}
+
+/* Section Informations Résumées avec Bootstrap */
+.summary-info {
+  padding: 1rem 1.5rem;
+  background: linear-gradient(135deg, #1a1a1a, #000000);
+}
+
+.summary-info .summary-item {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0.5rem;
+  text-align: center;
+}
+
+.summary-info .summary-item i {
+  color: var(--primary-color);
+  font-size: 1.3rem;
+  margin-right: 0.5rem;
+}
+
+.summary-info .summary-item span {
+  font-weight: 500;
+  font-size: 1rem;
+  color: #ffffff;
+}
+
+/* Additional Details Section */
+.additional-details-section {
+  background: #000000;
+  border-radius: 12px;
+  padding: 1.5rem;
+  box-shadow: 0 4px 12px rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(85, 85, 85, 0.8);
+  transition: box-shadow 0.3s ease;
+}
+
+.additional-details-section:hover {
+  box-shadow: 0 6px 14px rgba(255, 255, 255, 0.1);
+}
+
+.additional-details-section h5 {
+  font-size: 1.3rem;
+  font-weight: 600;
+  color: #ffffff;
+  margin-bottom: 1rem;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+/* Détails Wrapper */
+.details-wrapper {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  background: #1a1a1a;
+  border-radius: 8px;
+  padding: 1rem;
+}
+
+/* Détails Row */
+.detail-row {
+  display: flex;
+  justify-content: space-between;
+  padding: 0.75rem 1rem;
+  font-size: 1rem;
+  background-color: #000000;
+  border-radius: 8px;
+  box-shadow: 0 2px 6px rgba(255, 255, 255, 0.05);
+  transition: background-color 0.3s ease, box-shadow 0.3s ease;
+  min-width: 45%; /* Assure deux colonnes */
+}
+
+.detail-row:hover {
+  background-color: #1a1a1a;
+  box-shadow: 0 4px 8px rgba(255, 255, 255, 0.07);
+}
+
+.detail-row strong {
+  font-weight: 600;
+  color: #ffffff;
+}
+
+.detail-row span {
+  color: #bbbbbb;
+  text-align: right;
+}
+
+/* Bouton de bascule */
+.btn-toggle-details {
+  font-size: 0.9rem;
+  color: #ffffff;
+  text-decoration: none;
+  background-color: transparent;
+  border: none;
+  font-weight: 500;
+}
+
+.btn-toggle-details i {
+  transition: transform 0.2s ease;
+}
+
+.btn-toggle-details[aria-expanded="true"] i {
+  transform: rotate(180deg);
+}
+
+/* Contenu des Détails Cachés */
+#details-content {
+  display: none;
+  padding: 0.5rem 1rem;
+  border-radius: 8px;
+  background-color: #1a1a1a;
+  border: 1px solid #555555;
+}
+
+#details-content .detail-item {
+  margin-bottom: 0.5rem;
+  font-size: 0.90rem;
+  color: #bbbbbb;
+}
+
+#details-content strong {
+  display: block;
+  font-weight: bold;
+  color: #ffffff;
+  margin-bottom: 5px;
+}
+
+#details-content ul {
+  list-style: none; /* Supprime les puces par défaut */
+  padding-left: 0;
+  margin: 0;
+}
+
+#details-content ul li {
+  color: #ffffff;
+  margin: 0.2rem 0; /* Contrôle l'espace entre chaque ligne */
+  padding-left: 1rem; /* Pour ajouter un léger décalage à gauche */
+  position: relative;
+}
+
+#details-content ul li::before {
+  content: "•"; /* Utilise un marqueur de liste personnalisé */
+  position: absolute;
+  left: 0;
+  color: #666666;
+  font-weight: bold;
+}
+
+/* Couleur des placeholders en blanc */
+.form-control::placeholder {
+  color: #ffffff; /* Blanc */
+  opacity: 1; /* Pour assurer la couleur */
+}
+
+/* Ajustement de l'opacité des champs désactivés */
+.form-control:disabled,
+select:disabled,
+textarea:disabled,
+input:disabled {
+  opacity: 0.7; /* Augmentez ou diminuez selon vos préférences */
+  color: #cccccc; /* Optionnel : changer la couleur du texte */
+  background-color: #333333; /* Optionnel : changer le fond des champs désactivés */
+}
+
+/* Assurer que le texte dans les inputs reste de la couleur désirée */
+input,
+textarea {
+  color: var(--text-color);
+  background-color: #1a1a1a; /* Gris très foncé */
+}
+
+/* Styling spécifique pour le select avec l'ID 'type_client' */
+#type_client {
+  background-color: #000000; /* Noir */
+  color: var(--text-color);
+}
+
+#type_client option {
+  background-color: #000000; /* Noir */
+  color: var(--text-color);
+}
+
+/* Datepicker : Changer la couleur de la date sélectionnée à #7a3ff0 */
+.ui-state-active {
+  background-color: #7a3ff0 !important; /* Couleur souhaitée */
+  color: var(--background-color) !important;
+}
+
+/* Date and Time Picker : Changer l'icône de la flèche pour correspondre à la nouvelle couleur */
+#datePriseEnChargeTime {
+  background-image: url('data:image/svg+xml;charset=UTF8,<svg xmlns="http://www.w3.org/2000/svg" width="14" height="14"><polygon points="7,10 3,5 11,5" fill="%237a3ff0"/></svg>'); /* #7a3ff0 */
+}
+
+/* Veillez à ce que les inputs ne changent pas de couleur lors de la saisie */
+input:focus,
+textarea:focus {
+  color: var(--text-color);
+  background-color: #1a1a1a; /* Gris très foncé */
+}

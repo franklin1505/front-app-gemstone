@@ -107,39 +107,33 @@
           <ng-template pTemplate="content" let-prevCallback="prevCallback" let-nextCallback="nextCallback">
             <div class="flex flex-column h-auto w-full p-0">
               <div class="grid">
+                <!-- Left Column for Vehicle Choices -->
                 <div class="col-12 lg:col-8">
                   <p-fieldset legend="Choix du Véhicule">
-
-                    <!-- Titre pour la colonne de gauche -->
                     <p-dataView [value]="vehicules" layout="list">
                       <ng-template pTemplate="list" let-vehicule>
                         <div class="grid grid-nogutter">
                           <div class="col-12" *ngFor="let vehicule of vehicules">
                             <div
-                              class="flex flex-column sm:flex-row sm:align-items-center p-4 gap-3 border-top-1 surface-border"
-                              style="height: 200px;"> <!-- Set consistent card height -->
-                              <div class="md:w-10rem relative">
-                                <img class="block xl:block mx-auto border-round w-full"
+                              class="flex flex-column sm:flex-row sm:align-items-center p-3 gap-3 border-top-1 surface-border"
+                              style="height: auto;">
+                              <div class="w-full md:w-10rem">
+                                <img class="block mx-auto border-round w-full"
                                   [src]="vehicule.galerie || 'assets/layout/images/vehicules.png'"
-                                  [alt]="vehicule.marque + ' ' + vehicule.modele" style="max-height: 100px;" />
+                                  [alt]="vehicule.marque + ' ' + vehicule.modele"
+                                  style="max-height: 100px; max-width: 100%;" />
                               </div>
-                              <div
-                                class="flex flex-column md:flex-row justify-content-between md:align-items-center flex-1 gap-4">
-                                <div
-                                  class="flex flex-row md:flex-column justify-content-between align-items-start gap-2">
-                                  <div>
-                                    <span class="font-medium text-secondary text-sm">{{ vehicule.marque }}</span>
-                                    <div class="text-lg font-medium text-900 mt-2">{{ vehicule.modele }}</div>
-                                  </div>
+                              <div class="flex flex-column justify-content-between flex-1 gap-3">
+                                <div>
+                                  <span class="font-medium text-secondary text-sm">{{ vehicule.marque }}</span>
+                                  <div class="text-lg font-medium text-900 mt-1">{{ vehicule.modele }}</div>
                                 </div>
-                                <div class="flex flex-column md:align-items-end gap-5">
+                                <div class="flex flex-column gap-3 md:align-items-end">
                                   <span class="text-xl font-semibold text-900">{{ getPrixReservation(vehicule.id) |
                                     currency:'EUR':'symbol':'1.2-2' }}</span>
-                                  <div class="flex flex-row-reverse md:flex-row gap-2">
-                                    <p-button icon="pi pi-check" size="small" label="Choisir"
-                                      [severity]="isSelected(vehicule) ? 'warning' : 'primary'"
-                                      (onClick)="toggleSelection(vehicule)" />
-                                  </div>
+                                  <p-button icon="pi pi-check" size="small" label="Choisir"
+                                    [severity]="isSelected(vehicule) ? 'warning' : 'primary'"
+                                    (onClick)="toggleSelection(vehicule)" />
                                 </div>
                               </div>
                             </div>
@@ -149,8 +143,9 @@
                     </p-dataView>
                   </p-fieldset>
                 </div>
+
+                <!-- Right Column for Supplements -->
                 <div class="col-12 lg:col-4">
-                  <!-- Titre pour la colonne de droite -->
                   <p-fieldset legend="Suppléments">
                     <div *ngIf="currentStep === 2 && selectedVehicule !== null && formSubmitted">
                       <form [formGroup]="form">
@@ -161,7 +156,7 @@
                                 <strong>{{ attributCtrl.get('nom_attribut')?.value }} ({{
                                   attributCtrl.get('prix_unitaire_attribut')?.value }}€)</strong>
                               </label>
-                              <div class="d-flex justify-content-between align-items-center p-inputgroup">
+                              <div class="flex justify-content-between align-items-center p-inputgroup">
                                 <p-button icon="pi pi-minus" pRipple class="p-button-rounded p-button-primary"
                                   (onClick)="decrementQuantity(i)" size="small" />
                                 <input type="number" formControlName="quantite" (ngModelChange)="calculateTotalCost()"
@@ -175,11 +170,12 @@
                         </div>
                       </form>
                     </div>
-
                   </p-fieldset>
                 </div>
               </div>
             </div>
+
+            <!-- Footer Buttons -->
             <div class="flex py-4 gap-2 justify-content-end">
               <p-button size="small" label="Retour" severity="secondary" (onClick)="prevStep(prevCallback)" />
               <p-button size="small" label="Suivant"
@@ -506,6 +502,9 @@
                     <div class="my-1 mx-2" *ngIf="reservationData?.compagnieAerienne">
                       <strong>Nº De Vol/Train :</strong> {{ reservationData?.compagnieAerienne }}
                     </div>
+                    <div class="my-1 mx-2" *ngIf="reservationData?.numero_dossier">
+                      <strong>Nº De Dossier :</strong> {{ reservationData?.numero_dossier }}
+                    </div>
 
                     <div class="my-1 mx-2">
                       <strong>Cout de trajet :</strong>
@@ -532,19 +531,22 @@
                           <strong>Autres Details ...</strong>
                         </ng-template>
                         <ng-template pTemplate="content">
-                          <div class="my-1 mx-2" *ngIf="reserverForm.value.passagers && reserverForm.value.passagers.length > 0">
+                          <div class="my-1 mx-2"
+                            *ngIf="reserverForm.value.passagers && reserverForm.value.passagers.length > 0">
                             <p class="card-text"><strong>Liste des passagers ajoutés :</strong></p>
                             <span *ngFor="let passenger of reserverForm.value.passagers">
                               {{ passenger.content }}
                             </span>
                           </div>
-                          <div class="my-1 mx-2" *ngIf="reserverForm.value.supplements && reserverForm.value.supplements.length > 0">
+                          <div class="my-1 mx-2"
+                            *ngIf="reserverForm.value.supplements && reserverForm.value.supplements.length > 0">
                             <p class="card-text"><strong>Suppléments :</strong></p>
                             <span *ngFor="let item of reserverForm.value.supplements">
                               {{ item.nom_attribut }} ({{ item.quantite }})
                             </span>
                           </div>
-                          <div class="my-1 mx-2" *ngIf="reserverForm.value.notes && reserverForm.value.notes.length > 0">
+                          <div class="my-1 mx-2"
+                            *ngIf="reserverForm.value.notes && reserverForm.value.notes.length > 0">
                             <p class="card-text"><strong>Notes :</strong></p>
                             <span *ngFor="let note of reserverForm.value.notes">
                               {{ note.content }}

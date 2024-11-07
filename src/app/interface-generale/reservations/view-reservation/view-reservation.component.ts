@@ -460,18 +460,18 @@ export class ViewReservationComponent implements OnInit, OnDestroy {
 
   genererNumeroReservation(data: any): string {
     const anneeCourante = new Date().getFullYear();
-    // Obtenez les deux premières lettres du lieu de prise en charge et de destination
-    const lieuPriseEnCharge = data.lieuxPriseEnCharge
-      .substring(0, 2)
-      .toUpperCase();
-    const lieuDestination = data.lieuxDestination.substring(0, 2).toUpperCase();
-    // Obtenez le nombre de passagers et de bagages
+    const timestamp = new Date().getTime().toString().slice(-4); // Les 4 derniers chiffres pour unicité
+
+    const lieuPriseEnCharge = (data.lieuxPriseEnCharge || '').substring(0, 2).toUpperCase();
+    const lieuDestination = (data.lieuxDestination || '').substring(0, 2).toUpperCase();
+    const utilisateurId = data.utilisateur || '00';
     const nombrePassager = data.nombrePassager || 0;
     const nombreBagage = data.nombreBagage || 0;
-    // Générez le numéro de réservation dans le format souhaité
-    const numeroReservation = `${anneeCourante}RD${data.utilisateur}${lieuPriseEnCharge}${lieuDestination}${nombrePassager}${nombreBagage}`;
+
+    const numeroReservation = `${anneeCourante}R${utilisateurId}${lieuPriseEnCharge}${lieuDestination}${nombrePassager}${nombreBagage}${timestamp}`;
     return numeroReservation;
   }
+
 
   formatCapaciteChargement(capaciteChargement: string): string {
     const [nombre, type] = capaciteChargement.split(' ');

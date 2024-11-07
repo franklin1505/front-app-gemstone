@@ -940,20 +940,22 @@ export class ModuleResaClientScComponent implements OnInit {
   }
 
   genererNumeroReservation(): string {
-    // Obtenez l'année actuelle
+    const anneeCourante = new Date().getFullYear();
+    const timestamp = new Date().getTime().toString().slice(-4); // Les 4 derniers chiffres du timestamp pour unicité
+
     const formValues = this.form.value;
     const form = this.reserverForm.value;
-    const anneeCourante = new Date().getFullYear();
-    // Obtenez les deux premières lettres du lieu de prise en charge et de destination
-    const lieuPriseEnCharge = formValues.lieuxPriseEnCharge.substring(0, 2).toUpperCase();
-    const lieuDestination = formValues.lieuxDestination.substring(0, 2).toUpperCase();
-    // Obtenez le nombre de passagers et de bagages
+
+    const lieuPriseEnCharge = (formValues.lieuxPriseEnCharge || '').substring(0, 2).toUpperCase();
+    const lieuDestination = (formValues.lieuxDestination || '').substring(0, 2).toUpperCase();
+    const clientId = form.client_selectionne || '00'; // ID ou identifiant unique du client
     const nombrePassager = form.nombrePassager || 0;
     const nombreBagage = this.capaciteChargement || 0;
-    // Générez le numéro de réservation dans le format souhaité
-    const numeroReservation = `${anneeCourante}R${form.client_selectionne}${lieuPriseEnCharge}${lieuDestination}${nombrePassager}${nombreBagage}`;
+
+    const numeroReservation = `${anneeCourante}R${clientId}${lieuPriseEnCharge}${lieuDestination}${nombrePassager}${nombreBagage}${timestamp}`;
     return numeroReservation;
   }
+
 
 
   sectionValider(nextCallback: any) {
