@@ -1,73 +1,33 @@
+.card-header {
+  padding: 1rem;
+}
+
 .header-row {
   display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 1rem;
+  flex-wrap: wrap;
 }
 
-.client-name {
-  color: #000;
-}
-
-.client-details {
-  margin-top: 10px;
+.client-details,
+.invoice-details {
+  flex: 1 1 300px;
+  box-sizing: border-box;
+  padding: 0 1rem;
 }
 
 .detail-item {
-  margin-bottom: 5px;
+  margin-bottom: 0.5rem;
 }
 
-.detail-item strong {
+.detail-item span {
+  display: inline-flexbox;
+  font-size: 16px;
   color: #333;
-  font-weight: 500;
 }
 
 .detail-value {
+  font-weight: bold;
   color: #555;
-  font-size: 15px;
-
-}
-
-.top-end-tags {
-  display: flex;
-  flex-direction: column;
-  gap: 5px;
-}
-
-.date-info,
-.payment-info {
-  font-size: 14px;
-  color: #555;
-}
-
-.date-info strong,
-.payment-info strong {
-  color: #333;
-  font-weight: 500;
-}
-
-.date-info span,
-.payment-info span {
-  color: #777;
-  margin-left: 5px;
-}
-
-
-.position-relative {
-  position: relative;
-}
-
-.paid-stamp {
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  opacity: 0.5;
-  z-index: 10;
-}
-
-.paid-stamp img {
-  width: 300px;
-  height: auto;
+  margin-left: 0.5rem;
+  flex-wrap: wrap;
   
 }

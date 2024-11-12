@@ -178,7 +178,6 @@ export class TraitementCourseComponent implements OnInit, OnDestroy {
 
     this.requestPermission();
 
-
     this.countdownInterval = setInterval(() => {
       const currentTime = new Date().getTime();
       const remainingTime = endTime - currentTime;
@@ -190,12 +189,16 @@ export class TraitementCourseComponent implements OnInit, OnDestroy {
         this.showNotification('Notification', '⏰ Le temps de la course est écoulé. Veuillez finaliser la course. Merci !');
       } else {
         this.courseActive = true; // Le temps n'est pas encore écoulé
-        const minutesLeft = Math.floor(remainingTime / 60000);
-        const secondsLeft = Math.floor((remainingTime % 60000) / 1000);
-        this.durationCountdownText = `La course finira dans : ${minutesLeft}m ${secondsLeft}s`;
+        const totalSeconds = Math.floor(remainingTime / 1000);
+        const hoursLeft = Math.floor(totalSeconds / 3600);
+        const minutesLeft = Math.floor((totalSeconds % 3600) / 60);
+        const secondsLeft = totalSeconds % 60;
+
+        this.durationCountdownText = `La course finira dans : ${this.padZero(hoursLeft)}h ${this.padZero(minutesLeft)}m ${this.padZero(secondsLeft)}s`;
       }
     }, 1000);
   }
+
 
   private parseDuration(duration: string): [number, number] {
     const timeParts = duration.match(/(\d+)\s*hours?\s*(\d+)\s*mins?/i);
@@ -215,13 +218,6 @@ export class TraitementCourseComponent implements OnInit, OnDestroy {
     const datePriseEnCharge = new Date(this.reservation.datePriseEnCharge).getTime();
     this.requestPermission();
 
-    const now = new Date().getTime();
-    const initialDiff = datePriseEnCharge - now;
-    const initialMinutes = Math.floor(initialDiff / 60000);
-    const initialSeconds = Math.floor((initialDiff % 60000) / 1000);
-
-    this.showNotification('Notification', `🚀 La course commencera dans : ${initialMinutes}m ${initialSeconds}s`);
-
     this.countdownInterval = setInterval(() => {
       const now = new Date().getTime();
       const diff = datePriseEnCharge - now;
@@ -234,12 +230,18 @@ export class TraitementCourseComponent implements OnInit, OnDestroy {
         this.showNotification('Notification', '🔥 C\'est le moment de démarrer la course !');
       } else {
         this.afficherAlerteDemarrage = true;
-        const minutes = Math.floor(diff / 60000);
-        const seconds = Math.floor((diff % 60000) / 1000);
-        this.countdownText = `🚀 La course commencera dans : ${minutes}m ${seconds}s`;
+        const totalSeconds = Math.floor(diff / 1000);
+        const hours = Math.floor(totalSeconds / 3600);
+        const minutes = Math.floor((totalSeconds % 3600) / 60);
+        const seconds = totalSeconds % 60;
 
+        this.countdownText = `🚀 La course commencera dans : ${this.padZero(hours)}h ${this.padZero(minutes)}m ${this.padZero(seconds)}s`;
       }
     }, 1000);
+  }
+
+  private padZero(num: number): string {
+    return num < 10 ? '0' + num : num.toString();
   }
 
   private terminerCourse(): void {

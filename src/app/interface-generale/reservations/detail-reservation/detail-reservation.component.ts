@@ -42,7 +42,6 @@ export class DetailReservationComponent implements OnInit, AfterViewChecked {
   calForm: FormGroup;
   statutForm: FormGroup;
   telForm!: FormGroup;
-  form!: FormGroup;
   affichageForm!: FormGroup;
   reservationId!: number;
   reservation?: any;
@@ -79,6 +78,7 @@ export class DetailReservationComponent implements OnInit, AfterViewChecked {
   confirmationRequeteVisible: boolean = false;
   confirmationNoShowVisible: boolean = false;
   confirmationReglementVisible: boolean = false;
+  confirmationEnApprocheVisible: boolean = false;
   serviceClientInfo: any
 
   cards = [
@@ -89,13 +89,13 @@ export class DetailReservationComponent implements OnInit, AfterViewChecked {
       badgeClass: "flex align-items-center justify-content-center bg-red-100 border-round",
       icon: "pi pi-file-pdf text-red-500 text-xl",
     },
-    /* {
+    {
       type: "mail",
       title: "Mail",
       subtitle: "Envoyer par Mail",
       badgeClass: "flex align-items-center justify-content-center bg-cyan-100 border-round",
       icon: "pi pi-envelope text-cyan-500 text-xl",
-    }, */
+    },
     {
       type: "whatsapp",
       title: "WhatsApp",
@@ -113,13 +113,13 @@ export class DetailReservationComponent implements OnInit, AfterViewChecked {
       badgeClass: "flex align-items-center justify-content-center bg-cyan-100 border-round",
       icon: "BC",
     },
-    {
+/*     {
       type: "disponibilite",
       title: "Bon",
       subtitle: "De Disponibilite",
       badgeClass: "flex align-items-center justify-content-center bg-yellow-100 border-round",
       icon: "BD",
-    },
+    }, */
     {
       type: "annulation",
       title: "Bon",
@@ -137,13 +137,13 @@ export class DetailReservationComponent implements OnInit, AfterViewChecked {
       badgeClass: "flex align-items-center justify-content-center bg-blue-100 border-round",
       icon: "Cl",
     },
-    {
+/*     {
       type: "chauffeur",
       title: "Chauffeur",
       subtitle: "Bon d'annulation pour chauffeur",
       badgeClass: "flex align-items-center justify-content-center bg-yellow-100 border-round",
       icon: "CH",
-    },
+    }, */
     {
       type: "autre",
       title: "Autre",
@@ -183,6 +183,8 @@ export class DetailReservationComponent implements OnInit, AfterViewChecked {
   showInitialCards = true;
   selectedCardType: string | null = null;
   selectedMainCardType!: string;
+  emailForm!: FormGroup;
+  isEmailForm: boolean = false;
   isWhasapForm: boolean = false;
   isValidation: boolean = false;
   isCom: boolean = false;
@@ -209,8 +211,8 @@ export class DetailReservationComponent implements OnInit, AfterViewChecked {
     this.telForm = this.fb.group({
       telephone: ["", [Validators.required, Validators.minLength(8)]],
     });
-    this.form = this.fb.group({
-      email: ["", [Validators.required, Validators.email]],
+    this.emailForm = this.fb.group({
+      email: ['', [Validators.required, Validators.email]],
     });
     this.statutForm = this.fb.group({
       nouveauStatut: [""],
@@ -332,9 +334,6 @@ export class DetailReservationComponent implements OnInit, AfterViewChecked {
           this.lieuxDestinationLng = destinationCoords.lng;
         }
       );
-
-      this.calculate()
-
       // Convertir la date au fuseau horaire de la France (Europe/Paris) et formatage de la date
       if (reservation.datePriseEnCharge) {
         const dateObject = new Date(reservation.datePriseEnCharge);
@@ -717,7 +716,7 @@ export class DetailReservationComponent implements OnInit, AfterViewChecked {
       reservationDetails += `Pass: ${reservation.nombrePassager || ""}; Bags: ${reservation.nombreBagage || ""
         }\n`;
       let paymentDetails = `Mode de paiement : ${this.formatPaymentMethodName(
-        reservation.modePaiement )}\n`;
+        reservation.modePaiement)}\n`;
       paymentDetails += `Tarif de vente : €${reservation.coutDeVente || ""}€\n`;
       paymentDetails += `Tarif de la course : €${reservation.coutTotalReservation || ""}€\n`;
       paymentDetails += addEmptyLine(); // Ajoute un saut de ligne final
@@ -961,28 +960,32 @@ export class DetailReservationComponent implements OnInit, AfterViewChecked {
   }
 
 
-  showDialog(type: 'changerStatut' | 'verifierCode' | 'whasapForm' | 'isValidation' | 'reglement'| 'com') {
+  showDialog(type: 'changerStatut' | 'verifierCode' | 'whasapForm' | 'isValidation' | 'reglement' | 'com' | 'emailForm'): void {
     switch (type) {
       case 'changerStatut':
         this.isChangerStatut = true;
         break;
       case 'verifierCode':
-        this.display = true
+        this.display = true;
         break;
       case 'whasapForm':
-        this.isWhasapForm = true
+        this.isWhasapForm = true;
         break;
       case 'reglement':
-        this.visible = true
+        this.visible = true;
         break;
       case 'com':
-        this.isCom = true
+        this.isCom = true;
         break;
       case 'isValidation':
-        this.isValidation = true
+        this.isValidation = true;
+        break;
+      case 'emailForm':
+        this.isEmailForm = true;
         break;
     }
   }
+
 
   statuts: { label: string, value: string }[] = [
     { label: 'En Attente', value: 'en_attente' },
@@ -1061,11 +1064,9 @@ export class DetailReservationComponent implements OnInit, AfterViewChecked {
   // Ajoutez un paramètre pour indiquer si la sélection est une carte principale
   selectCard(cardType: string, isMainCard: boolean = false): void {
     if (isMainCard) {
-      // Si c'est une carte principale, stockez son type dans selectedMainCardType
       this.selectedMainCardType = cardType;
       this.selectedCardType = cardType;
     } else {
-      // Sinon, c'est une sélection de carte fille, stockez son type dans selectedCardType
       this.selectedCardType = cardType;
     }
     this.showInitialCards = false;
@@ -1074,6 +1075,17 @@ export class DetailReservationComponent implements OnInit, AfterViewChecked {
   resetView(): void {
     this.showInitialCards = true;
     this.selectedCardType = null;
+  }
+
+  openConfirmModal(selectedType: any, subCardType: any): void {
+    this.selectedType = selectedType;
+    this.selectedSubType = subCardType;
+
+    if (subCardType === 'autre' && this.selectedMainCardType === 'mail') {
+      this.showDialog('emailForm');
+    } else {
+      this.showDialog('isValidation');
+    }
   }
 
 
@@ -1086,35 +1098,81 @@ export class DetailReservationComponent implements OnInit, AfterViewChecked {
     this.showDialog('isValidation')
   }
 
-  confirm(action: any) {
-
+  confirm(action: any): void {
     if (action === 'valider') {
-      this.WhatsApp(this.selectedType, this.selectedSubType);
-    }
-    else {
-      this.telForm.get("telephone")?.setValue("");
-      this.messageService.add({ severity: 'error', summary: 'Annulé', detail: 'Vous avez annuler l\'action', life: 3000 });
+      if (this.selectedMainCardType === 'whatsapp') {
+        this.WhatsApp(this.selectedType, this.selectedSubType);
+      } else if (this.selectedMainCardType === 'mail') {
+        this.Email(this.selectedType, this.selectedSubType);
+      }
+    } else {
+      this.telForm.get('telephone')?.setValue('');
+      this.emailForm.get('email')?.setValue('');
+      this.messageService.add({ severity: 'error', summary: 'Annulé', detail: 'Vous avez annulé l\'action', life: 3000 });
     }
   }
 
-  dataModal(Content5: any, selectedType: any, subCardType: any) {
-    this.selectedType = "";
-    this.selectedSubType = "";
 
+  Email(selectedType: any, subCardType: any): void {
+    if (selectedType && subCardType) {
+      if (this.reservation) {
+        let email: string;
+        // Sélectionnez l'adresse email en fonction du type de personne
+        switch (subCardType) {
+          case 'client':
+            email = this.clientDetails.email;
+            break;
+          case 'autre':
+            email = this.emailForm.get('email')?.value;
+            break;
+          default:
+            console.log('Type de personne non spécifié.');
+            return;
+        }
+        this.loading = true;
+        setTimeout(() => {
+          this._reservationService.sendEmail(selectedType, this.reservationId, email).subscribe(
+            (response) => {
+              this.emailForm.reset();
+              this.isEmailForm = false;
+              this.successMessage = response.message;
+              this.showSuccess(this.successMessage);
+              this.loading = false;
+            },
+            (error) => {
+              console.error('Erreur lors de l\'envoi de l\'email:', error);
+              this.isEmailForm = false;
+              this.errorMessage = error.error.message || 'Erreur lors de l\'envoi de l\'e-mail.';
+              this.showError(this.errorMessage);
+              this.loading = false;
+            }
+          );
+        }, 1000);
+      }
+    } else {
+      console.log('Veuillez sélectionner un type de bon et un type de personne.');
+      this.emailForm.reset();
+    }
+  }
+
+  dataModal(contentType: string, selectedType: any, subCardType: any): void {
     this.selectedType = selectedType;
     this.selectedSubType = subCardType;
 
-    if (Content5 === 'contentAffectation') {
+    if (contentType === 'contentAffectation') {
       this.messageService.add({
         severity: 'info',
         summary: 'Message',
         detail: 'Vous devez affecter un chauffeur à la course avant de pouvoir envoyer un message de disponibilité',
         life: 3000
       });
-    } else {
-      this.showDialog('whasapForm')
+    } else if (contentType === 'whasapForm') {
+      this.showDialog('whasapForm');
+    } else if (contentType === 'emailForm') {
+      this.showDialog('emailForm');
     }
   }
+
 
   markReservationAsRegler(): void {
     this.loading = true;
@@ -1339,6 +1397,11 @@ export class DetailReservationComponent implements OnInit, AfterViewChecked {
     this.confirmationReglementVisible = true;
   }
 
+  showEnApprocheDialog(): void {
+    this.confirmationEnApprocheVisible = true;
+  }
+
+
   sendDemandeReglement(): void {
     this.confirmationReglementVisible = false;
     this.loading = true;
@@ -1360,6 +1423,43 @@ export class DetailReservationComponent implements OnInit, AfterViewChecked {
     }, 1500); // Simulate loading for 1500ms
   }
 
+  mettreEnApproche(): void {
+    this.confirmationEnApprocheVisible = false;
+    this.loading = true;
+
+    setTimeout(() => {
+      this._reservationService.mettreEnApproche(this.reservation.id).subscribe({
+        next: () => {
+          this.loading = false;
+          this.getUrlValues();
+        },
+        error: (err) => {
+          this.showError(err.error.message || "Une erreur est survenue.");
+          this.loading = false;
+          console.error(err);
+        }
+      });
+    }, 1500); // Simule le chargement pendant 1500ms
+  }
+
+  getUrlValues(): void {
+    this._reservationService.getAllUrls().subscribe(
+      (response) => {
+        const urlList = response;
+        if (urlList.length > 0) {
+          const urlPartenaire = urlList[0].url_partenaire || '';
+          // Redirection vers la route souhaitée
+          const reservationId = this.reservation.id;
+          const redirectUrl = `${urlPartenaire}traitementCourse/${reservationId}/`;
+          window.open(redirectUrl, '_blank');
+        }
+      },
+      (error) => {
+        console.error('Erreur lors de la récupération des URLs:', error);
+        this.showError("Impossible de récupérer les informations de redirection.");
+      }
+    );
+  }
 
   appliquerCommission() {
     this.compensationEnabled = false;

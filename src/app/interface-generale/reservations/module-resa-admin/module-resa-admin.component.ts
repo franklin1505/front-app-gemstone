@@ -6,7 +6,14 @@ import { debounceTime, map, distinctUntilChanged, filter } from 'rxjs/operators'
 import { MenuItem, MessageService } from 'primeng/api';
 import { CrmService } from '../../../utilitaires/services/crm.service';
 import { Methode } from '../../../utilitaires/models/parametres';
+import { AutoCompleteSelectEvent } from 'primeng/autocomplete';
 declare var google: any;
+
+interface LieuRdv {
+  id?: number;
+  address: string;
+  isNew?: boolean;
+}
 
 @Component({
   selector: 'app-module-resa-admin',
@@ -74,6 +81,10 @@ export class ModuleResaAdminComponent implements OnInit {
   cardVisibility: boolean[] = [false, false, false, false]; // Indicateurs de visibilité pour chaque carte
   layout: string = 'list';
   isCalculating: boolean = false; // Drapeau pour éviter les boucles infinies
+
+  lieuRdvList: LieuRdv[] = [];
+  filteredLieuRdv: LieuRdv[] = [];
+  lieuRdvInput: string = '';
 
   constructor(
     private fb: FormBuilder,
@@ -1367,5 +1378,52 @@ export class ModuleResaAdminComponent implements OnInit {
 
   toggleVisibility() {
     this.isContentVisible = !this.isContentVisible;
+  }
+  filterLieuRdv(event: any): void {
+    const query = event.query;
+    this.lieuRdvInput = query;
+
+    this._estimationService.getLieuRdv().subscribe((data: LieuRdv[]) => {
+      this.filteredLieuRdv = data.filter((item) =>
+        item.address.toLowerCase().includes(query.toLowerCase())
+      );
+
+      const exists = data.some(
+        (item) => item.address.toLowerCase() === query.toLowerCase()
+      );
+
+      if (!exists && query.trim() !== '') {
+        this.filteredLieuRdv.push({ address: query, isNew: true });
+      }
+    });
+  }
+
+  onLieuRdvSelect(event: AutoCompleteSelectEvent): void {
+    const selectedItem = event.value as LieuRdv;
+
+    if (selectedItem.isNew) {
+      this.addNewLieuRdv(selectedItem.address);
+    } else {
+      this.reserverForm.get('lieu_rendez_vous')?.setValue(selectedItem.address);
+    }
+  }
+
+  onLieuRdvClear(): void {
+    this.form.get('lieu_rendez_vous')?.setValue(null);
+    this.lieuRdvInput = '';
+  }
+
+  addNewLieuRdv(address: string): void {
+    const newLieu = { address };
+    this._estimationService.addLieuRdv(newLieu).subscribe(
+      (data: LieuRdv) => {
+        this.lieuRdvList.push(data);
+        this.reserverForm.get('lieu_rendez_vous')?.setValue(data.address);
+        this.lieuRdvInput = '';
+      },
+      (error) => {
+        console.error('Erreur lors de l\'ajout du lieu de rendez-vous:', error);
+      }
+    );
   }
 }

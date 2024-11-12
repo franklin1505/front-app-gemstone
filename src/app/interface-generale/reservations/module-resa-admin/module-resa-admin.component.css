@@ -9,3 +9,20 @@
     overflow-wrap: break-word; /* Break long words as needed */
   }
 }
+
+.ajouter-nouveau-lieu {
+  display: flex;
+  align-items: center;
+  color: #007ad9;
+  font-weight: bold;
+  cursor: pointer;
+  padding: 0.5rem;
+}
+
+.ajouter-nouveau-lieu i {
+  margin-right: 0.5rem;
+}
+
+.ajouter-nouveau-lieu:hover {
+  background-color: #f0f8ff;
+}

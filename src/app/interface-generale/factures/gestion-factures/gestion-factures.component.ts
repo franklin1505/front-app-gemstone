@@ -11,6 +11,7 @@ import { MenuItem, MessageService } from 'primeng/api';
 })
 export class GestionFacturesComponent implements OnInit {
   confirmationDialogVisible: boolean = false;
+  annulationDialogVisible: boolean = false;
   actionType: string = '';
   nombreReservations: number = 0;
   coutTotal: number = 0;
@@ -52,7 +53,7 @@ export class GestionFacturesComponent implements OnInit {
   selectedPaymentOption: string = '30'; // Default value for 30 days
   customDays: number = 0;
   isCustomOptionSelected: boolean = false;
-  userType:any
+  userType: any
   paymentMethods = [
     { label: 'PayPal', value: 'PayPal' },
     { label: 'Virement Bancaire', value: 'Virement Bancaire' },
@@ -195,6 +196,10 @@ export class GestionFacturesComponent implements OnInit {
     this.confirmationDialogVisible = true;
   }
 
+  annuleAction() {
+    this.annulationDialogVisible = true
+  }
+
   executeAction() {
     this.loading = true;
 
@@ -216,18 +221,37 @@ export class GestionFacturesComponent implements OnInit {
         },
         (error) => {
           this.loading = false;
-          this.showError(error.error);
+          this.showError(error.error.error);
           console.error(error)
         }
       );
     }, 1500);
   }
 
+
+  annulerReglement() {
+    this.loading = true;
+    setTimeout(() => {
+      this._factureService.annulerReglementFacture(this.factureId).subscribe(
+        (response) => {
+          this.loading = false;
+          this.showSuccess(response.message);
+          this.FactureDetails(this.factureId); // Recharger les détails de la facture
+        },
+        (error) => {
+          this.loading = false;
+          this.showError(error.error.error);
+          console.error(error);
+        }
+      );
+    }, 1500);
+  }
+
+
   openPartielDialog() {
     this.sommePayee = 0; // Réinitialiser la somme payée
     this.partielDialogVisible = true;
   }
-
 
   submitPartielPayment() {
     if ((this.factures.resteAPayer === 0 && (this.sommePayee <= 0 || this.sommePayee > this.factures.totalTTC)) ||
@@ -235,7 +259,6 @@ export class GestionFacturesComponent implements OnInit {
       this.showError('Veuillez saisir une somme valide.');
       return;
     }
-
 
     this.loading = true;
     const nouveauType = this.sommePayee === this.factures.resteAPayer ? 'regler' : 'partiement_regler';
@@ -260,7 +283,6 @@ export class GestionFacturesComponent implements OnInit {
       );
     }, 1500);
   }
-
 
   updatePaymentMethod() {
     this.loading = true;

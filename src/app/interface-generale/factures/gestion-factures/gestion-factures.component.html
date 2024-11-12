@@ -7,59 +7,54 @@
     <div class="col-12 lg:col-8 xl:col-8 mb-1 position-relative">
       <div class="card mt-3">
         <div class="card-header">
-          <h4 class="mb-3"><strong>Facture# </strong>{{ factures.numeroFacture }}</h4>
-          <div class="header-row">
-            <div class="client-details">
+          <h4 class="mb-3 my-3"><strong>Facture# </strong>{{ factures.numeroFacture }}</h4>
+          <div class="grid">
+            <!-- Détails du client -->
+            <div class="col-12 md:col-6">
               <div class="detail-item">
                 <span>Client:
-                  <strong class="client-name font-bold">{{ factures.client?.last_name }}</strong>
-                  <strong *ngIf="factures.client?.first_name && factures.client.first_name !== 'XXXXX'"
-                    class="ml-1 font-bold">
+                  <strong class="client-name">{{ factures.client?.last_name }}</strong>
+                  <strong *ngIf="factures.client?.first_name && factures.client.first_name !== 'XXXXX'">
                     {{ factures.client?.first_name }}
                   </strong>
                 </span>
               </div>
               <div *ngIf="factures.client?.email" class="detail-item">
-                <span class="mr-2">Email:</span>
-                <span class="detail-value font-bold">{{ factures.client.email }}</span>
+                <span>Email:</span>
+                <span class="detail-value">{{ factures.client.email }}</span>
               </div>
               <div *ngIf="factures.client?.telephone" class="detail-item">
-                <span class="mr-2">Téléphone:</span>
-                <span class="detail-value font-bold">{{ factures.client.telephone }}</span>
+                <span>Téléphone:</span>
+                <span class="detail-value">{{ factures.client.telephone }}</span>
               </div>
               <div *ngIf="factures.client?.adresse" class="detail-item">
-                <span class="mr-2">Adresse:</span>
-                <span class="detail-value font-bold">{{ factures.client.adresse }}</span>
+                <span>Adresse:</span>
+                <span class="detail-value">{{ factures.client.adresse }}</span>
               </div>
             </div>
-
-            <div class="top-end-tags">
-              <div class="client-details">
-                <div class="detail-item">
-                  <span class="mr-2">Date d'émission:</span>
-                  <span class="detail-value font-bold">{{ factures.dateEmission ? (factures.dateEmission | date: 'dd MMM
-                    yyyy') : 'Non disponible' }}</span>
-                </div>
-                <div class="detail-item">
-                  <span class="mr-2">Date d'échéance:</span>
-                  <span class="detail-value font-bold">{{ factures.dateEcheance ? (factures.dateEcheance | date: 'dd MMM
-                    yyyy') : 'Non disponible' }}</span>
-                </div>
-
-                <div class="detail-item">
-                  <span class="mr-2">Mode de paiement:</span>
-                  <span class="detail-value font-bold">{{ factures.methodePaiement ? factures.methodePaiement : 'Non
-                    disponible' }}</span>
-                </div>
-                <div class="detail-item">
-                  <span class="mr-2">Date de paiement:</span>
-                  <span class="detail-value font-bold">{{ factures.datePaiement ? (factures.datePaiement | date: 'dd MMM
-                    yyyy') : 'Non disponible' }}</span>
-                </div>
+            <!-- Détails de la facture -->
+            <div class="col-12 md:col-6">
+              <div class="detail-item">
+                <span>Date d'émission:</span>
+                <span class="detail-value">{{ factures.dateEmission ? (factures.dateEmission | date: 'dd MMM yyyy') : 'Non disponible' }}</span>
+              </div>
+              <div class="detail-item">
+                <span>Date d'échéance:</span>
+                <span class="detail-value">{{ factures.dateEcheance ? (factures.dateEcheance | date: 'dd MMM yyyy') : 'Non disponible' }}</span>
+              </div>
+              <div class="detail-item">
+                <span>Mode de paiement:</span>
+                <span class="detail-value">{{ factures.methodePaiement ? factures.methodePaiement : 'Non disponible' }}</span>
+              </div>
+              <div class="detail-item">
+                <span>Date de paiement:</span>
+                <span class="detail-value">{{ factures.datePaiement ? (factures.datePaiement | date: 'dd MMM yyyy') : 'Non disponible' }}</span>
               </div>
             </div>
           </div>
         </div>
+
+
 
         <div class="card-body">
           <div class="card mt-3">
@@ -163,6 +158,12 @@
                   (onClick)="editMenu.toggle($event)" />
               </div>
             </ng-container>
+            <ng-container *ngIf="factures?.type_facture === 'regler' || factures?.type_facture === 'partiement_regler'">
+              <div class="flex-auto">
+                <p-button label="Rétablir la facture en impayée" icon="pi pi-trash" severity="warning" class="w-full" size="small"
+                  (onClick)="annuleAction()" />
+              </div>
+            </ng-container>
 
             <!-- Boutons de règlement (Valider, Partiel, Annuler) -->
             <ng-container
@@ -222,7 +223,7 @@
   <p-progressSpinner class="spinner-size spinner-style"></p-progressSpinner>
 </div>
 
-<p-dialog header="Confirmation" [modal]="true" [(visible)]="confirmationDialogVisible" [style]="{ width: '30rem' }">
+<p-dialog header="Message de Confirmation" [modal]="true" [(visible)]="confirmationDialogVisible" [style]="{ width: '30rem' }">
   <div class="flex align-items-center gap-3 mb-3 my-2">
     <span>
       <i class="pi pi-exclamation-triangle mr-2 text-orange-400"></i>
@@ -231,8 +232,22 @@
     </span>
   </div>
   <p-footer class="flex justify-content-end gap-2">
-    <p-button label="Annuler" severity="secondary" (onClick)="confirmationDialogVisible = false" size="small" />
-    <p-button label="Confirmer" (onClick)="executeAction(); confirmationDialogVisible = false" size="small" />
+    <p-button label="Non" severity="secondary" (onClick)="confirmationDialogVisible = false" size="small" />
+    <p-button label="Oui" (onClick)="executeAction(); confirmationDialogVisible = false" size="small" />
+  </p-footer>
+</p-dialog>
+
+
+<p-dialog header="Message de Confirmation" [modal]="true" [(visible)]="annulationDialogVisible" [style]="{ width: '30rem' }">
+  <div class="flex align-items-center gap-3 mb-3 my-2">
+    <span>
+      <i class="pi pi-exclamation-triangle mr-2 text-orange-400"></i>
+      Êtes-vous sûr de vouloir annuler le paiement de cette facture ? Cette action est irréversible.
+    </span>
+  </div>
+  <p-footer class="flex justify-content-end gap-2">
+    <p-button label="Non" severity="secondary" (onClick)="annulationDialogVisible = false" size="small" />
+    <p-button label="Oui" (onClick)="annulerReglement(); annulationDialogVisible = false" size="small" />
   </p-footer>
 </p-dialog>
 
@@ -264,7 +279,7 @@
 
   <p-footer class="flex justify-content-end gap-2">
     <p-button label="Annuler" severity="secondary" (onClick)="partielDialogVisible = false" size="small" />
-    <p-button label="Confirmer" severity="success" (onClick)="submitPartielPayment()" size="small" />
+    <p-button label="Confirmer" severity="success" (onClick)="submitPartielPayment() ; partielDialogVisible = false" size="small" />
   </p-footer>
 </p-dialog>
 

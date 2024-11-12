@@ -255,7 +255,7 @@ export class LoginComponent implements OnInit {
             this.loading = false;
           },
           (error) => {
-            this.errorMessage = 'Erreur d\'authentification';
+            this.errorMessage = 'Erreur d\'authentification :';
             this.loading = false;
             this.showErrorViaMessages(this.errorMessage, 1000)
             console.error('Erreur d\'authentification', error);

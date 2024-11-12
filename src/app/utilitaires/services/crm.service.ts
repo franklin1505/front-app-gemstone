@@ -345,6 +345,17 @@ export class CrmService {
     return this.http.post<any>(`${this.reservationUrl}demande-reglement/`, body, { headers });
   }
 
+  mettreEnApproche(reservationId: number): Observable<any> {
+    const token = localStorage.getItem("access_token");
+    const headers = new HttpHeaders({
+      Authorization: `Bearer ${token}`,
+    });
+
+    return this.http.post<any>(`${this.reservationUrl}${reservationId}/start/`, { headers });
+  }
+
+
+
   demanderAnnulation(data: any): Observable<any> {
     const token = localStorage.getItem("access_token");
     const headers = new HttpHeaders({
@@ -488,7 +499,7 @@ export class CrmService {
       Authorization: `Bearer ${token}`,
       'Content-Type': 'application/json'
     });
-    const url = `${this.url}/commission-compensation/${reservationId}/`;
+    const url = `${this.url}commission-compensation/${reservationId}/`;
 
     return this.http.patch(url, data, { headers });
   }
@@ -1181,6 +1192,16 @@ private downloadFile(url: string): void {
     }
 
     return this.http.post<any>(`${this.factureUrl}${id}/changer-type/`, body, { headers });
+  }
+
+
+  annulerReglementFacture(id: number): Observable<any> {
+    const token = localStorage.getItem('access_token');
+    const headers = new HttpHeaders({
+      'Content-Type': 'application/json',
+      'Authorization': `Bearer ${token}`
+    });
+    return this.http.post<any>(`${this.factureUrl}${id}/annuler-reglement/`, { headers });
   }
 
   //   downloadFacturePdf(factureId: number): Observable<Blob> {
@@ -1991,12 +2012,28 @@ private downloadFile(url: string): void {
     return this.http.get<any[]>(this.settingUrl + 'service-client/', { headers });
   }
 
+  getLieuRdv(): Observable<any[]> {
+    const token = localStorage.getItem("access_token");
+    const headers = new HttpHeaders({
+      Authorization: `Bearer ${token}`,
+    });
+    return this.http.get<any[]>(this.settingUrl + 'lieurdv/', { headers });
+  }
+
   addServiceClient(serviceClient: any): Observable<any> {
     const token = localStorage.getItem("access_token");
     const headers = new HttpHeaders({
       Authorization: `Bearer ${token}`,
     });
     return this.http.post<any>(this.settingUrl + 'service-client/', serviceClient, { headers });
+  }
+
+  addLieuRdv(LieuRdv: any): Observable<any> {
+    const token = localStorage.getItem("access_token");
+    const headers = new HttpHeaders({
+      Authorization: `Bearer ${token}`,
+    });
+    return this.http.post<any>(this.settingUrl + 'lieurdv/', LieuRdv, { headers });
   }
 
   // Méthode pour récupérer, mettre à jour et supprimer une entrée du service client par ID
@@ -2006,6 +2043,14 @@ private downloadFile(url: string): void {
       Authorization: `Bearer ${token}`,
     });
     return this.http.get<any>(this.settingUrl + 'service-client/' + id + '/', { headers });
+  }
+
+  getLieuRdvById(id: number): Observable<any> {
+    const token = localStorage.getItem("access_token");
+    const headers = new HttpHeaders({
+      Authorization: `Bearer ${token}`,
+    });
+    return this.http.get<any>(this.settingUrl + 'lieurdv/' + id + '/', { headers });
   }
 
   updateServiceClient(id: number, serviceClient: any): Observable<any> {

@@ -13,10 +13,10 @@
         <form id="formAuthentication" (ngSubmit)="onSubmit()" [formGroup]="loginForm">
 
           <div>
-            <label for="email1" class="block text-900 font-medium mb-2">Email ou
-              Telephone</label>
+            <label for="email1" class="block text-900 font-medium mb-2">Identitifant
+              </label>
             <input id="email1" type="text" pInputText class="w-full w-20rem mb-3"
-              placeholder="Entrer l'email ou le numero" formControlName="email_ou_telephone">
+              placeholder="Entrer l'email" formControlName="email_ou_telephone">
             <!-- Afficher les erreurs du champ email_ou_telephone -->
             <div class="mb-1"
               *ngIf="loginForm.get('email_ou_telephone')?.touched && loginForm.get('email_ou_telephone')?.errors">
@@ -27,7 +27,7 @@
               </div>
               <div *ngIf="loginForm.get('email_ou_telephone')?.hasError('pattern')">
                 <span class="text-red-500">Le format de
-                  l'email ou du numéro est
+                  l'email est
                   incorrect.</span>
               </div>
               <!-- Ajoutez d'autres messages d'erreur au besoin -->

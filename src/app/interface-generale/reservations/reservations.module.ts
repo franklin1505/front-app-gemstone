@@ -40,6 +40,7 @@ import { FieldsetModule } from 'primeng/fieldset';
 import { CardModule } from 'primeng/card';
 import { PanelModule } from 'primeng/panel';
 import { PasswordModule } from 'primeng/password';
+import { AutoCompleteModule } from 'primeng/autocomplete';
 
 
 @NgModule({
@@ -59,7 +60,7 @@ import { PasswordModule } from 'primeng/password';
   imports: [
     CommonModule,CalendarModule,InputGroupModule, InputGroupAddonModule,FloatLabelModule,InplaceModule,InputOtpModule,PanelModule,
     MenuModule, BadgeModule, RippleModule,ButtonModule, AvatarModule,PaginatorModule,FileUploadModule,StepperModule,RatingModule,
-    ReservationsRoutingModule,DropdownModule,FormsModule,ReactiveFormsModule,TagModule,ConfirmPopupModule,DataViewModule,FieldsetModule,
+    ReservationsRoutingModule,DropdownModule,FormsModule,ReactiveFormsModule,TagModule,ConfirmPopupModule,DataViewModule,FieldsetModule,AutoCompleteModule,
     BreadcrumbModule,ToolbarModule,InputTextModule,SplitButtonModule,CheckboxModule,ProgressSpinnerModule,DialogModule,CardModule,PasswordModule,
   ]
 })

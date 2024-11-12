@@ -155,7 +155,8 @@
                         <div *ngFor="let attributCtrl of attributsFormArray.controls; let i = index">
                           <div [formGroupName]="i" class="p-fieldset">
                             <label for="selectpickerBasic" class="form-label">
-                              <strong>{{ attributCtrl.get('nom_attribut')?.value }} ({{ attributCtrl.get('prix_unitaire_attribut')?.value }}€)</strong>
+                              <strong>{{ attributCtrl.get('nom_attribut')?.value }} ({{
+                                attributCtrl.get('prix_unitaire_attribut')?.value }}€)</strong>
                             </label>
                             <div class="flex justify-content-between align-items-center p-inputgroup">
                               <p-button icon="pi pi-minus" pRipple class="p-button-rounded p-button-primary"
@@ -179,7 +180,8 @@
           <!-- Footer Buttons -->
           <div class="flex py-4 gap-2 justify-content-end">
             <p-button size="small" label="Retour" severity="secondary" (onClick)="prevStep(prevCallback)" />
-            <p-button size="small" label="Suivant" *ngIf="currentStep === 2 && selectedVehicule !== null && formSubmitted"
+            <p-button size="small" label="Suivant"
+              *ngIf="currentStep === 2 && selectedVehicule !== null && formSubmitted"
               (onClick)="nextStep(nextCallback); toggleFormVisibility()" />
           </div>
         </ng-template>
@@ -219,8 +221,20 @@
                       <!-- Lieu Rendez-vous -->
                       <div class="field col-12 lg:col-6">
                         <label for="lieu_rendez_vous" class="form-label">Lieu de Rendez-vous</label>
-                        <input pInputText type="text" id="lieu_rendez_vous" formControlName="lieu_rendez_vous"
-                          placeholder="Lieu de RDV chauffeur-client" (focus)="Autocomplete()"/>
+                        <p-autoComplete id="lieu_rendez_vous" formControlName="lieu_rendez_vous"
+                          [suggestions]="filteredLieuRdv" (completeMethod)="filterLieuRdv($event)" field="address"
+                          [forceSelection]="false" [dropdown]="true" [appendTo]="'body'" (onClear)="onLieuRdvClear()"
+                          (onSelect)="onLieuRdvSelect($event)" placeholder="Saisissez le lieu de rendez-vous">
+                          <ng-template let-suggestion pTemplate="item">
+                            <div class="suggestion-item">
+                              <span *ngIf="!suggestion.isNew">{{ suggestion.address }}</span>
+                              <span *ngIf="suggestion.isNew" class="ajouter-nouveau-lieu">
+                                <i class="pi pi-plus"></i> Ajouter "{{ suggestion.address }}"
+                              </span>
+                            </div>
+                          </ng-template>
+
+                        </p-autoComplete>
                       </div>
 
                       <!-- Numero de Vol/Train -->
@@ -531,7 +545,8 @@
                 </div>
                 <div class="booking-detail">
                   <div class="my-1 mx-2">
-                    <strong>Date et Heure :</strong> {{ reservationData?.datePriseEnCharge | date: 'dd MMM yyyy à HH:mm'||"" }}
+                    <strong>Date et Heure :</strong> {{ reservationData?.datePriseEnCharge | date: 'dd MMM yyyy à
+                    HH:mm'||"" }}
                   </div>
                   <div class="my-1 mx-2">
                     <strong>Départ :</strong> {{ reservationData?.lieuxPriseEnCharge || " " }}
@@ -540,7 +555,8 @@
                     <strong>Destination :</strong> {{ reservationData?.lieuxDestination || "" }}
                   </div>
                   <div class="my-1 mx-2" *ngIf="vehiculeData">
-                    <strong>Vehicule :</strong> {{ vehiculeData.marque}} {{vehiculeData.modele}}({{vehiculeData.typeVehicule}})
+                    <strong>Vehicule :</strong> {{ vehiculeData.marque}}
+                    {{vehiculeData.modele}}({{vehiculeData.typeVehicule}})
                   </div>
                   <div class="my-1 mx-2" *ngIf="reservationData?.lieu_rendez_vous">
                     <strong>Lieu de rendez-vous :</strong> {{ reservationData?.lieu_rendez_vous}}
@@ -563,6 +579,17 @@
                     <span>
                       {{ reservationData?.coutTransport | currency:'EUR':'symbol':'1.2-2' }}
                     </span>
+                  </div>
+                  <div class="my-1 mx-2">
+                      <ng-container
+                        *ngIf="reservationData?.compensation != null && reservationData?.compensation !== 0; else afficherCommission">
+                        <strong>Compensation :</strong>
+                        <span>{{ reservationData?.compensation | currency:'EUR':'symbol':'1.2-2' }}</span>
+                      </ng-container>
+                      <ng-template #afficherCommission>
+                        <strong>Commission :</strong>
+                        <span>{{ reservationData?.commission }}% </span>
+                      </ng-template>
                   </div>
 
                   <div class="my-1 mx-2" *ngIf="reservationData?.totalAttributCost > 0">
@@ -605,8 +632,8 @@
                     </div>
 
                     <div class="py-2 ">
-                      <p-button [label]="isContentVisible ? 'Voir moins' : 'Voir plus'"
-                      (click)="toggleVisibility()" size="small" [text]="true" severity="secondary" />
+                      <p-button [label]="isContentVisible ? 'Voir moins' : 'Voir plus'" (click)="toggleVisibility()"
+                        size="small" [text]="true" severity="secondary" />
                     </div>
                   </div>
                 </div>
