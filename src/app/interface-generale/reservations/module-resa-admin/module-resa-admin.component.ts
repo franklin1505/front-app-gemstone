@@ -28,6 +28,7 @@ export class ModuleResaAdminComponent implements OnInit {
   directionsRenderer: any;
   startMarker: any;
   endMarker: any;
+
   estimationForm: FormGroup;
   travelType: string = 'allerSimple';
   formSubmitted = false;
@@ -85,6 +86,7 @@ export class ModuleResaAdminComponent implements OnInit {
   lieuRdvList: LieuRdv[] = [];
   filteredLieuRdv: LieuRdv[] = [];
   lieuRdvInput: string = '';
+  isEditingTarif: boolean = false;
 
   constructor(
     private fb: FormBuilder,
@@ -345,9 +347,14 @@ export class ModuleResaAdminComponent implements OnInit {
   }
 
   getPrixReservation(vehiculeId: number): number {
+    const vehicule = this.vehicules.find(v => v.id === vehiculeId);
+    if (vehicule && vehicule.tarifFinal) {
+      return vehicule.tarifFinal; // Utiliser le tarif personnalisé si défini
+    }
     const estimate = this.transportEstimates.find((e: { vehicule: number; }) => e.vehicule === vehiculeId);
     return estimate ? estimate.cout : 0;
   }
+
 
   isForValidation(): boolean {
     return (
@@ -566,9 +573,8 @@ export class ModuleResaAdminComponent implements OnInit {
         this.capacitePassagers = parseInt(this.selectedEstimation.capacite_passagers, 10);
       }
 
-      if (this.currentStep === 2 && this.selectedVehicule !== null && this.formSubmitted) {
-        this.cardVisibility[1] = true;
-      }
+      // Recalculer les coûts avec le tarif personnalisé
+      this.calculateTotalCost();
     } else {
       this.form.patchValue({
         typeVehicule: null,
@@ -581,6 +587,7 @@ export class ModuleResaAdminComponent implements OnInit {
 
     this.cdr.detectChanges();
   }
+
 
   formatTypeBagages(type: string): string {
     switch (type) {
@@ -1425,5 +1432,23 @@ export class ModuleResaAdminComponent implements OnInit {
         console.error('Erreur lors de l\'ajout du lieu de rendez-vous:', error);
       }
     );
+  }
+
+
+  editTarif(vehicule: any): void {
+    this.isEditingTarif = true; // Active le mode édition
+  }
+
+  updateTarif(vehicule: any): void {
+    this.isEditingTarif = false; // Désactive le mode édition
+    if (vehicule.tarifModifie) {
+      // Met à jour le tarif dans le modèle
+      vehicule.tarifFinal = vehicule.tarifModifie; // Tarif personnalisé
+    } else {
+      vehicule.tarifFinal = this.getPrixReservation(vehicule.id); // Revenir au tarif par défaut
+    }
+
+    // Recalculer le coût total si besoin
+    this.calculateTotalCost();
   }
 }

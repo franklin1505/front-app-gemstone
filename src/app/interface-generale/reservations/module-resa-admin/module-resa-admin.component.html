@@ -131,12 +131,32 @@
                                 <div class="text-lg font-medium text-900 mt-1">{{ vehicule.modele }}</div>
                               </div>
                               <div class="flex flex-column gap-3 md:align-items-end">
-                                <span class="text-xl font-semibold text-900">{{ getPrixReservation(vehicule.id) |
-                                  currency:'EUR':'symbol':'1.2-2' }}</span>
-                                <p-button icon="pi pi-check" size="small" label="Choisir"
+                                <span class="text-xl font-semibold text-900">
+                                  {{ vehicule.tarifModifie || getPrixReservation(vehicule.id) | currency:'EUR':'symbol':'1.2-2' }}
+                                  <i
+                                    class="pi pi-pencil text-secondary ml-2 cursor-pointer"
+                                    *ngIf="selectedVehicule === vehicule"
+                                    (click)="editTarif(vehicule)"
+                                  ></i>
+                                </span>
+                                <div *ngIf="isEditingTarif && vehicule === selectedVehicule">
+                                  <input
+                                    type="number"
+                                    [(ngModel)]="vehicule.tarifModifie"
+                                    class="p-inputtext p-component text-center w-6rem"
+                                    (blur)="updateTarif(vehicule)"
+                                    placeholder="Tarif"
+                                  />
+                                </div>
+                                <p-button
+                                  icon="pi pi-check"
+                                  size="small"
+                                  label="Choisir"
                                   [severity]="isSelected(vehicule) ? 'warning' : 'primary'"
-                                  (onClick)="toggleSelection(vehicule)" />
+                                  (onClick)="toggleSelection(vehicule)"
+                                ></p-button>
                               </div>
+
                             </div>
                           </div>
                         </div>
@@ -545,8 +565,7 @@
                 </div>
                 <div class="booking-detail">
                   <div class="my-1 mx-2">
-                    <strong>Date et Heure :</strong> {{ reservationData?.datePriseEnCharge | date: 'dd MMM yyyy à
-                    HH:mm'||"" }}
+                    <strong>Date et Heure :</strong> {{ reservationData?.datePriseEnCharge | date: 'dd MMM yyyy à HH:mm' }}
                   </div>
                   <div class="my-1 mx-2">
                     <strong>Départ :</strong> {{ reservationData?.lieuxPriseEnCharge || " " }}
